@@ -1,0 +1,16 @@
+
+
+
+Updates for sched vers dated 2020-05-27:
+
+  REMOVE:   Eric Idle         Mar 27, 2020 1pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  REMOVE:   Graham Chapman    Mar 27, 2020 1pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  REMOVE:   Michael Palin     Mar 27, 2020 1pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  REMOVE:   Terry Gilliam     Mar 27, 2020 8am    AM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  REMOVE:   Terry Gilliam     Mar 27, 2020 1pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  REMOVE:   Terry Jones       Mar 27, 2020 1pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+  ADD:      Terry Gilliam     May 21, 2021 2pm    PM: IHS Continuity Clinic        [compare ver: 2020-05-26]
+
+
+Updates for sched vers dated 2020-05-28: NO CHANGES
+

@@ -1,0 +1,37 @@
+*.py[cod]
+
+~/.pyirc
+
+# Unit test / coverage reports
+.tox
+
+# mypy
+.mypy_cache/
+
+# vim temp files
+*.swp
+
+# build folders
+build/
+dist/
+docs/
+*.egg-info/
+cache/
+
+# pytest support folders
+.pytest_cache/
+
+# VSCode folders
+.vscode/
+
+# venv folder(s)
+venv/
+env/
+
+# misc
+.DS_store
+.idea/
+scrap/
+__pycache__/
+tmp/
+.cache/
