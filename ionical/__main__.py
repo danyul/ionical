@@ -238,24 +238,28 @@ def cli():
         )
 
     if args.peoplefile:
+        using_default = args.peoplefile == DEF_JSON
         try:
+            lab = "DEFAULT " if using_default else ""
+            print(f"\nAttempting to use {lab}listings file: {args.peoplefile}")
             with open(args.peoplefile, "r", encoding="utf-8") as f:
                 people_tuples = json.loads(f.read())
-            print("\nUsing listings file: " + f"{args.peoplefile}")
         except FileNotFoundError:
             print(f"\nCould not find file {args.peoplefile}.")
-            question: str = "Would you like to create this file"
-            " and populate it with sample data, which can "
-            " then be edited to meet your needs?"
-            if query_yes_no(question):
-                print("\nOK, attempting to create file...\n")
-                with open(args.peoplefile, "w", encoding="utf-8") as f:
-                    f.write(DEF_SAMPLE_CALENDAR_LISTING_JSON)
-                    print("File created.\nYou could try running:\n"
-                    "'ionical -g' to download the latest .ics files, then\n"
-                    "'ionical -s' to show future scheduled events.\n")
-            else:
-                print("OK, you'll need to specify a data file.")
+            if using_default:
+                question: str = "Would you like to create this file"
+                " and populate it with sample data, which can "
+                " then be edited to meet your needs?"
+                if query_yes_no(question):
+                    print("\nOK, attempting to create file...\n")
+                    with open(args.peoplefile, "w", encoding="utf-8") as f:
+                        f.write(DEF_SAMPLE_CALENDAR_LISTING_JSON)
+                        print("File created.\nYou could try running:\n"
+                        "'ionical -g' to download the latest .ics files, then\n"
+                        "'ionical -s' to show future scheduled events.\n")
+                else:
+                    print("OK, you'll need to specify a data file.")
+            print("Quitting.\n")
             sys.exit(1)
     else:
         print("\nYou must provide a valid people file.")
