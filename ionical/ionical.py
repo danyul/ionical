@@ -184,8 +184,8 @@ class MonitoredEventData:
 
     def display(
         self,
-        date_fmt=None,
-        time_fmt=None,
+        date_fmt = "%Y-%m-%d",
+        time_fmt = "%H:%M:%S",
         schedule_summary_line=None,
         shift_str_template=None,
         time_replacements=None,
@@ -194,12 +194,6 @@ class MonitoredEventData:
 
         if schedule_summary_line is None:
             schedule_summary_line = "Start: {:12}   Time: {:12} {}  {}"
-
-        if date_fmt is None:
-            date_fmt = "%Y-%m-%d"
-
-        if time_fmt is None:
-            time_fmt = "%H:%M:%S"
 
         date_str = self.forced_date.strftime(date_fmt)
         time_str = (
