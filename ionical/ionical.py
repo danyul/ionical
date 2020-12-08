@@ -328,9 +328,10 @@ class Schedule:
     ) -> str:
         if filters is None:
             filters = []
-        header = f"\n\nSchedule for: {self.person.name}"
+        tz = pytz.timezone(self.person.timezone)
+        header = f"\n\nSchedule for {self.person.name} ({tz})"
         if version_date:
-            header += f"   (Sched version date: {version_date})"
+            header += f" [version {version_date}]:"
         header += "\n\n"
         body = "\n".join(
             [

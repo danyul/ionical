@@ -10,16 +10,31 @@ DEF_JSON = "./ionical_monitor_list.json"
 DEF_CONVERSION_TABLE_FILE = "./ionical_csv_conversions.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
-
-# TODO: GET THESE OUTTA HERE (TIMEZONE, etc)
-TIMEZONE = "US/Mountain"
-
 DEF_SAMPLE_CALENDAR_LISTING_JSON = """
 [
-["NASA", "NASA Launch Schedule",   "http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics", "US/Mountain"],
-["BMI", "BMI Events Calendar",  "http://bmi.com/events/ical", "US/Mountain"]
+  [
+      "NASA", 
+      "NASA Launch Schedule",   
+      "http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics", 
+      "US/Pacific"
+  ],
+  [
+      "BMI", 
+      "BMI Events Calendar",  
+      "http://bmi.com/events/ical", 
+      "US/Eastern"]
 ]
 """
+ICS_FILENAME_MSG = (
+    f"\n\n     {'*'*70}\n"
+    + "\n        NOTE: "
+    + ".ics filenames will/should have format 123__20200314.ics"
+    + "\n             "
+    + "where 123 is an identifier corresponding to a particular"
+    + "\n             "
+    + "person/entity and 20200314 is the date file was generated.\n"
+    + f"\n     {'*'*70}\n"
+)
 
 
 def valid_date(s):
@@ -110,7 +125,7 @@ def cli():
         "Changelog Options (only applicable if -l argument also given)"
     )
     csv_options = parser.add_argument_group(
-        "CSV Options (ALPHA/EXPERIMENTAL). Only applicable if -c specified"
+        "CSV Options (alpha/experimental). Only applicable if -c specified"
     )
 
     help_options.add_argument(
@@ -220,6 +235,36 @@ def cli():
     if args.help:
         parser.print_help()
         sys.exit(1)
+    if args.peoplefile:
+        using_default = args.peoplefile == DEF_JSON
+        try:
+            lab = "DEFAULT " if using_default else ""
+            print(f"\nAttempting to use {lab}listings file: {args.peoplefile}")
+            with open(args.peoplefile, "r", encoding="utf-8") as f:
+                people_tuples = json.loads(f.read())
+        except FileNotFoundError:
+            print(f"\nCould not find file {args.peoplefile}.")
+            if using_default:
+                question: str = "Would you like to create this file"
+                " and populate it with sample data, which can "
+                " then be edited to meet your needs?"
+                if query_yes_no(question):
+                    print("\nOK, attempting to create file...\n")
+                    with open(args.peoplefile, "w", encoding="utf-8") as f:
+                        f.write(DEF_SAMPLE_CALENDAR_LISTING_JSON)
+                        print(
+                            "File created.\nYou could try running:\n"
+                            "'ionical -g' to download the latest .ics files, then\n"
+                            "'ionical -s' to show future scheduled events.\n"
+                        )
+                else:
+                    print("OK, you'll need to specify a data file.")
+            print("Quitting.\n")
+            sys.exit(1)
+    else:
+        print("\nYou must provide a valid people file.")
+        parser.print_help()
+        sys.exit(1)
     if args.daysback:
         if isinstance(args.daysback, date):
             earliest_date = args.daysback
@@ -230,37 +275,11 @@ def cli():
             latest_date = args.daysahead
         else:  # it's an int
             latest_date = today + timedelta(days=args.daysahead)
-
     if args.gettoday:
         print(
             "\nWill download today's ics files to directory: "
             + f"{args.directory}"
         )
-
-    if args.peoplefile:
-        try:
-            with open(args.peoplefile, "r", encoding="utf-8") as f:
-                people_tuples = json.loads(f.read())
-            print("\nUsing listings file: " + f"{args.peoplefile}")
-        except FileNotFoundError:
-            print(f"\nCould not find file {args.peoplefile}.")
-            question: str = "Would you like to create this file"
-            " and populate it with sample data, which can "
-            " then be edited to meet your needs?"
-            if query_yes_no(question):
-                print("\nOK, attempting to create file...\n")
-                with open(args.peoplefile, "w", encoding="utf-8") as f:
-                    f.write(DEF_SAMPLE_CALENDAR_LISTING_JSON)
-                    print("File created.\nYou could try running:\n"
-                    "'ionical -g' to download the latest .ics files, then\n"
-                    "'ionical -s' to show future scheduled events.\n")
-            else:
-                print("OK, you'll need to specify a data file.")
-            sys.exit(1)
-    else:
-        print("\nYou must provide a valid people file.")
-        parser.print_help()
-        sys.exit(1)
 
     csv_conversion_dict = {}
     if args.csvfile:
@@ -280,17 +299,9 @@ def cli():
             )
 
     if not any([args.schedule, args.changelog, args.gettoday, args.csvfile]):
-        parser.print_help()
-
         print(
-            f"\n\n     {'*'*70}\n"
-            + "\n        NOTE: "
-            + ".ics filenames will/should have format 123__20200314.ics"
-            "\n             "
-            + "where 123 is an identifier corresponding to a particular"
-            "\n             "
-            + "person/entity and 20200314 is the date file was generated.\n"
-            + f"\n     {'*'*70}\n"
+            "You MUST specify at least one of the Main Operations.\n"
+            + "\nRun ionical -h for details.\nQuitting...\n"
         )
         sys.exit(1)
 
@@ -315,7 +326,6 @@ def cli():
         filters=args.filters,
         csv_file=args.csvfile,
         include_empty_dates=True,
-        timezone=TIMEZONE,
         conversion_table=csv_conversion_dict,
         num_changelog_lookbacks=args.num_lookbacks,
         date_fmt=date_fmt,

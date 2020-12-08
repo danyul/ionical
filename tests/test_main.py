@@ -10,8 +10,6 @@ base_dir = "./"
 
 from ionical.ionical import main
 
-TIMEZONE = "US/Mountain"
-
 CONVERSION_TABLE = {
     "PM: IHS Continuity Clinic": "C",
     "AM: IHS Continuity Clinic": "C",
