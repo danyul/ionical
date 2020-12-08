@@ -25,6 +25,16 @@ DEF_SAMPLE_CALENDAR_LISTING_JSON = """
       "US/Eastern"]
 ]
 """
+ICS_FILENAME_MSG = (
+    f"\n\n     {'*'*70}\n"
+    + "\n        NOTE: "
+    + ".ics filenames will/should have format 123__20200314.ics"
+    + "\n             "
+    + "where 123 is an identifier corresponding to a particular"
+    + "\n             "
+    + "person/entity and 20200314 is the date file was generated.\n"
+    + f"\n     {'*'*70}\n"
+)
 
 
 def valid_date(s):
@@ -115,7 +125,7 @@ def cli():
         "Changelog Options (only applicable if -l argument also given)"
     )
     csv_options = parser.add_argument_group(
-        "CSV Options (ALPHA/EXPERIMENTAL). Only applicable if -c specified"
+        "CSV Options (alpha/experimental). Only applicable if -c specified"
     )
 
     help_options.add_argument(
@@ -225,23 +235,6 @@ def cli():
     if args.help:
         parser.print_help()
         sys.exit(1)
-    if args.daysback:
-        if isinstance(args.daysback, date):
-            earliest_date = args.daysback
-        else:  # it's an int
-            earliest_date = today - timedelta(days=args.daysback)
-    if args.daysahead:
-        if isinstance(args.daysahead, date):
-            latest_date = args.daysahead
-        else:  # it's an int
-            latest_date = today + timedelta(days=args.daysahead)
-
-    if args.gettoday:
-        print(
-            "\nWill download today's ics files to directory: "
-            + f"{args.directory}"
-        )
-
     if args.peoplefile:
         using_default = args.peoplefile == DEF_JSON
         try:
@@ -272,6 +265,21 @@ def cli():
         print("\nYou must provide a valid people file.")
         parser.print_help()
         sys.exit(1)
+    if args.daysback:
+        if isinstance(args.daysback, date):
+            earliest_date = args.daysback
+        else:  # it's an int
+            earliest_date = today - timedelta(days=args.daysback)
+    if args.daysahead:
+        if isinstance(args.daysahead, date):
+            latest_date = args.daysahead
+        else:  # it's an int
+            latest_date = today + timedelta(days=args.daysahead)
+    if args.gettoday:
+        print(
+            "\nWill download today's ics files to directory: "
+            + f"{args.directory}"
+        )
 
     csv_conversion_dict = {}
     if args.csvfile:
@@ -291,17 +299,9 @@ def cli():
             )
 
     if not any([args.schedule, args.changelog, args.gettoday, args.csvfile]):
-        parser.print_help()
-
         print(
-            f"\n\n     {'*'*70}\n"
-            + "\n        NOTE: "
-            + ".ics filenames will/should have format 123__20200314.ics"
-            "\n             "
-            + "where 123 is an identifier corresponding to a particular"
-            "\n             "
-            + "person/entity and 20200314 is the date file was generated.\n"
-            + f"\n     {'*'*70}\n"
+            "You MUST specify at least one of the Main Operations.\n"
+            + "\nRun ionical -h for details.\nQuitting...\n"
         )
         sys.exit(1)
 
