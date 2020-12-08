@@ -10,10 +10,6 @@ DEF_JSON = "./ionical_monitor_list.json"
 DEF_CONVERSION_TABLE_FILE = "./ionical_csv_conversions.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
-
-# TODO: GET THESE OUTTA HERE (TIMEZONE, etc)
-TIMEZONE = "US/Mountain"
-
 DEF_SAMPLE_CALENDAR_LISTING_JSON = """
 [
 ["NASA", "NASA Launch Schedule",   "http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics", "US/Mountain"],
@@ -254,9 +250,11 @@ def cli():
                     print("\nOK, attempting to create file...\n")
                     with open(args.peoplefile, "w", encoding="utf-8") as f:
                         f.write(DEF_SAMPLE_CALENDAR_LISTING_JSON)
-                        print("File created.\nYou could try running:\n"
-                        "'ionical -g' to download the latest .ics files, then\n"
-                        "'ionical -s' to show future scheduled events.\n")
+                        print(
+                            "File created.\nYou could try running:\n"
+                            "'ionical -g' to download the latest .ics files, then\n"
+                            "'ionical -s' to show future scheduled events.\n"
+                        )
                 else:
                     print("OK, you'll need to specify a data file.")
             print("Quitting.\n")
@@ -319,7 +317,6 @@ def cli():
         filters=args.filters,
         csv_file=args.csvfile,
         include_empty_dates=True,
-        timezone=TIMEZONE,
         conversion_table=csv_conversion_dict,
         num_changelog_lookbacks=args.num_lookbacks,
         date_fmt=date_fmt,
