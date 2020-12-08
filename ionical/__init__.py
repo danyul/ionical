@@ -1,3 +1,3 @@
 """ionical provides command line tools for ics management"""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
