@@ -1,0 +1,383 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:BMI Event Calendar
+PRODID:-//BMI/ Events//NONSGML v1.0//EN
+X-WR-TIMEZONE:US/Eastern
+BEGIN:VEVENT
+UID:584790
+DTSTAMP:20201111T200000Z
+DTSTART;VALUE=DATE:20201111T120001
+DTEND;VALUE=DATE:20201111T120002
+SUMMARY:54th Annual CMA Awards
+DESCRIPTION:The 54th Annual CMA Awards will air live on the ABC Television Network at 8 PM EST.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584902
+DTSTAMP:20201119T120000Z
+DTSTART;VALUE=DATE:20201119T120001
+DTEND;VALUE=DATE:20201119T120002
+SUMMARY:BMI 101 Workshop: ONLINE
+DESCRIPTION:\n\nTo keep with BMI’s tradition to connect with our next generation of writers and publishers, the BMI 101 Workshop will now take place online. This one-hour introductory workshop, hosted by BMI's Katie Kilgallen, will cover the role that BMI plays in the music industry, basics of performing rights, and becoming a BMI affiliate. This online event will take place monthly, 12:00-1:00 PM EST.\n\n \n\nClick here to register RSVP.\n\n \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584954
+DTSTAMP:20201119T150000Z
+DTSTART;VALUE=DATE:20201119T120001
+DTEND;VALUE=DATE:20201119T120002
+SUMMARY:BMI "Know Them Now" Experience: ONLINE
+DESCRIPTION:Watch exclusively on BMI.com the BMI "Know Them Now Experience - R&B Edition" at 3:00 PM EST.\n\nTo learn more about the artists, click here\n\n\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584796
+DTSTAMP:20201119T200000Z
+DTSTART;VALUE=DATE:20201119T120001
+DTEND;VALUE=DATE:20201119T120002
+SUMMARY:21st Annual Latin Grammy Awards
+DESCRIPTION:The 21st Annual Latin GRAMMY® Awards will be broadcast live on Univision Network at 8:00 PM ET/PT.\n\nFor more information about The Latin Recording Academy, click here.\n\n \n\n \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584956
+DTSTAMP:20201121T063000Z
+DTSTART;VALUE=DATE:20201121T120001
+DTEND;VALUE=DATE:20201121T120002
+SUMMARY:The Ultimate Seminar 2020: VIRTUAL
+DESCRIPTION:Cre8ing Vision's "Ultimate Seminar 2020" will take place virtually, November 21 & 22 @ 11:30AM GMT. Click here to register and for more information.\n\n\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584957
+DTSTAMP:20201122T063000Z
+DTSTART;VALUE=DATE:20201122T120001
+DTEND;VALUE=DATE:20201122T120002
+SUMMARY:The Ultimate Seminar 2020: VIRTUAL
+DESCRIPTION:Cre8ing Vision's "Ultimate Seminar 2020" will take place virtually, November 21 & 22 @ 11:30AM GMT.  Click here to register and for more information.\n\n\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584965
+DTSTAMP:20201130T120000Z
+DTSTART;VALUE=DATE:20201130T120001
+DTEND;VALUE=DATE:20201130T120002
+SUMMARY:Variety Music for Screens Week: VIRTUAL
+DESCRIPTION:BMI is a proud sponsor of the Variety Music for Screens Summit 2020, which will be all-digital over four days, November 30-December 3. \n\nJoin BMI's Mike Steinberg, EVP Creative & Licensing, on December 3rd, 10:15-10:45 a.m. PST for the "Keynote Conversation with Trent Reznor and Atticus Ross," as they discuss their creative process in composing current films Mank and Soul. Shirley Halperin, Executive Editor, Music, Variety will lead the interview.\n\nClick here to register\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584966
+DTSTAMP:20201201T120000Z
+DTSTART;VALUE=DATE:20201201T120001
+DTEND;VALUE=DATE:20201201T120002
+SUMMARY:Variety Music for Screens Week: VIRTUAL
+DESCRIPTION:BMI is a proud sponsor of the Variety Music for Screens Summit 2020, which will be all-digital over four days, November 30-December 3. \n\nJoin BMI's Mike Steinberg, EVP Creative & Licensing, on December 3rd, 10:15-10:45 a.m. PST for the "Keynote Conversation with Trent Reznor and Atticus Ross," as they discuss their creative process in composing current films Mank and Soul. Shirley Halperin, Executive Editor, Music, Variety will lead the interview.\n\nClick here to register\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584924
+DTSTAMP:20201201T123000Z
+DTSTART;VALUE=DATE:20201201T120001
+DTEND;VALUE=DATE:20201201T120002
+SUMMARY:BMI/Cliff Goldmacher Workshop: ONLINE
+DESCRIPTION:\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584967
+DTSTAMP:20201202T120000Z
+DTSTART;VALUE=DATE:20201202T120001
+DTEND;VALUE=DATE:20201202T120002
+SUMMARY:Variety Music for Screens Week: VIRTUAL
+DESCRIPTION:BMI is a proud sponsor of the Variety Music for Screens Summit 2020, which will be all-digital over four days, November 30-December 3. \n\nJoin BMI's Mike Steinberg, EVP Creative & Licensing, on December 3rd, 10:15-10:45 a.m. PST for the "Keynote Conversation with Trent Reznor and Atticus Ross," as they discuss their creative process in composing current films Mank and Soul. Shirley Halperin, Executive Editor, Music, Variety will lead the interview.\n\nClick here to register\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584968
+DTSTAMP:20201203T120000Z
+DTSTART;VALUE=DATE:20201203T120001
+DTEND;VALUE=DATE:20201203T120002
+SUMMARY:Variety Music for Screens Week: VIRTUAL
+DESCRIPTION:BMI is a proud sponsor of the Variety Music for Screens Summit 2020, which will be all-digital over four days, November 30-December 3. \n\nJoin BMI's Mike Steinberg, EVP Creative & Licensing, on December 3rd, 10:15-10:45 a.m. PST for the "Keynote Conversation with Trent Reznor and Atticus Ross," as they discuss their creative process in composing current films Mank and Soul. Shirley Halperin, Executive Editor, Music, Variety will lead the interview.\n\nClick here to register\n\n\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584971
+DTSTAMP:20201208T173000Z
+DTSTART;VALUE=DATE:20201208T120001
+DTEND;VALUE=DATE:20201208T120002
+SUMMARY:California Copyright Conference: WEBINAR
+DESCRIPTION:California Copyright Conference presents "The Union Intersection With Music: A Primer," moderated by Garrett M. Johnson, Esq. and Jeffrey Izzo (Asst. Prof., Mike Curb Endowed Chair of Music Industry Studies, Department of Music, California State University Northridge), taking place via Zoom Webinar at 2:30-3:30 PM PST.\n\nPanelists: John Acosta (President, AFM Local 47) and Talin Galoosian (Counsel, SAG-AFTRA). Additional panelists TBD!\n\nZoom Registration: click here. \n\nCCC Members $0 | Non-members $5 \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584121
+DTSTAMP:20201221T084300Z
+DTSTART;VALUE=DATE:20201221T120001
+DTEND;VALUE=DATE:20201221T120002
+SUMMARY:BMI Live Deadline
+DESCRIPTION:Deadline to enter performances between April 1, 2020 and September 30, 2020 for payment in March 2021.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584261
+DTSTAMP:20210112T140000Z
+DTSTART;VALUE=DATE:20210112T120001
+DTEND;VALUE=DATE:20210112T120002
+SUMMARY:Jason Blume Songwriting Workshop: ONLINE
+DESCRIPTION:Jason will teach a specific songwriting tool and will provide an in-depth critique for each attendee. Songs and lyrics must be submitted a minimum of one week prior to the Workshop. Selected songs will be forwarded to up to (10) publishers.\n\n$55 Registration Fee / Contact Neil at JBSongdoc@gmail.com with any questions.\n\nRegistration opens December 12th at 2:00 PM (CST)\n\nVisit jasonblume.com for more information on this Workshop.\n\n \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584972
+DTSTAMP:20210112T173000Z
+DTSTART;VALUE=DATE:20210112T120001
+DTEND;VALUE=DATE:20210112T120002
+SUMMARY:California Copyright Conference: WEBINAR
+DESCRIPTION:California Copyright Conference presents "Copyright Terminations: Taking Back The Song," (Sponsored by Exploration, Sound Royalties, and Allan Law Group), moderated by Sherry Orson (Chief Creative Officer, Star Vibe Group) and Reggie Calloway (Director of Music Royalty Funding, Sound Royalties), taking place via Zoom Webinar at 2:30-3:30 PM PST.\n\nPanelists: Brian Tinkham, Esq. (Copyright Attorney, Allan Law Group) and Julia Riva (CEO, Harry Warren Entertainment)\n\nZoom registration link coming soon. \n\nCCC Members $0 | Non-members $5 \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584969
+DTSTAMP:20210113T190000Z
+DTSTART;VALUE=DATE:20210113T120001
+DTEND;VALUE=DATE:20210113T120002
+SUMMARY:Jason Blume Songwriting Workshop: ONLINE
+DESCRIPTION:Jason Blume Online BMI Songwriting Workshops will be on January 12th and January 13th. You can only sign up for one class.\n\nJason will teach a specific songwriting tool and will provide an in-depth critique for each attendee. Songs and lyrics must be submitted a minimum of one week prior to the Workshop. Selected songs will be forwarded to up to (10) publishers.\n\n$55 Registration Fee / Contact Neil at JBSongdoc@gmail.com with any questions.\n\nRegistration opens December 12th at 2:00 PM (CST)\n\nVisit jasonblume.com for more information on this Workshop.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584127
+DTSTAMP:20210115T101500Z
+DTSTART;VALUE=DATE:20210115T120001
+DTEND;VALUE=DATE:20210115T120002
+SUMMARY:Royalty Payment
+DESCRIPTION:Royalty Payment for 2nd Quarter 2020\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584896
+DTSTAMP:20210216T090000Z
+DTSTART;VALUE=DATE:20210216T120001
+DTEND;VALUE=DATE:20210216T120002
+SUMMARY:CRS 2021: A Virtual Experience
+DESCRIPTION:CRS 2021 - February 16-19, will be a virtual experience, including the CRS Artist Interview with Luke Bryan, sponsored by BMI. \n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584897
+DTSTAMP:20210217T090000Z
+DTSTART;VALUE=DATE:20210217T120001
+DTEND;VALUE=DATE:20210217T120002
+SUMMARY:CRS 2021: A Virtual Experience
+DESCRIPTION:CRS 2021 - February 16-19, will be a virtual experience, including the CRS Artist Interview with Luke Bryan, sponsored by BMI. \n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584898
+DTSTAMP:20210218T090000Z
+DTSTART;VALUE=DATE:20210218T120001
+DTEND;VALUE=DATE:20210218T120002
+SUMMARY:CRS 2021: A Virtual Experience
+DESCRIPTION:CRS 2021 - February 16-19, will be a virtual experience, including the CRS Artist Interview with Luke Bryan, sponsored by BMI. \n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584899
+DTSTAMP:20210219T090000Z
+DTSTART;VALUE=DATE:20210219T120001
+DTEND;VALUE=DATE:20210219T120002
+SUMMARY:CRS 2021: A Virtual Experience
+DESCRIPTION:CRS 2021 - February 16-19, will be a virtual experience, including the CRS Artist Interview with Luke Bryan, sponsored by BMI. \n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584753
+DTSTAMP:20210228T200000Z
+DTSTART;VALUE=DATE:20210228T120001
+DTEND;VALUE=DATE:20210228T120002
+SUMMARY:Golden Globe Awards: Los Angeles
+DESCRIPTION:The 78th Annual Golden Globe Awards will air live coast-to-coast from 5:00-8:00 PM PT / 8:00-11:00 PM ET on NBC, from The Beverly Hilton in Beverly Hills, CA.\n\n \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584442
+DTSTAMP:20210319T101500Z
+DTSTART;VALUE=DATE:20210319T120001
+DTEND;VALUE=DATE:20210319T120002
+SUMMARY:Royalty Payment
+DESCRIPTION:Royalty Payment for 3rd Quarter 2020\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584653
+DTSTAMP:20210331T084300Z
+DTSTART;VALUE=DATE:20210331T120001
+DTEND;VALUE=DATE:20210331T120002
+SUMMARY:BMI Live Deadline
+DESCRIPTION:Deadline to enter performances between July 1, 2020 and December 31, 2020 for payment in June 2021.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584262
+DTSTAMP:20210406T120000Z
+DTSTART;VALUE=DATE:20210406T120001
+DTEND;VALUE=DATE:20210406T120002
+SUMMARY:Jason Blume Songwriting Workshop: Nashville
+DESCRIPTION:Selected songs will be forwarded to (10) publishers.\n\n$45 Registration Fee / Contact Neil at JBSongdoc@gmail.com with any questions.\n\nCheck-in for this Workshop will be in the BMI lobby (10 Music Square East, Nashville, TN).  All participants MUST check in by 11:45am at the latest, or your spot will be given away to those on the waiting list. There is no exception; the Workshop starts promptly at 12:30 and doors will be closed at that time. \n\nVisit jasonblume.com to register and for more information on this Workshop.\n\nPlease arrive at 11:45 am.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584298
+DTSTAMP:20210408T120000Z
+DTSTART;VALUE=DATE:20210408T120001
+DTEND;VALUE=DATE:20210408T120002
+SUMMARY:French Quarter Festival: New Orleans
+DESCRIPTION:The French Quarter Festival will highlight New Orleans signature music, food, and culture April 8-11, 2021, in the historic neighborhood.\n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584088
+DTSTAMP:20210409T110000Z
+DTSTART;VALUE=DATE:20210409T120001
+DTEND;VALUE=DATE:20210409T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584299
+DTSTAMP:20210409T120000Z
+DTSTART;VALUE=DATE:20210409T120001
+DTEND;VALUE=DATE:20210409T120002
+SUMMARY:French Quarter Festival: New Orleans
+DESCRIPTION:The French Quarter Festival will highlight New Orleans signature music, food, and culture April 8-11, 2021, in the historic neighborhood.\n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584615
+DTSTAMP:20210410T110000Z
+DTSTART;VALUE=DATE:20210410T120001
+DTEND;VALUE=DATE:20210410T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584300
+DTSTAMP:20210410T120000Z
+DTSTART;VALUE=DATE:20210410T120001
+DTEND;VALUE=DATE:20210410T120002
+SUMMARY:French Quarter Festival: New Orleans
+DESCRIPTION:The French Quarter Festival will highlight New Orleans signature music, food, and culture April 8-11, 2021, in the historic neighborhood.\n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584616
+DTSTAMP:20210411T110000Z
+DTSTART;VALUE=DATE:20210411T120001
+DTEND;VALUE=DATE:20210411T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584301
+DTSTAMP:20210411T120000Z
+DTSTART;VALUE=DATE:20210411T120001
+DTEND;VALUE=DATE:20210411T120002
+SUMMARY:French Quarter Festival: New Orleans
+DESCRIPTION:The French Quarter Festival will highlight New Orleans signature music, food, and culture April 8-11, 2021, in the historic neighborhood.\n\nFor more information, click here.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584617
+DTSTAMP:20210416T110000Z
+DTSTART;VALUE=DATE:20210416T120001
+DTEND;VALUE=DATE:20210416T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584618
+DTSTAMP:20210417T110000Z
+DTSTART;VALUE=DATE:20210417T120001
+DTEND;VALUE=DATE:20210417T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584619
+DTSTAMP:20210418T110000Z
+DTSTART;VALUE=DATE:20210418T120001
+DTEND;VALUE=DATE:20210418T120002
+SUMMARY:Coachella Music Festival: Indio, CA
+DESCRIPTION:Two weekends of Coachella 2021: April 9-11 and April 16-18.\n\nClick here for more information.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584126
+DTSTAMP:20210610T190000Z
+DTSTART;VALUE=DATE:20210610T120001
+DTEND;VALUE=DATE:20210610T120002
+SUMMARY:Songwriters Hall of Fame Induction Ceremony: New York
+DESCRIPTION:BMI's songwriters, Chad Hugo (The Neptunes), William "Mickey" Stevenson, Dave Stewart (Eurythmics) will be Inducted into the 51st Annual Songwriters Hall of Fame. Other inductees include, Mariah Carey, Pharrell Williams (The Neptunes), Annie Lennox (Eurythmics), The Isley Brothers, Steve Miller, and Rick Nowels. \n\nThe Gala will be held at the Marriott Marquis in New York City.\n\nFor more information, visit www.songhall.org. \n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584654
+DTSTAMP:20210630T084300Z
+DTSTART;VALUE=DATE:20210630T120001
+DTEND;VALUE=DATE:20210630T120002
+SUMMARY:BMI Live Deadline
+DESCRIPTION:Deadline to enter performances between October 1, 2020 and March 31, 2021 for payment in September 2021.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584438
+DTSTAMP:20210902T110000Z
+DTSTART;VALUE=DATE:20210902T120001
+DTEND;VALUE=DATE:20210902T120002
+SUMMARY:Bonnaroo Music & Arts Festival: Manchester, TN
+DESCRIPTION:Bonnaroo 2021, slated for September 2-5, in Manchester, Tennessee.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584441
+DTSTAMP:20210903T110000Z
+DTSTART;VALUE=DATE:20210903T120001
+DTEND;VALUE=DATE:20210903T120002
+SUMMARY:Bonnaroo Music & Arts Festival: Manchester, TN
+DESCRIPTION:Bonnaroo 2021, slated for September 2-5, in Manchester, Tennessee.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584440
+DTSTAMP:20210904T110000Z
+DTSTART;VALUE=DATE:20210904T120001
+DTEND;VALUE=DATE:20210904T120002
+SUMMARY:Bonnaroo Music & Arts Festival: Manchester, TN
+DESCRIPTION:Bonnaroo 2021, slated for September 2-5, in Manchester, Tennessee.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584439
+DTSTAMP:20210905T110000Z
+DTSTART;VALUE=DATE:20210905T120001
+DTEND;VALUE=DATE:20210905T120002
+SUMMARY:Bonnaroo Music & Arts Festival: Manchester, TN
+DESCRIPTION:Bonnaroo 2021, slated for September 2-5, in Manchester, Tennessee.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584622
+DTSTAMP:20211001T110000Z
+DTSTART;VALUE=DATE:20211001T120001
+DTEND;VALUE=DATE:20211001T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584623
+DTSTAMP:20211002T110000Z
+DTSTART;VALUE=DATE:20211002T120001
+DTEND;VALUE=DATE:20211002T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584624
+DTSTAMP:20211003T110000Z
+DTSTART;VALUE=DATE:20211003T120001
+DTEND;VALUE=DATE:20211003T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584396
+DTSTAMP:20211008T110000Z
+DTSTART;VALUE=DATE:20211008T120001
+DTEND;VALUE=DATE:20211008T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584620
+DTSTAMP:20211009T110000Z
+DTSTART;VALUE=DATE:20211009T120001
+DTEND;VALUE=DATE:20211009T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+BEGIN:VEVENT
+UID:584621
+DTSTAMP:20211010T110000Z
+DTSTART;VALUE=DATE:20211010T120001
+DTEND;VALUE=DATE:20211010T120002
+SUMMARY:ACL Fest: Austin, TX
+DESCRIPTION:Austin City Limits (ACL) Music Festival - two weekends: October 1-3 and October 8-10 at Zilker Park, Austin, TX.\n\n
+END:VEVENT
+
+END:VCALENDAR
