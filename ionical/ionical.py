@@ -116,12 +116,14 @@ class MonitoredEventData:
         self.person = person
 
     def __eq__(self, other) -> bool:
-        return all((
-            isinstance(other, MonitoredEventData),
-            self._date_or_datetime == other._date_or_datetime,
-            self.person.person_id == other.person.person_id,
-            self._summary == other._summary,
-        ))
+        return all(
+            (
+                isinstance(other, MonitoredEventData),
+                self._date_or_datetime == other._date_or_datetime,
+                self.person.person_id == other.person.person_id,
+                self._summary == other._summary,
+            )
+        )
 
     def __hash__(self):
         return hash(
@@ -183,8 +185,8 @@ class MonitoredEventData:
 
     def display(
         self,
-        date_fmt = "%Y-%m-%d",
-        time_fmt = "%H:%M:%S",
+        date_fmt="%Y-%m-%d",
+        time_fmt="%H:%M:%S",
         schedule_summary_line=None,
         shift_str_template=None,
         time_replacements=None,
@@ -290,11 +292,13 @@ class Schedule:
         """Get MonitoredEventData objects filtered by summary and date."""
 
         def meets_filter_criteria(event: MonitoredEventData) -> bool:
-            return not any((
-                filters and not any(f in event.summary for f in filters),
-                earliest_date and event.forced_date < earliest_date,
-                latest_date and event.forced_date > latest_date,
-            ))
+            return not any(
+                (
+                    filters and not any(f in event.summary for f in filters),
+                    earliest_date and event.forced_date < earliest_date,
+                    latest_date and event.forced_date > latest_date,
+                )
+            )
 
         if filters is None:
             filters = []
