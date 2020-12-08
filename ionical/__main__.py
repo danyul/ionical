@@ -12,8 +12,17 @@ DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
 DEF_SAMPLE_CALENDAR_LISTING_JSON = """
 [
-["NASA", "NASA Launch Schedule",   "http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics", "US/Mountain"],
-["BMI", "BMI Events Calendar",  "http://bmi.com/events/ical", "US/Mountain"]
+  [
+      "NASA", 
+      "NASA Launch Schedule",   
+      "http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics", 
+      "US/Pacific"
+  ],
+  [
+      "BMI", 
+      "BMI Events Calendar",  
+      "http://bmi.com/events/ical", 
+      "US/Eastern"]
 ]
 """
 
