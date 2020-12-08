@@ -297,13 +297,11 @@ class Schedule:
         """Get MonitoredEventData objects filtered by summary and date."""
 
         def meets_filter_criteria(event: MonitoredEventData) -> bool:
-            if (
-                (filters and not any(f in event.summary for f in filters))
-                or (earliest_date and event.forced_date < earliest_date)
-                or (latest_date and event.forced_date > latest_date)
-            ):
-                return False
-            return True
+            return not any((
+                filters and not any(f in event.summary for f in filters),
+                earliest_date and event.forced_date < earliest_date,
+                latest_date and event.forced_date > latest_date,
+            ))
 
         if filters is None:
             filters = []
