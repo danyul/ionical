@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import sys
 from datetime import date, datetime, timedelta
 
@@ -30,6 +31,15 @@ ICS_FILENAME_MSG = (
     + "\n             "
     + "person/entity and 20200314 is the date file was generated.\n"
     + f"\n     {'*'*70}\n"
+)
+
+version_regex = re.compile(r"__version__ = [\'\"]((\d+\.?)+)[\'\"]")
+with open("ionical/__init__.py") as f:
+    vlines = f.readlines()
+version = next(
+    re.match(version_regex, line).group(1)  # type: ignore
+    for line in vlines
+    if re.match(version_regex, line)
 )
 
 
@@ -105,7 +115,7 @@ def query_yes_no(question, default="yes"):
 
 def cli():
     parser = argparse.ArgumentParser(description=__doc__, add_help=False)
-    help_options = parser.add_argument_group("Help")
+    help_options = parser.add_argument_group("Help / Version Info")
     main_options = parser.add_argument_group(
         "Main Operations "
         + "(can specify one or more, but at least one MUST be specified)"
@@ -128,8 +138,15 @@ def cli():
         "-h",
         "--help",
         action="store_true",
-        help="Print this help message and exit (ignore other options).",
+        help="Print help message, then exit (ignoring below options).",
     )
+    help_options.add_argument(
+        "-v",
+        "--version",
+        action="store_true",
+        help="Print ionical version, then exit (ignoring below options).",
+    )
+
     main_options.add_argument(
         "-s",
         "--schedule",
@@ -231,6 +248,9 @@ def cli():
     if args.help:
         parser.print_help()
         sys.exit(1)
+    if args.version:
+        print(f"\nVersion: {version}\n")
+        sys.exit(1)
     if args.peoplefile:
         using_default = args.peoplefile == DEF_JSON
         try:
@@ -239,11 +259,12 @@ def cli():
             with open(args.peoplefile, "r", encoding="utf-8") as f:
                 people_tuples = json.loads(f.read())
         except FileNotFoundError:
-            print(f"\nCould not find file {args.peoplefile}.")
+            print(f"Could NOT find file {args.peoplefile}.")
             if using_default:
-                question: str = "Would you like to create this file"
-                " and populate it with sample data, which can "
-                " then be edited to meet your needs?"
+                question: str = (
+                    "Would you like to create this file and "
+                    + "populate it with sample data?"
+                )
                 if query_yes_no(question):
                     print("\nOK, attempting to create file...\n")
                     with open(args.peoplefile, "w", encoding="utf-8") as f:
@@ -254,7 +275,11 @@ def cli():
                             "'ionical -s' to show future scheduled events.\n"
                         )
                 else:
-                    print("OK, you'll need to specify a data file.")
+                    print(
+                        "OK.  To use ionical you'll either need "
+                        "to create/use the default file, or specify a "
+                        "valid file using the -p parameter."
+                    )
             print("Quitting.\n")
             sys.exit(1)
     else:
