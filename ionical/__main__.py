@@ -16,7 +16,7 @@ DEF_SAMPLE_CALENDAR_LISTING_JSON = """
     [
       "BMI", 
       "BMI Music Industry Events Calendar",  
-      "https://github.com/danyul/ionical/tests/ics_dir_test/music_events.ics",
+      "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics",
       "US/Eastern"
     ]
 ]
