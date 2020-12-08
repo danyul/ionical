@@ -115,14 +115,13 @@ class MonitoredEventData:
         self._summary = summary
         self.person = person
 
-    def __eq__(self, other):
-        if not isinstance(other, MonitoredEventData):
-            return False
-        return (
-            self._date_or_datetime == other._date_or_datetime
-            and self.person.person_id == other.person.person_id
-            and self._summary == other._summary
-        )
+    def __eq__(self, other) -> bool:
+        return all((
+            isinstance(other, MonitoredEventData),
+            self._date_or_datetime == other._date_or_datetime,
+            self.person.person_id == other.person.person_id,
+            self._summary == other._summary,
+        ))
 
     def __hash__(self):
         return hash(
