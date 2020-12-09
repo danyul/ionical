@@ -18,7 +18,7 @@ from ionical.ionical import main
 from . import __version__
 
 ICS_DIR = "./"
-DEF_JSON = "./calendar_list.json"
+DEF_JSON = "./cals.json"
 DEF_CONVERSION_TABLE_FILE = "./csv_conversion_table.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
