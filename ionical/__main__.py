@@ -126,12 +126,7 @@ def cli():
     event_filter_options = parser.add_argument_group(
         "Event Filters (for changelogs, schedule viewing, and/or csv exports)"
     )
-    file_options = parser.add_argument_group(
-        "General Config"
-    )
-    changelog_options = parser.add_argument_group(
-        "Changelog Config Options (only applicable when -l also specified)"
-    )
+    file_options = parser.add_argument_group("General Config")
     csv_options = parser.add_argument_group(
         "CSV Export Config Options (only applicable when -c also specified)"
     )
@@ -166,9 +161,17 @@ def cli():
     )
     main_options.add_argument(
         "-l",
-        "--changelog",
-        action="store_true",
-        help="Show changelog(s) between schedule versions from multiple dates.",
+        nargs="?",
+        metavar="#_COMPARISONS",
+        dest="num_lookbacks",
+        default=0,
+        const=DEF_NUM_LOOKBACKS,
+        type=valid_pos_integer,
+        help="Show changelog(s) between schedule versions from multiple dates."
+        + "\nOptionally, specify the number of prior versions (per each "
+        + "\ncalendar) for which to show comparison changelogs."
+        + "\n(If left unspecified, #_COMPARISONS default "
+        + f"is {DEF_NUM_LOOKBACKS}.)",
     )
     main_options.add_argument(
         "-c",
@@ -221,7 +224,7 @@ def cli():
     )
     file_options.add_argument(
         "-f",
-        metavar="CALENDAR_CONFIG_FILE",
+        metavar="CAL_CONFIG_FILE",
         dest="calendar_list_file",
         default=DEF_JSON,
         help="Filename containing list of calendars with associated info."
@@ -236,19 +239,9 @@ def cli():
         help=f"Directory where downloaded .ics files are stored."
         + f"\n(Default: {ICS_DIR})",
     )
-    changelog_options.add_argument(
-        "-n",
-        metavar="NUMBER_TO_COMPARE",
-        dest="num_lookbacks",
-        help="Number of past schedule versions (per calendar) to compare.  "
-        + "\n[Only used when displaying changelogs with -l option.]  "
-        + f"\n(Default behavior: {DEF_NUM_LOOKBACKS} 'lookbacks')",
-        default=DEF_NUM_LOOKBACKS,
-        type=valid_pos_integer,
-    )
     csv_options.add_argument(
         "-x",
-        metavar="CONVERSION_DICTIONARY_FILENAME",
+        metavar="CONVERSION_FILE",
         dest="csv_conversion_file",
         default=DEF_CONVERSION_TABLE_FILE,
         help="JSON file w/ dictionary of conversion terms. "
@@ -260,6 +253,7 @@ def cli():
     # parser.print_help(file=None)
     # sys.exit(1)
     earliest_date, latest_date = None, None
+    show_changelog = True if args.num_lookbacks > 0 else False
 
     today = date.today()
     using_default_calendar_list = args.calendar_list_file == DEF_JSON
@@ -344,14 +338,14 @@ def cli():
                 + "to csv without doing any conversions."
             )
 
-    if not any([args.schedule, args.changelog, args.get_today, args.csv_file]):
+    if not any([args.schedule, show_changelog, args.get_today, args.csv_file]):
         print(
             "You MUST specify at least one of the Main Operations.\n"
             + "\nFor help, run ionical with the -h option.\n"
         )
         sys.exit(1)
 
-    if args.changelog:
+    if show_changelog:
         date_fmt = CHANGELOG_DATE_FMT
         time_fmt = CHANGELOG_TIME_FMT
     else:
@@ -365,7 +359,7 @@ def cli():
         earliest_date=earliest_date,
         latest_date=latest_date,
         show_schedule=args.schedule,
-        show_changelog=args.changelog,
+        show_changelog=show_changelog,
         people_filter=args.ids,
         filters=args.text_filters,
         csv_file=args.csv_file,

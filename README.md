@@ -9,14 +9,12 @@ $ pip install ionical
 ## Command line usage:
 ```
 Usage: ionical [-v] [-h] 
-               [-g] [-s] [-l] [-c CSV_EXPORT_FILE] 
+               [-g] [-s] [-l [#_COMPARISONS]] [-c CSV_EXPORT_FILE] 
                [-i CALENDAR_NICKNAMES [CALENDAR_NICKNAMES ...]] 
                [-t TEXT_FILTERS [TEXT_FILTERS ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
-               [-f CALENDAR_CONFIG_FILE] 
-               [-d ICS_DIRECTORY] 
-               [-n NUMBER_TO_COMPARE] 
-               [-x CONVERSION_DICTIONARY_FILENAME]
+               [-f CAL_CONFIG_FILE] [-d ICS_DIRECTORY] 
+               [-x CONVERSION_FILE]
 
 Help/About:
   -v, --version         Print version, then exit (ignoring below options).
@@ -28,7 +26,10 @@ Main Operations (one or more of these MUST be specified):
                         (If not specified, operations will use only .ics files
                         which have previously been downloaded.)
   -s, --schedule        Display events from the most recent version of each calendar.
-  -l, --changelog       Show changelog(s) between schedule versions from multiple dates.
+  -l [#_COMPARISONS]    Show changelog(s) between schedule versions from multiple dates.
+                        Optionally, specify the number of prior versions (per each
+                        calendar) for which to show comparison changelogs.
+                        (If left unspecified, #_COMPARISONS default is 2.)
   -c CSV_EXPORT_FILE    Export current schedules to CSV_EXPORT_FILE (alpha status).
 
 Calendar Filters (will apply to all Main Operation options):
@@ -54,21 +55,14 @@ Event Filters (for changelogs, schedule viewing, and/or csv exports):
                         (Default behavior: no filter)
 
 General Config:
-  -f CALENDAR_CONFIG_FILE
-                        Filename containing list of calendars with associated info.
+  -f CAL_CONFIG_FILE    Filename containing list of calendars with associated info.
                         (In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )
                         (Default: ./calendar_list.json)
   -d ICS_DIRECTORY      Directory where downloaded .ics files are stored.
                         (Default: ./)
 
-Changelog Config Options (only applicable when -l also specified):
-  -n NUMBER_TO_COMPARE  Number of past schedule versions (per calendar) to compare.
-                        [Only used when displaying changelogs with -l option.]
-                        (Default behavior: 2 'lookbacks')
-
 CSV Export Config Options (only applicable when -c also specified):
-  -x CONVERSION_DICTIONARY_FILENAME
-                        JSON file w/ dictionary of conversion terms.
+  -x CONVERSION_FILE    JSON file w/ dictionary of conversion terms.
                         [Only used when generating CSV via -c option.]
                         (Default: ./csv_conversion_table.json)
 ```
