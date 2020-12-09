@@ -13,7 +13,7 @@ import re
 import sys
 from datetime import date, datetime, timedelta
 
-from ionical.ionical import main
+from . import __version__
 
 ICS_DIR = "./"
 DEF_JSON = "./calendar_list.json"
@@ -49,16 +49,6 @@ ICS_FILENAME_NOTE = """
 
      **********************************************************************
 """
-
-
-version_regex = re.compile(r"__version__ = [\'\"]((\d+\.?)+)[\'\"]")
-with open("ionical/__init__.py") as f:
-    vlines = f.readlines()
-version = next(
-    re.match(version_regex, line).group(1)  # type: ignore
-    for line in vlines
-    if re.match(version_regex, line)
-)
 
 
 def valid_date(s):
@@ -275,7 +265,7 @@ def cli():
         parser.print_help()
         sys.exit(1)
     if args.version:
-        print(f"\nVersion: {version}\n")
+        print(f"\nVersion: {__version__}\n")
         sys.exit(1)
     if args.calendar_list_file:
         try:
