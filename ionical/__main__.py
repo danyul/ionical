@@ -13,6 +13,7 @@ import re
 import sys
 from datetime import date, datetime, timedelta
 
+from ionical.ionical import main
 from . import __version__
 
 ICS_DIR = "./"
