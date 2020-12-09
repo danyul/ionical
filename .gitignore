@@ -35,3 +35,6 @@ scrap/
 __pycache__/
 tmp/
 .cache/
+
+# ionical files
+calendar_list.json
