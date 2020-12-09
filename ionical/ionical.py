@@ -1,11 +1,7 @@
-"""Multipurpose ics util - changelogs, CSVs, schedule viewing.
-
-.ics filenames should be in format 123__20200314.ics where
-123 is an identifier corresponding to a particular person and
-20200314 is the date an .ics file was generated.
-"""
+"""Multipurpose ics util - changelogs, CSVs, schedule viewing."""
 import csv
 import re
+import sys
 import urllib.request
 from collections import OrderedDict, defaultdict
 from datetime import date, datetime, time, timedelta  # , tzinfo
@@ -247,14 +243,30 @@ class Schedule:
 
         new_instance: Schedule = cls(person=person)
 
-        events_by_icalendar_lookup: Set[MonitoredEventData] = {
-            MonitoredEventData(
-                event_date_or_datetime=ical_event["DTSTART"].dt,
-                summary=ical_event["SUMMARY"],
-                person=new_instance.person,
+        kerr_count = 0
+        events_by_icalendar_lookup: Set[MonitoredEventData] = set()
+        for ical_event in cal.subcomponents:
+            try:
+                med: MonitoredEventData = MonitoredEventData(
+                    event_date_or_datetime=ical_event["DTSTART"].dt,
+                    summary=ical_event["SUMMARY"],
+                    person=new_instance.person,
+                )
+                events_by_icalendar_lookup.add(med)
+            except KeyError:
+                kerr_count = kerr_count + 1
+                continue
+
+        #TODO KeyError may represent difficulty reading Google Calendar
+        # ics format's iniital TIMEZONE section in ics file.  For at least
+        # one test case, removing that section solved the 
+        # sole encountered KeyError.
+        if kerr_count > 0:
+            msg = (
+                f"{kerr_count} KeyErrors encountered while reading ical"
+                + f" for {person.person_id}. Associated events disregarded."
             )
-            for ical_event in cal.subcomponents
-        }
+            sys.stderr.write(msg)
 
         # Get the earliest and laetst dates that are explicitly specified in
         # the ics file (ie, not specified by recurrence).
