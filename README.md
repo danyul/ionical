@@ -94,7 +94,7 @@ identifier nickname for, say, a calendar which tracks an employee's
 work schedule might be a last name or an employee ID number.) 
 
 "20200314" indicates that this particular version of the calendar   
-was downloaded on March 3, 2020.
+was downloaded on March 14, 2020.
 
 
 ## Note:
