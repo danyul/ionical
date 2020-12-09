@@ -128,7 +128,7 @@ def cli():
     )
     file_options = parser.add_argument_group("General Config")
     csv_options = parser.add_argument_group(
-        "CSV Export Config Options (only applicable when -c also specified)"
+        "CSV Export Config (only applicable when -c option also specified)"
     )
 
     help_options.add_argument(
@@ -177,7 +177,8 @@ def cli():
         "-c",
         metavar="CSV_EXPORT_FILE",
         dest="csv_file",
-        help="Export current schedules to CSV_EXPORT_FILE (alpha status).",
+        help="Export current schedules to CSV_EXPORT_FILE (alpha status)."
+        + "\n(Also, see -x option.)",
     )
     calendar_filter_options.add_argument(
         "-i",
@@ -227,7 +228,7 @@ def cli():
         metavar="CAL_CONFIG_FILE",
         dest="calendar_list_file",
         default=DEF_JSON,
-        help="Filename containing list of calendars with associated info."
+        help="File containing list of calendars with basic metadata info."
         + "\n(In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )"
         + f"\n(Default: {DEF_JSON})",
     )
@@ -245,8 +246,8 @@ def cli():
         dest="csv_conversion_file",
         default=DEF_CONVERSION_TABLE_FILE,
         help="JSON file w/ dictionary of conversion terms. "
-        + "\n[Only used when generating CSV via -c option.]\n"
-        + f"(Default: {DEF_CONVERSION_TABLE_FILE})",
+        + f"\n(Default: {DEF_CONVERSION_TABLE_FILE}.  If this file "
+        + "\n doesn't exist, CSV export will proceed without conversion.)",
     )
 
     args = parser.parse_args()

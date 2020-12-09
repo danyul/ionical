@@ -31,6 +31,7 @@ Main Operations (one or more of these MUST be specified):
                         calendar) for which to show comparison changelogs.
                         (If left unspecified, #_COMPARISONS default is 2.)
   -c CSV_EXPORT_FILE    Export current schedules to CSV_EXPORT_FILE (alpha status).
+                        (Also, see -x option.)
 
 Calendar Filters (will apply to all Main Operation options):
   -i CALENDAR_NICKNAMES [CALENDAR_NICKNAMES ...]
@@ -55,16 +56,16 @@ Event Filters (for changelogs, schedule viewing, and/or csv exports):
                         (Default behavior: no filter)
 
 General Config:
-  -f CAL_CONFIG_FILE    Filename containing list of calendars with associated info.
+  -f CAL_CONFIG_FILE    File containing list of calendars with basic metadata info.
                         (In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )
                         (Default: ./calendar_list.json)
   -d ICS_DIRECTORY      Directory where downloaded .ics files are stored.
                         (Default: ./)
 
-CSV Export Config Options (only applicable when -c also specified):
+CSV Export Config (only applicable when -c option also specified):
   -x CONVERSION_FILE    JSON file w/ dictionary of conversion terms.
-                        [Only used when generating CSV via -c option.]
-                        (Default: ./csv_conversion_table.json)
+                        (Default: ./csv_conversion_table.json.  If this file
+                         doesn't exist, CSV export will proceed without conversion.)
 ```
 
 ## Installing from respository:
