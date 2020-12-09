@@ -41,16 +41,6 @@ SAMPLE_CALENDAR_LISTING_JSON = """
 ]
 """
 
-ICS_FILENAME_NOTE = """
-     **********************************************************************
-
-        NOTE: .ics filenames will/should have format 123__20200314.ics
-             where 123 is an identifier corresponding to a particular
-             person/entity and 20200314 is the date file was generated.
-
-     **********************************************************************
-"""
-
 
 def valid_date(s):
     try:
@@ -148,18 +138,18 @@ def cli():
     )
 
     help_options.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        help="Print version, then exit (ignoring below options).",
+        version=f"{__version__}",
+    )
+    help_options.add_argument(
         "-h",
         "--help",
         action="store_true",
         help="Print help message, then exit (ignoring below options).",
     )
-    help_options.add_argument(
-        "-v",
-        "--version",
-        action="store_true",
-        help="Print ionical version, then exit (ignoring below options).",
-    )
-
     main_options.add_argument(
         "-g",
         "--get_today",
@@ -183,48 +173,57 @@ def cli():
     )
     main_options.add_argument(
         "-c",
-        "--csv_file",
-        help="Export current schedules to CSV_FILE (alpha status).",
+        metavar="CSV_EXPORT_FILE",
+        dest="csv_file",
+        help="Export current schedules to CSV_EXPORT_FILE (alpha status).",
     )
     calendar_filter_options.add_argument(
         "-i",
-        "--ids",
+        metavar="CALENDAR_NICKNAMES",
+        dest="ids",
         nargs="+",
-        help="Only operate on calendars specified in the list of calendar IDS."
-        + " \n(An ID is a 'nickname' specified in the calendar list"
-        + " config file.)"
-        + "\n(Default behavior: no restrictions. I.e., include all calendars "
-        + "\nlisted in the config file.)",
+        help="Only operate on calendars with a nickname identifier that is "
+        + "\ngiven in the list of CALENDAR_NICKNAMES."
+        + "\n(Nickname identifiers are specified in the calendar list config file "
+        + "\nand appear at the start of the filename of downloaded ics files."
+        + "\n(Default behavior: no restrictions. I.e., include all calendars.)",
     )
     event_filter_options.add_argument(
         "-t",
-        "--text_filters",
+        metavar="TEXT_FILTERS",
+        dest="text_filters",
         nargs="+",
-        help="Filter EVENTS by text that appears in event summary field.  "
+        help="Only include events with event summaries matching the text "
+        + "\nof one or more of the specified TEXT_FILTERS."
         + "\n(Default behavior: no text filters.)",
     )
     event_filter_options.add_argument(
         "-a",
-        "--start_date",
-        help="Apply actions only to EVENTS occuring AFTER specified date. "
+        metavar="DATE_OR_NUMBER",
+        dest="start_date",
+        help="Only include events that start AFTER a specified date."
         " \nValue must be EITHER a date in format YYYY-MM-DD, or "
-        "a positive \ninteger representing # of days before today."
-        f" \n(Default behavior: {DEF_DAYSBACK} days before today's date.)",
+        "a positive \ninteger representing # of days in the past."
+        f" \n(Default behavior: "
+        f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'}"
+        " prior to today's date.)",
         default=DEF_DAYSBACK,
         type=valid_pos_integer_or_date,
     )
     event_filter_options.add_argument(
         "-b",
-        "--end_date",
-        help="Apply actions only to EVENTS occuring BEFORE specified date. "
+        metavar="DATE_OR_NUMBER",
+        dest="end_date",
+        help="Only include events that start BEFORE a specified date."
         "\nValue must be EITHER a date in format YYYY-MM-DD, or "
-        "a positive \ninteger representing # of days after today."
+        "a positive \ninteger representing # of days in the future."
         "\n(Default behavior: no filter)",
         type=valid_pos_integer_or_date,
     )
     file_options.add_argument(
         "-f",
-        "--calendar_list_file",
+        metavar="CALENDAR_CONFIG_FILE",
+        dest="calendar_list_file",
         default=DEF_JSON,
         help="Filename containing list of calendars with associated info."
         + "\n(In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )"
@@ -232,15 +231,17 @@ def cli():
     )
     file_options.add_argument(
         "-d",
-        "--directory",
+        metavar="ICS_DIRECTORY",
+        dest="directory",
         default=ICS_DIR,
         help=f"Directory where downloaded .ics files are stored."
         + f"\n(Default: {ICS_DIR})",
     )
     changelog_options.add_argument(
         "-n",
-        "--num_lookbacks",
-        help="Number of past schedule versions (per person) to compare.  "
+        metavar="NUMBER_TO_COMPARE",
+        dest="num_lookbacks",
+        help="Number of past schedule versions (per calendar) to compare.  "
         + "\n[Only used when displaying changelogs with -l option.]  "
         + f"\n(Default behavior: {DEF_NUM_LOOKBACKS} 'lookbacks')",
         default=DEF_NUM_LOOKBACKS,
@@ -248,7 +249,8 @@ def cli():
     )
     csv_options.add_argument(
         "-x",
-        "--csv_conversion_file",
+        metavar="CONVERSION_DICTIONARY_FILENAME",
+        dest="csv_conversion_file",
         default=DEF_CONVERSION_TABLE_FILE,
         help="JSON file w/ dictionary of conversion terms. "
         + "\n[Only used when generating CSV via -c option.]\n"
@@ -264,9 +266,6 @@ def cli():
     using_default_calendar_list = args.calendar_list_file == DEF_JSON
     if args.help:
         parser.print_help()
-        sys.exit(1)
-    if args.version:
-        print(f"\nVersion: {__version__}\n")
         sys.exit(1)
     if args.calendar_list_file:
         try:
@@ -304,8 +303,8 @@ def cli():
                 else:
                     print(
                         "OK.  To use ionical you'll either need to create/use"
-                        "the default calendar list file, or specify another "
-                        "valid file using the -f option.\n\n"
+                        "the default calendar list config file, or specify another "
+                        "valid config file using the -f option.\n\n"
                         "Run 'ionical -h' for help/instructions."
                     )
             sys.exit(1)

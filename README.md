@@ -8,68 +8,67 @@ $ pip install ionical
 
 ## Command line usage:
 ```
-Usage: ionical [-h] [-v] 
-               [-g] [-s] [-l] [-c CSV_FILE] 
-               [-i IDS [IDS ...]] 
-               [-t TEXT_FILTERS [TEXT_FILTERS ...]] [-a START_DATE] [-b END_DATE] 
-               [-f CALENDAR_LIST_FILE] [-d DIRECTORY]
-               [-n NUM_LOOKBACKS] [-x CSV_CONVERSION_FILE]
-
+Usage: ionical [-v] [-h] 
+               [-g] [-s] [-l] [-c CSV_EXPORT_FILE] 
+               [-i CALENDAR_NICKNAMES [CALENDAR_NICKNAMES ...]] 
+               [-t TEXT_FILTERS [TEXT_FILTERS ...]] 
+               [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
+               [-f CALENDAR_CONFIG_FILE] 
+               [-d ICS_DIRECTORY] 
+               [-n NUMBER_TO_COMPARE] 
+               [-x CONVERSION_DICTIONARY_FILENAME]
 
 Help / Version Info:
+  -v, --version         Print version, then exit (ignoring below options).
   -h, --help            Print help message, then exit (ignoring below options).
-  -v, --version         Print ionical version, then exit (ignoring below options).
 
 Main Operations (can specify one or more, but at least one MUST be specified):
-  -g, --get_today       Download current .ics files and label them with today's date. 
-                        This will be done prior to running any other Main Operations. 
-                        (If not specified, operations will use only .ics files 
+  -g, --get_today       Download current .ics files and label them with today's date.
+                        This will be done prior to running any other Main Operations.
+                        (If not specified, operations will use only .ics files
                         which have previously been downloaded.)
   -s, --schedule        Display events from the most recent version of each calendar.
   -l, --changelog       Show changelog(s) between schedule versions from multiple dates.
-  -c CSV_FILE, --csv_file CSV_FILE
-                        Export current schedules to CSV_FILE (alpha status).
+  -c CSV_EXPORT_FILE    Export current schedules to CSV_EXPORT_FILE (alpha status).
 
 Calendar Filter Options (applies to all Main Operations):
-  -i IDS [IDS ...], --ids IDS [IDS ...]
-                        Only operate on calendars specified in the list of calendar IDS. 
-                        (An ID is a 'nickname' specified in the calendar list config file.) 
-                        (Default behavior: no restrictions. I.e., include all calendars  
-                        listed in the config file.)
+  -i CALENDAR_NICKNAMES [CALENDAR_NICKNAMES ...]
+                        Only operate on calendars with an nickname identifier that is given
+                        in the list of CALENDAR_NICKNAMES.
+                        (Nickname identifiers are specified in the calendar list config file
+                        and appear at the start of the filename of downloaded ics files.
+                        (Default behavior: no restrictions. I.e., include all calendars.)
 
 Event Filter Options (for changelogs, viewing schedules, and csv export):
-  -t TEXT_FILTERS [TEXT_FILTERS ...], --text_filters TEXT_FILTERS [TEXT_FILTERS ...]
-                        Filter EVENTS by text that appears in event summary field.  
+  -t TEXT_FILTERS [TEXT_FILTERS ...]
+                        Only include events with event summaries matching the text
+                        of one or more of the specified TEXT_FILTERS.
                         (Default behavior: no text filters.)
-  -a START_DATE, --start_date START_DATE
-                        Apply actions only to EVENTS occuring AFTER specified date.  
-                        Value must be EITHER a date in format YYYY-MM-DD, or a positive 
-                        integer representing # of days before today. 
-                        (Default behavior: 1 days before today's date.)
-  -b END_DATE, --end_date END_DATE
-                        Apply actions only to EVENTS occuring BEFORE specified date. 
-                        Value must be EITHER a date in format YYYY-MM-DD, or a positive 
-                        integer representing # of days after today.
+  -a DATE_OR_NUMBER     Only include events that start AFTER a specified date.
+                        Value must be EITHER a date in format YYYY-MM-DD, or a positive
+                        integer representing # of days in the past.
+                        (Default behavior: 1 day prior to today's date.)
+  -b DATE_OR_NUMBER     Only include events that start BEFORE a specified date.
+                        Value must be EITHER a date in format YYYY-MM-DD, or a positive
+                        integer representing # of days in the future.
                         (Default behavior: no filter)
 
 General File/Directory Configuration Options:
-  -f CALENDAR_LIST_FILE, --calendar_list_file CALENDAR_LIST_FILE
+  -f CALENDAR_CONFIG_FILE
                         Filename containing list of calendars with associated info.
                         (In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )
                         (Default: ./calendar_list.json)
-  -d DIRECTORY, --directory DIRECTORY
-                        Directory where downloaded .ics files are stored.
+  -d ICS_DIRECTORY      Directory where downloaded .ics files are stored.
                         (Default: ./)
 
 Changelog Options (only applicable when -l option also specified):
-  -n NUM_LOOKBACKS, --num_lookbacks NUM_LOOKBACKS
-                        Number of past schedule versions (per person) to compare.  
-                        [Only used when displaying changelogs with -l option.]  
+  -n NUMBER_TO_COMPARE  Number of past schedule versions (per calendar) to compare.
+                        [Only used when displaying changelogs with -l option.]
                         (Default behavior: 2 'lookbacks')
 
 CSV Options (only applicable when -c option also specified):
-  -x CSV_CONVERSION_FILE, --csv_conversion_file CSV_CONVERSION_FILE
-                        JSON file w/ dictionary of conversion terms. 
+  -x CONVERSION_DICTIONARY_FILENAME
+                        JSON file w/ dictionary of conversion terms.
                         [Only used when generating CSV via -c option.]
                         (Default: ./csv_conversion_table.json)
 ```
@@ -87,9 +86,20 @@ If on Windows, replace 'source env/bin/activate' with:
 $ .\env\Scripts\activate
 ```
 
-# Note:
+## Filename formats for downloaded ics files:
 
-ionical has been successfully used to track schedules changes 
-in ics files generated by Amion (http://amion.com/).  However, it has
-not been extensively tested on ics files from other sources.
+Downloaded .ics files have a filename format of ABC123__20200314.ics,  
+where "ABC123" is an identifier nickname for the calendar (a reasonable  
+identifier nickname for, say, a calendar which tracks an employee's  
+work schedule might be a last name or an employee ID number.) 
+
+"20200314" indicates that this particular version of the calendar   
+was downloaded on March 3, 2020.
+
+
+## Note:
+
+ionical has been successfully used to track schedules changes  
+in ics files generated by Amion (http://amion.com/).  However, it has  
+not been extensively tested on ics files from other sources.  
 
