@@ -116,25 +116,24 @@ def cli():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter, add_help=False
     )
-    help_options = parser.add_argument_group("Help / Version Info")
+    help_options = parser.add_argument_group("Help/About")
     main_options = parser.add_argument_group(
-        "Main Operations "
-        + "(can specify one or more, but at least one MUST be specified)"
+        "Main Operations (one or more of these MUST be specified)"
     )
     calendar_filter_options = parser.add_argument_group(
-        "Calendar Filter Options (applies to all Main Operations)"
+        "Calendar Filters (will apply to all Main Operation options)"
     )
     event_filter_options = parser.add_argument_group(
-        "Event Filter Options (for changelogs, viewing schedules, and csv export)"
+        "Event Filters (for changelogs, schedule viewing, and/or csv exports)"
     )
     file_options = parser.add_argument_group(
-        "General File/Directory Configuration Options"
+        "General Config"
     )
     changelog_options = parser.add_argument_group(
-        "Changelog Options (only applicable when -l option also specified)"
+        "Changelog Config Options (only applicable when -l also specified)"
     )
     csv_options = parser.add_argument_group(
-        "CSV Options (only applicable when -c option also specified)"
+        "CSV Export Config Options (only applicable when -c also specified)"
     )
 
     help_options.add_argument(

@@ -18,11 +18,11 @@ Usage: ionical [-v] [-h]
                [-n NUMBER_TO_COMPARE] 
                [-x CONVERSION_DICTIONARY_FILENAME]
 
-Help / Version Info:
+Help/About:
   -v, --version         Print version, then exit (ignoring below options).
   -h, --help            Print help message, then exit (ignoring below options).
 
-Main Operations (can specify one or more, but at least one MUST be specified):
+Main Operations (one or more of these MUST be specified):
   -g, --get_today       Download current .ics files and label them with today's date.
                         This will be done prior to running any other Main Operations.
                         (If not specified, operations will use only .ics files
@@ -31,15 +31,15 @@ Main Operations (can specify one or more, but at least one MUST be specified):
   -l, --changelog       Show changelog(s) between schedule versions from multiple dates.
   -c CSV_EXPORT_FILE    Export current schedules to CSV_EXPORT_FILE (alpha status).
 
-Calendar Filter Options (applies to all Main Operations):
+Calendar Filters (will apply to all Main Operation options):
   -i CALENDAR_NICKNAMES [CALENDAR_NICKNAMES ...]
-                        Only operate on calendars with an nickname identifier that is given
-                        in the list of CALENDAR_NICKNAMES.
+                        Only operate on calendars with a nickname identifier that is
+                        given in the list of CALENDAR_NICKNAMES.
                         (Nickname identifiers are specified in the calendar list config file
                         and appear at the start of the filename of downloaded ics files.
                         (Default behavior: no restrictions. I.e., include all calendars.)
 
-Event Filter Options (for changelogs, viewing schedules, and csv export):
+Event Filters (for changelogs, schedule viewing, and/or csv exports):
   -t TEXT_FILTERS [TEXT_FILTERS ...]
                         Only include events with event summaries matching the text
                         of one or more of the specified TEXT_FILTERS.
@@ -53,7 +53,7 @@ Event Filter Options (for changelogs, viewing schedules, and csv export):
                         integer representing # of days in the future.
                         (Default behavior: no filter)
 
-General File/Directory Configuration Options:
+General Config:
   -f CALENDAR_CONFIG_FILE
                         Filename containing list of calendars with associated info.
                         (In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )
@@ -61,12 +61,12 @@ General File/Directory Configuration Options:
   -d ICS_DIRECTORY      Directory where downloaded .ics files are stored.
                         (Default: ./)
 
-Changelog Options (only applicable when -l option also specified):
+Changelog Config Options (only applicable when -l also specified):
   -n NUMBER_TO_COMPARE  Number of past schedule versions (per calendar) to compare.
                         [Only used when displaying changelogs with -l option.]
                         (Default behavior: 2 'lookbacks')
 
-CSV Options (only applicable when -c option also specified):
+CSV Export Config Options (only applicable when -c also specified):
   -x CONVERSION_DICTIONARY_FILENAME
                         JSON file w/ dictionary of conversion terms.
                         [Only used when generating CSV via -c option.]
