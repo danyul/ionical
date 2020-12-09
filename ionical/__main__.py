@@ -127,6 +127,9 @@ def cli():
         "Event Filters (for changelogs, schedule viewing, and/or csv exports)"
     )
     file_options = parser.add_argument_group("General Config")
+    changelog_options = parser.add_argument_group(
+        "Changelog Config Options (only applicable when -l also specified)"
+    )
     csv_options = parser.add_argument_group(
         "CSV Export Config Options (only applicable when -c also specified)"
     )
