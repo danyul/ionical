@@ -41,7 +41,7 @@ setup(
     install_requires=requirements,
     license="MIT",
     zip_safe=False,
-    keywords="icalendar, ics, schedule, changelog, amion",
+    keywords="icalendar, ics, schedule, changelog, amion, gcal, google, calendar",
     classifiers=[
         "Natural Language :: English",
         "Programming Language :: Python :: 3.6",

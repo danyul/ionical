@@ -257,14 +257,14 @@ class Schedule:
                 kerr_count = kerr_count + 1
                 continue
 
-        #TODO KeyError may represent difficulty reading Google Calendar
+        # TODO KeyError may represent difficulty reading Google Calendar
         # ics format's iniital TIMEZONE section in ics file.  For at least
-        # one test case, removing that section solved the 
+        # one test case, removing that section solved the
         # sole encountered KeyError.
         if kerr_count > 0:
             msg = (
                 f"{kerr_count} KeyErrors encountered while reading ical"
-                + f" for {person.person_id}. Associated events disregarded."
+                + f' for "{person.person_id}".\n'
             )
             sys.stderr.write(msg)
 
