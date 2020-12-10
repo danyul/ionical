@@ -121,17 +121,16 @@ def cli():
     )
     calendar_filter_options = parser.add_argument_group(
         "Calendar Filters",
-        "Restrict actions to a subset of calendars"
-        + " (affects all primary options).",
+        "Restrict all actions to a subset of calendars.",
     )
     event_filter_options = parser.add_argument_group(
         "Event Filters",
         "Filter events shown in changelogs, schedule displays, "
-        + "and csv exports.",
+        + "and CSV exports.",
     )
     file_options = parser.add_argument_group(
         "General Config",
-        "Specify expected file locations, if different than the current directory.",
+        "Specify expected file locations, if different from the current directory.",
     )
     csv_options = parser.add_argument_group(
         "CSV Export Config", "Applicable only when -c option also specified."
@@ -141,29 +140,30 @@ def cli():
         "-v",
         "--version",
         action="version",
-        help="Print version, then exit (ignoring below options).",
+        help="Print version, then exit.",
         version=f"{__version__}",
     )
     help_options.add_argument(
         "-h",
         "--help",
         action="store_true",
-        help="Print help message, then exit (ignoring below options).",
+        help="Print help message, then exit.\n\n",
     )
     main_options.add_argument(
         "-g",
         "--get_today",
         action="store_true",
-        help="Download current .ics files and label them with today's date. "
-        + "\nThis will be done prior to the other primary options. "
-        + "\n(If this option is left unspecified, operations will "
-        + "\nuse only those .ics files that have been previously downloaded.)",
+        help="Download current .ics files and label them with today's"
+        + "\ndate. This will be done prior to other actions. "
+        + "\n(If this is left unspecified, operations will only use"
+        + "\n.ics files that have been previously downloaded.)\n\n",
     )
     main_options.add_argument(
         "-s",
         "--schedule",
         action="store_true",
-        help="Display events from the most recent version of each calendar.",
+        help="Display events from most recent ical file version for "
+        + "\neach calendar.\n\n",
     )
     main_options.add_argument(
         "-l",
@@ -173,18 +173,17 @@ def cli():
         default=0,
         const=DEF_NUM_LOOKBACKS,
         type=valid_pos_integer,
-        help="Show changelog(s) between schedule versions from multiple dates."
-        + "\nOptionally, specify the number of prior versions (per each "
-        + "\ncalendar) for which to show comparison changelogs."
-        + "\n(If left unspecified, #_COMPARISONS default "
-        + f"is {DEF_NUM_LOOKBACKS}.)",
+        help="Show changelogs comparing calendar versions from "
+        "\nmultiple dates. Optionally, specify the number of "
+        "\nprior versions (per each calendar) for which to show "
+        "\ncomparison changelogs. \n(If left unspecified, "
+        f"#_COMPARISONS default is {DEF_NUM_LOOKBACKS}.)\n\n",
     )
     main_options.add_argument(
         "-c",
-        metavar="CSV_EXPORT_FILE",
+        metavar="CSV_FILE",
         dest="csv_file",
-        help="Export current schedules to CSV_EXPORT_FILE"
-        + " (also, see -x option).",
+        help="Export calendar events to CSV_FILE " + "(also, see -x).\n\n",
     )
     calendar_filter_options.add_argument(
         "-i",
@@ -193,15 +192,16 @@ def cli():
         nargs="+",
         help="Only operate on calendars with a specified NAME."
         + "\n(If -i not specified, operate on every calendar"
-        + "\nlisted in cals.json.)",
+        + "\nlisted in cals.json.)\n\n",
     )
     event_filter_options.add_argument(
         "-t",
         metavar="TEXT",
         dest="text_filters",
         nargs="+",
-        help="Only include events whose summaries containing matching text."
-        + "\n(If option unspecified, no text filters are applied.)",
+        help="Only include events whose summary text includes words"
+        + "\nthat match a TEXT item."
+        + "\n(If option not specified, no text filters are applied.)\n\n",
     )
     event_filter_options.add_argument(
         "-a",
@@ -213,7 +213,7 @@ def cli():
         "\na positive integer representing # of days in the past."
         f"\n(If option unspecified, default behavior is to exclude"
         f"\nany events starting prior to "
-        f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'} ago.)",
+        f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'} ago.)\n\n",
         default=DEF_DAYSBACK,
         type=valid_pos_integer_or_date,
     )
@@ -225,7 +225,8 @@ def cli():
         "\n(I.e., exclude events starting on or after the date.)"
         "\nValue must be EITHER a date in format YYYY-MM-DD, or "
         "\na positive integer representing # of days in the future."
-        "\n(If option unspecified, no 'latest date' limit will be applied.)",
+        "\n(If option unspecified, default behavior is to"
+        "\nhave no upper limit on event dates.)\n\n",
         type=valid_pos_integer_or_date,
     )
     file_options.add_argument(
@@ -233,17 +234,16 @@ def cli():
         metavar="CALS_CFG_DIR",
         dest="calendar_list_directory",
         default=DEF_CALS_DIR,
-        help=f"Location of {DEF_CALS_FILE}, which contains a listing of"
-        + "\ncalendars and their metadata.  See Readme for specifications."
-        + f"\n(Default: {DEF_CALS_DIR})",
+        help=f"Directory where primary config file {DEF_CALS_FILE} located."
+        f"\n{DEF_CALS_FILE} should contain a list of calendar names, "
+        f"\nURLs, and timezones.  See README for specifications.\n\n",
     )
     file_options.add_argument(
         "-d",
         metavar="ICS_DIR",
         dest="directory",
         default=ICS_DIR,
-        help=f"Directory where downloaded .ics files are to be stored/accessed."
-        + f"\n(Default: {ICS_DIR})",
+        help=f"Directory for downloading/accessing .ics files.\n\n",
     )
     csv_options.add_argument(
         "-x",
@@ -251,8 +251,8 @@ def cli():
         dest="csv_conversion_file",
         default=DEF_CONVERSION_TABLE_FILE,
         help="JSON file w/ dictionary of conversion terms. "
-        + f"\n(Default: {DEF_CONVERSION_TABLE_FILE}.  If this file "
-        + "\ndoesn't exist, CSV export will proceed without conversion.)",
+        + f"\n(Default: {DEF_CONVERSION_TABLE_FILE}.  If this file doesn't"
+        + "\nexist, CSV export will proceed without conversion.)\n\n",
     )
 
     args = parser.parse_args()
@@ -306,7 +306,7 @@ def cli():
                     print(
                         "OK.  To use ionical you'll need to create/use"
                         " a valid cals.json file, \nas described in"
-                        " this project's Readme.\n\n"
+                        " this project's README.\n\n"
                     )
             sys.exit(1)
     else:
