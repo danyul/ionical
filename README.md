@@ -2,17 +2,32 @@
 # Ionical - Keep an eye on icals!
 
 - Ionical is a multipurpose CLI tool for icalendar management:
-  - Download ics files, view event data, and track what has
-    changed since the ics files were previously downloaded
-    (e.g., to monitor for added or removed events).
+  - Download ics files, view event data, and compare  
+    sets of icalendar files from different dates to 
+    generate changelogs showing added/removed events.
   - Events may be filtered by event summary text or start date.
-  - Filtered event data may also be exported to CSV.
+  - Filtered event data may also be exported to CSV (experimental).
 
 
 ## Installing via pip:
 ```
 $ pip install ionical
 ```
+
+
+## Installing from respository:
+```
+$ git clone https://github.com/danyul/ionical
+$ cd ionical
+$ python -m venv env
+$ source env/bin/activate
+$ pip install -e ".[test]"
+```
+If on Windows, replace 'source env/bin/activate' with:
+```
+$ .\env\Scripts\activate
+```
+
 
 ## Command line usage:
 ```
@@ -76,21 +91,35 @@ CSV Export Config (only applicable when -c option also specified):
                          doesn't exist, CSV export will proceed without conversion.)
 ```
 
-## Installing from respository:
-```
-$ git clone https://github.com/danyul/ionical
-$ cd ionical
-$ python -m venv env
-$ source env/bin/activate
-$ pip install -e ".[test]"
-```
-If on Windows, replace 'source env/bin/activate' with:
-```
-$ .\env\Scripts\activate
-```
+(If installed from repository, replace 'ionical' with 'python -m ionical' 
+ in the above usage example.)
 
 
-## Filename formats for downloaded ics files:
+## File format for main configuration file (named cals.json by default):
+```
+[
+  [
+    "NICKNAME_FOR_CAL_1", 
+    "LONG_NAME_FOR_CAL_1", 
+    "http://url_to_ics_download_for_CAL_1.ics", 
+    "Timezone_in_pytz_format_for_CAL_1"
+  ],
+  [
+    "NICKNAME_FOR_CAL_2", 
+    "LONG_NAME_FOR_CAL_2", 
+    "http://url_to_ics_download_for_CAL_2.ics", 
+    "Timezone_in_pytz_format_for_CAL_2"
+  ],
+  ...
+]
+```
+ - Listing of pytz timezones [can be found here](https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones).
+ - Calendar nicknames are:
+   - Used as IDs when telling ionical (via the -i option) to  
+     restrict actions to a subset of calendars.
+   - Serve as the leftmost part of the filename for downloaded ical files.
+  
+## Filename format for downloaded ics files:
 
     Downloaded .ics files have a filename format of ABC123__20200314.ics,  
     where "ABC123" is an identifier nickname for the calendar (a reasonable  
@@ -99,3 +128,17 @@ $ .\env\Scripts\activate
 
     "20200314" indicates that this particular version of the calendar   
     was downloaded on March 14, 2020.
+
+
+# Libraries used
+
+- [icalendar](https://pypi.org/project/icalendar/)
+- [pytz](https://pypi.org/project/pytz/)
+- [recurring_ical_events](https://pypi.org/project/recurring-ical-events/)
+  (which, in turn, uses [python-dateutil](https://pypi.org/project/python-dateutil/))
+
+
+# Similar projects
+
+- [icalevents](https://github.com/irgangla/icalevents)
+
