@@ -14,7 +14,7 @@
     While adequate for certain basic use cases (e.g., it was  
     designed to track changes to employee schedules on  
     [Amion](https://amion.com/), and has worked well for that), it cannot   
-    handle more sophistaced workflows.  
+    handle more sophisticated workflows.  
   
 
 ## Installing via pip:
