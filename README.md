@@ -1,13 +1,20 @@
 
 # Ionical - Keep an eye on icals!
 
-- Ionical is a multipurpose CLI tool for icalendar management:
+- Ionical is a command line tool for icalendar management:  
   - Download icalendar files.
-  - View schedules, optionally filtered by start date  
-    or event summary text.
+  - View schedules, optionally filtered by start date or event   
+    summary text.
   - Compare sets of icalendar files obtained on different dates  
     to generate changelogs showing added/removed events.
-  - Export events to CSV (experimental).
+  - Export events to CSV.
+- Limitations: 
+  - At present, ionical only compares and displays event  
+    start times and summary text.  Other fields are ignored.  
+    While adequate for certain basic use cases (e.g., it was  
+    designed to track changes to employee schedules on  
+    [Amion](https://amion.com/), and has worked well for that), it cannot   
+    handle more sophistaced workflows.  
   
 
 ## Installing via pip:
@@ -16,7 +23,7 @@ $ pip install ionical
 ```
   
 
-## Installing from respository:
+## Installing from repository:
 ```
 $ git clone https://github.com/danyul/ionical
 $ cd ionical
@@ -29,7 +36,7 @@ If on Windows, replace 'source env/bin/activate' with:
 $ .\env\Scripts\activate
 ```
   
-  
+
 
 ## Command line usage:
 ```
@@ -114,7 +121,7 @@ CSV Export Config:
  in the above usage example.*
    
   
-## File format for cals.json, ionical's primary configuration file:
+## File format for cals.json (ionical's primary configuration file):
 ```
 [
   [
@@ -134,12 +141,11 @@ CSV Export Config:
 ```
  - Listing of pytz timezones [can be found here](https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones).
  - The calendar **NAME**:
-     - Serves as an ID when instructing ionical (via -i)  
+     - Serves as an ID when asking ionical (via -i option)    
        to restrict actions to a subset of calendars.
      - Serves as the leftmost part of the filename for  
        downloaded ics files.
-     - Should not have any spaces or non-alphanumeric  
-       characters.
+     - Shouldn't have spaces or non-alphanumeric characters.  
  - The calendar **LONG NAME**:
      - Is used for display purposes.
   
@@ -151,8 +157,8 @@ CSV Export Config:
     identifier. (A reasonable name for a calendar  
     which tracks an employee's work schedule might  
     be a last name or an employee ID number.) Names  
-    shouldn't contain spaces or non-alphanumeric characters.
-
+    should contain only alphanumeric characters.  
+  
     "20200314" indicates that this particular version  
     of the calendar was downloaded on March 14, 2020.  
   
