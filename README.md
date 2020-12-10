@@ -41,12 +41,17 @@ $ .\env\Scripts\activate
 ## Command line usage:
 ```
 Usage: ionical [-v] [-h] 
-               [-g] [-s] [-l [#_COMPARISONS]] [-c CSV_EXPORT_FILE] 
+               [-g] [-s] [-l [#_COMPARISONS]] [-c CSV_FILE] 
                [-i NAME [NAME ...]] 
                [-t TEXT [TEXT ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
                [-f CALS_CFG_DIR] [-d ICS_DIR] 
-               [-x CONVERSION_FILE]
+               [-x CONVERSION_DIR]
+
+Help/About:
+  -v, --version       Print version, then exit.
+  -h, --help          Print help message, then exit.
+
 
 Primary Options:
   One or more primary options MUST be specified.
@@ -98,22 +103,19 @@ Event Filters:
                       have no upper limit on event dates.)
 
 
-General Config:
+File Locations Config:
   Specify expected file locations, if different from the current directory.
 
   -f CALS_CFG_DIR     Directory where primary config file cals.json located.
                       cals.json should contain a list of calendar names,
                       URLs, and timezones.  See README for specifications.
 
-  -d ICS_DIR          Directory for downloading/accessing .ics files.
+  -d ICS_DIR          Directory for downloading or accessing .ics files.
+
+  -x CONVERSION_DIR   Directory containing (optional) file csv_convert.json.
+                      (This option only applicable when -c also specified.)
 
 
-CSV Export Config:
-  Applicable only when -c option also specified.
-
-  -x CONVERSION_FILE  JSON file w/ dictionary of conversion terms.
-                      (Default: ./csv_conversions.json.  If file doesn't
-                      exist, CSV export will proceed without conversion.)
 
 ```
 

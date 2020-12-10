@@ -17,7 +17,8 @@ from . import __version__
 ICS_DIR = "./"
 DEF_CALS_DIR = "./"
 DEF_CALS_FILE = "cals.json"
-DEF_CONVERSION_TABLE_FILE = "./csv_conversions.json"
+DEF_CONVERSION_DIR = "./"
+DEF_CONVERSION_FILE = "csv_convert.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
 
@@ -129,11 +130,8 @@ def cli():
         + "and CSV exports.",
     )
     file_options = parser.add_argument_group(
-        "General Config",
+        "File Locations Config",
         "Specify expected file locations, if different from the current directory.",
-    )
-    csv_options = parser.add_argument_group(
-        "CSV Export Config", "Applicable only when -c option also specified."
     )
 
     help_options.add_argument(
@@ -243,17 +241,26 @@ def cli():
         metavar="ICS_DIR",
         dest="directory",
         default=ICS_DIR,
-        help=f"Directory for downloading/accessing .ics files.\n\n",
+        help=f"Directory for downloading or accessing .ics files.\n\n",
     )
-    csv_options.add_argument(
+    file_options.add_argument(
         "-x",
-        metavar="CONVERSION_FILE",
-        dest="csv_conversion_file",
-        default=DEF_CONVERSION_TABLE_FILE,
-        help="JSON file w/ dictionary of conversion terms. "
-        + f"\n(Default: {DEF_CONVERSION_TABLE_FILE}.  If this file doesn't"
-        + "\nexist, CSV export will proceed without conversion.)\n\n",
+        metavar="CONVERSION_DIR",
+        dest="csv_conversion_dir",
+        default=DEF_CONVERSION_DIR,
+        help="Directory containing (optional) file csv_convert.json."
+        "\n(This option only applicable when -c also specified.)",
     )
+
+    # help="Directory where csv_convert.json (if it exists), can be found."
+    #      "\nThis file is a simple 'key':'value' translation dictionary.  "
+    #      "\nIf -x option is given, and if csv_convert.json is found "
+    #      "\nin CONVERSION_DIR-- or if the -x option is not used but "
+    #      "\ncsv_convert.json is found in the user's current directory, "             "\n(or in the current directory, if -x is "
+    #      "\nthen -- prior to CSV export -- each event summary field will be  "
+    #      "\nchecked against the entries in csv_convert.json, and any matched "
+    #      "\n'key' will be substituted with 'value'."
+    #      "\nThis option is only relevant if -c option is also provided."
 
     args = parser.parse_args()
     earliest_date, latest_date = None, None
@@ -333,16 +340,17 @@ def cli():
     if args.csv_file:
         try:
             print("\nAttempting to write to CSV file: " + f"{args.csv_file}")
-            with open(args.csv_conversion_file, "r", encoding="utf-8") as f:
+            conv_file_path = args.csv_conversion_dir + DEF_CONVERSION_FILE
+            with open(conv_file_path, "r", encoding="utf-8") as f:
                 csv_conversion_dict = json.loads(f.read())
             print(
                 "\nFound/using event summary conversion info from: "
-                + f"{args.csv_conversion_file}"
+                + f"{conv_file_path}"
             )
         except FileNotFoundError:
             print(
                 "\nCould not locate conversion table file:"
-                + f"{args.csv_conversion_file}.  Will export events "
+                + f"{conv_file_path}.  Will export events "
                 + "to csv without doing any conversions."
             )
 
