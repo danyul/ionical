@@ -15,7 +15,8 @@ from ionical.ionical import main
 from . import __version__
 
 ICS_DIR = "./"
-DEF_JSON = "./cals.json"
+DEF_CALS_DIR = "./"
+DEF_CALS_FILE = "cals.json"
 DEF_CONVERSION_TABLE_FILE = "./csv_conversions.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
@@ -116,17 +117,24 @@ def cli():
     )
     help_options = parser.add_argument_group("Help/About")
     main_options = parser.add_argument_group(
-        "Main Operations (one or more of these MUST be specified)"
+        "Primary Options", "One or more primary options MUST be specified."
     )
     calendar_filter_options = parser.add_argument_group(
-        "Calendar Filters (will apply to all Main Operation options)"
+        "Calendar Filters",
+        "Restrict actions to a subset of calendars"
+        + " (affects all primary options).",
     )
     event_filter_options = parser.add_argument_group(
-        "Event Filters (for changelogs, schedule viewing, and/or csv exports)"
+        "Event Filters",
+        "Filter events shown in changelogs, schedule displays, "
+        + "and csv exports.",
     )
-    file_options = parser.add_argument_group("General Config")
+    file_options = parser.add_argument_group(
+        "General Config",
+        "Specify expected file locations, if different than the current directory.",
+    )
     csv_options = parser.add_argument_group(
-        "CSV Export Config (only applicable when -c option also specified)"
+        "CSV Export Config", "Applicable only when -c option also specified."
     )
 
     help_options.add_argument(
@@ -147,9 +155,9 @@ def cli():
         "--get_today",
         action="store_true",
         help="Download current .ics files and label them with today's date. "
-        + "\nThis will be done prior to running any other Main Operations. "
-        + "\n(If not specified, operations will use only .ics "
-        + "files \nwhich have previously been downloaded.)",
+        + "\nThis will be done prior to the other primary options. "
+        + "\n(If this option is left unspecified, operations will "
+        + "\nuse only those .ics files that have been previously downloaded.)",
     )
     main_options.add_argument(
         "-s",
@@ -175,39 +183,37 @@ def cli():
         "-c",
         metavar="CSV_EXPORT_FILE",
         dest="csv_file",
-        help="Export current schedules to CSV_EXPORT_FILE (alpha status)."
-        + "\n(Also, see -x option.)",
+        help="Export current schedules to CSV_EXPORT_FILE"
+        + " (also, see -x option).",
     )
     calendar_filter_options.add_argument(
         "-i",
-        metavar="CALENDAR_NICKNAMES",
+        metavar="NAME",
         dest="ids",
         nargs="+",
-        help="Only operate on calendars with a nickname identifier that is "
-        + "\ngiven in the list of CALENDAR_NICKNAMES."
-        + "\n(Nickname identifiers are specified in the calendar list config file "
-        + "\nand appear at the start of the filename of downloaded ics files."
-        + "\n(Default behavior: no restrictions. I.e., include all calendars.)",
+        help="Only operate on calendars with a specified NAME."
+        + "\n(If -i not specified, operate on every calendar"
+        + "\nlisted in cals.json.)",
     )
     event_filter_options.add_argument(
         "-t",
-        metavar="TEXT_FILTERS",
+        metavar="TEXT",
         dest="text_filters",
         nargs="+",
-        help="Only include events with event summaries matching the text "
-        + "\nof one or more of the specified TEXT_FILTERS."
-        + "\n(Default behavior: no text filters.)",
+        help="Only include events whose summaries containing matching text."
+        + "\n(If option unspecified, no text filters are applied.)",
     )
     event_filter_options.add_argument(
         "-a",
         metavar="DATE_OR_NUMBER",
         dest="start_date",
         help="Only include events that start AFTER a specified date."
+        "\n(I.e., exclude events starting before the date.)"
         " \nValue must be EITHER a date in format YYYY-MM-DD, or "
-        "a positive \ninteger representing # of days in the past."
-        f" \n(Default behavior: "
-        f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'}"
-        " prior to today's date.)",
+        "\na positive integer representing # of days in the past."
+        f"\n(If option unspecified, default behavior is to exclude"
+        f"\nany events starting prior to "
+        f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'} ago.)",
         default=DEF_DAYSBACK,
         type=valid_pos_integer_or_date,
     )
@@ -216,26 +222,27 @@ def cli():
         metavar="DATE_OR_NUMBER",
         dest="end_date",
         help="Only include events that start BEFORE a specified date."
+        "\n(I.e., exclude events starting on or after the date.)"
         "\nValue must be EITHER a date in format YYYY-MM-DD, or "
-        "a positive \ninteger representing # of days in the future."
-        "\n(Default behavior: no filter)",
+        "\na positive integer representing # of days in the future."
+        "\n(If option unspecified, no 'latest date' limit will be applied.)",
         type=valid_pos_integer_or_date,
     )
     file_options.add_argument(
         "-f",
-        metavar="CAL_CONFIG_FILE",
-        dest="calendar_list_file",
-        default=DEF_JSON,
-        help="File containing list of calendars with basic metadata info."
-        + "\n(In JSON format: [[NICKNAME, FULLNAME, URL, TIME_ZONE], ... ] )"
-        + f"\n(Default: {DEF_JSON})",
+        metavar="CALS_CFG_DIR",
+        dest="calendar_list_directory",
+        default=DEF_CALS_DIR,
+        help=f"Location of {DEF_CALS_FILE}, which contains a listing of"
+        + "\ncalendars and their metadata.  See Readme for specifications."
+        + f"\n(Default: {DEF_CALS_DIR})",
     )
     file_options.add_argument(
         "-d",
-        metavar="ICS_DIRECTORY",
+        metavar="ICS_DIR",
         dest="directory",
         default=ICS_DIR,
-        help=f"Directory where downloaded .ics files are stored."
+        help=f"Directory where downloaded .ics files are to be stored/accessed."
         + f"\n(Default: {ICS_DIR})",
     )
     csv_options.add_argument(
@@ -245,7 +252,7 @@ def cli():
         default=DEF_CONVERSION_TABLE_FILE,
         help="JSON file w/ dictionary of conversion terms. "
         + f"\n(Default: {DEF_CONVERSION_TABLE_FILE}.  If this file "
-        + "\n doesn't exist, CSV export will proceed without conversion.)",
+        + "\ndoesn't exist, CSV export will proceed without conversion.)",
     )
 
     args = parser.parse_args()
@@ -253,27 +260,30 @@ def cli():
     show_changelog = True if args.num_lookbacks > 0 else False
 
     today = date.today()
-    using_default_calendar_list = args.calendar_list_file == DEF_JSON
+    using_default_calendar_dir = args.calendar_list_directory == DEF_CALS_DIR
     if args.help:
         parser.print_help()
         sys.exit(1)
-    if args.calendar_list_file:
+    if args.calendar_list_directory:
         try:
-            print(f"\nCalendar list config file: {args.calendar_list_file}")
-            with open(args.calendar_list_file, "r", encoding="utf-8") as f:
+            print(
+                f"\nLooking for {DEF_CALS_FILE} config file in: "
+                + f" {args.calendar_list_directory}"
+            )
+            with open(
+                args.calendar_list_directory + DEF_CALS_FILE,
+                "r",
+                encoding="utf-8",
+            ) as f:
                 people_tuples = json.loads(f.read())
         except FileNotFoundError:
-            if not using_default_calendar_list:
-                print(
-                    "Could NOT locate the calendar list config file "
-                    + f"file: {args.calendar_list_file}"
-                )
+            print(
+                f"Could NOT locate {DEF_CALS_FILE} in "
+                + f"{args.calendar_list_directory}"
+            )
+            if not using_default_calendar_dir:
                 print("\n\nQuitting.")
             else:
-                print(
-                    f"Could NOT find the default calendar list config "
-                    + f"file: {args.calendar_list_file}"
-                )
                 question: str = (
                     "Would you like to create this file and "
                     + "populate it with sample data?"
@@ -281,7 +291,9 @@ def cli():
                 if query_yes_no(question):
                     print("\nOK, attempting to create file...")
                     with open(
-                        args.calendar_list_file, "w", encoding="utf-8"
+                        args.calendar_list_directory + DEF_CALS_FILE,
+                        "w",
+                        encoding="utf-8",
                     ) as f:
                         f.write(SAMPLE_CALENDAR_LISTING_JSON)
                         print(
@@ -292,14 +304,13 @@ def cli():
                         )
                 else:
                     print(
-                        "OK.  To use ionical you'll either need to create/use"
-                        "the default calendar list config file, or specify another "
-                        "valid config file using the -f option.\n\n"
-                        "Run 'ionical -h' for help/instructions."
+                        "OK.  To use ionical you'll need to create/use"
+                        " a valid cals.json file, \nas described in"
+                        " this project's Readme.\n\n"
                     )
             sys.exit(1)
     else:
-        print("\nYou must provide a valid calendar list config file.")
+        print(f"\nYou must provide a valid directory for {DEF_CALS_FILE}")
         print("Quitting.\n")
         sys.exit(1)
     if args.start_date:

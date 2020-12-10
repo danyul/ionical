@@ -99,13 +99,13 @@ CSV Export Config (only applicable when -c option also specified):
 ```
 [
   [
-    "NICKNAME_FOR_CAL_1", 
+    "NAME_FOR_CAL_1", 
     "LONG_NAME_FOR_CAL_1", 
     "http://url_to_ics_download_for_CAL_1.ics", 
     "Timezone_in_pytz_format_for_CAL_1"
   ],
   [
-    "NICKNAME_FOR_CAL_2", 
+    "NAME_FOR_CAL_2", 
     "LONG_NAME_FOR_CAL_2", 
     "http://url_to_ics_download_for_CAL_2.ics", 
     "Timezone_in_pytz_format_for_CAL_2"
@@ -114,17 +114,21 @@ CSV Export Config (only applicable when -c option also specified):
 ]
 ```
  - Listing of pytz timezones [can be found here](https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones).
- - Calendar nicknames are:
-   - Used as IDs when telling ionical (via the -i option) to  
+ - Calendar **NAME**s:
+   - Serve as IDs when telling ionical (via the -i option) to  
      restrict actions to a subset of calendars.
    - Serve as the leftmost part of the filename for downloaded ical files.
-  
+   - Should not have any spaces or special non-alphanumeric characters.
+ - Calendar **LONG NAME**s:
+   - Are used for display
+
 ## Filename format for downloaded ics files:
 
     Downloaded .ics files have a filename format of ABC123__20200314.ics,  
-    where "ABC123" is an identifier nickname for the calendar (a reasonable  
-    identifier nickname for, say, a calendar which tracks an employee's  
+    where "ABC123" is a name identifier for the calendar (a reasonable  
+    name for, say, a calendar which tracks an employee's  
     work schedule might be a last name or an employee ID number.) 
+    Names shouldn't contain spaces or non-alphanumeric characters.
 
     "20200314" indicates that this particular version of the calendar   
     was downloaded on March 14, 2020.

@@ -38,3 +38,5 @@ tmp/
 
 # ionical files
 calendar_list.json
+cals.json
+csv_conversions.json
