@@ -1,7 +1,7 @@
 
-# Ionical - Keep an eye on icals!
+# ionical: Keep an eye on icals!
 
-- Ionical is a command line tool for icalendar management:  
+- ionical is a command line tool for icalendar management:  
   - Download icalendar files.
   - View schedules, optionally filtered by start date or event   
     summary text.
