@@ -356,8 +356,6 @@ class Schedule:
         return self.display()
 
 
-
-
 class ScheduleFeed:
     """Holder for a Person's .ics URL."""
 
@@ -705,7 +703,6 @@ def main(
         # **kwargs to possibly include the parameters:
         #   date_fmt, time_fmt, time_replacements,
         output += report
-
 
     if show_schedule:
         for person in chosen_people:

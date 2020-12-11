@@ -21,6 +21,7 @@ DEF_CALS_FILE = "cals.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
 
+
 def valid_date(s):
     try:
         return datetime.strptime(s, "%Y-%m-%d").date()
@@ -56,6 +57,7 @@ def valid_pos_integer(value):
         raise argparse.ArgumentTypeError("Needs to be a positive integer.")
     return ivalue
 
+
 def cli():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter, add_help=False
@@ -81,7 +83,7 @@ def cli():
         "-x",
         metavar="CONVERSION_FILE",
         dest="convert_file",
-        help="Path to event summary conversion file for CSV export."
+        help="Path to event summary conversion file for CSV export.",
     )
     parser.add_argument(
         "-i",
@@ -146,10 +148,7 @@ def cli():
         ) as f:
             people_tuples = json.loads(f.read())
     except FileNotFoundError:
-        print(
-            f"Could NOT locate {DEF_CALS_FILE} in "
-            + f"{args.config_dir}"
-        )
+        print(f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}")
     if args.start_date:
         if isinstance(args.start_date, date):
             earliest_date = args.start_date
@@ -160,7 +159,7 @@ def cli():
             latest_date = args.end_date
         else:  # it's an int
             latest_date = today + timedelta(days=args.end_date)
-    
+
     csv_conversion_dict = {}
     if args.csv_file:
         print("\nFilename for CSV export: " + f"{args.csv_file}")
@@ -171,8 +170,7 @@ def cli():
                     csv_conversion_dict = json.loads(f.read())
                 print("CSV conversion file successfully located.\n")
             except FileNotFoundError:
-                print("However, CSV conversion file NOT FOUND! \nQuitting.\n"
-                )
+                print("However, CSV conversion file NOT FOUND! \nQuitting.\n")
                 sys.exit(1)
 
     all_people = [
@@ -192,7 +190,8 @@ def cli():
         filters=args.text_filters,
     )
     writer.csv_write(csv_file=args.csv_file, include_empty_dates=True)
-        
+
+
 class ScheduleWriter:
     def __init__(
         self,
@@ -314,5 +313,7 @@ class ScheduleWriter:
             writer.writerow([""] + [p.person_id for p in self.people])
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
+
+
 if __name__ == "__main__":
     cli()

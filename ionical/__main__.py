@@ -124,7 +124,7 @@ def cli():
     )
     event_filter_options = parser.add_argument_group(
         "Event Filters",
-        "Filter events shown in changelogs, schedule displays, "
+        "Filter events shown in changelogs, schedule displays, ",
     )
     file_options = parser.add_argument_group(
         "File Locations",
@@ -256,8 +256,7 @@ def cli():
                 people_tuples = json.loads(f.read())
         except FileNotFoundError:
             print(
-                f"Could NOT locate {DEF_CALS_FILE} in "
-                + f"{args.config_dir}"
+                f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}"
             )
             if not using_default_calendar_dir:
                 print("\n\nQuitting.")
