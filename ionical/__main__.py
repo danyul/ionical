@@ -10,6 +10,7 @@ import json
 import re
 import sys
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from ionical.ionical import main
 from . import __version__
@@ -17,8 +18,6 @@ from . import __version__
 ICS_DIR = "./"
 DEF_CALS_DIR = "./"
 DEF_CALS_FILE = "cals.json"
-DEF_CONVERSION_DIR = "./"
-DEF_CONVERSION_FILE = "csv_convert.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
 
@@ -130,8 +129,8 @@ def cli():
         + "and CSV exports.",
     )
     file_options = parser.add_argument_group(
-        "File Locations Config",
-        "Specify expected file locations, if different from the current directory.",
+        "File Locations",
+        "Specify expected locations for config files and calendar downloads.",
     )
 
     help_options.add_argument(
@@ -181,7 +180,7 @@ def cli():
         "-c",
         metavar="CSV_FILE",
         dest="csv_file",
-        help="Export calendar events to CSV_FILE " + "(also, see -x).\n\n",
+        help="Export calendar events to CSV_FILE. (Also see: -x .)\n\n",
     )
     calendar_filter_options.add_argument(
         "-i",
@@ -229,12 +228,14 @@ def cli():
     )
     file_options.add_argument(
         "-f",
-        metavar="CALS_CFG_DIR",
-        dest="calendar_list_directory",
+        metavar="CONFIG_DIRECTORY",
+        dest="config_dir",
         default=DEF_CALS_DIR,
-        help=f"Directory where primary config file {DEF_CALS_FILE} located."
-        f"\n{DEF_CALS_FILE} should contain a list of calendar names, "
-        f"\nURLs, and timezones.  See README for specifications.\n\n",
+        help=f"Directory where config files located."
+        f"\nThe primary config file, {DEF_CALS_FILE}, should "
+        f"\ncontain a list of calendar names, URLs, and timezones."
+        f"\nSee README for config file format info."
+        f"\n(Default config directory is user's current directory.)\n\n",
     )
     file_options.add_argument(
         "-d",
@@ -245,40 +246,25 @@ def cli():
     )
     file_options.add_argument(
         "-x",
-        metavar="CONVERSION_DIR",
-        dest="csv_conversion_dir",
-        default=DEF_CONVERSION_DIR,
-        help="Directory containing (optional) file csv_convert.json."
-        "\n(This option only applicable when -c also specified.)",
+        metavar="CONVERSION_FILE",
+        dest="convert_file",
+        help="Path to event summary conversion file for CSV export."
+        "\n(This option only applicable when -c also specified.)\n\n",
     )
-
-    # help="Directory where csv_convert.json (if it exists), can be found."
-    #      "\nThis file is a simple 'key':'value' translation dictionary.  "
-    #      "\nIf -x option is given, and if csv_convert.json is found "
-    #      "\nin CONVERSION_DIR-- or if the -x option is not used but "
-    #      "\ncsv_convert.json is found in the user's current directory, "             "\n(or in the current directory, if -x is "
-    #      "\nthen -- prior to CSV export -- each event summary field will be  "
-    #      "\nchecked against the entries in csv_convert.json, and any matched "
-    #      "\n'key' will be substituted with 'value'."
-    #      "\nThis option is only relevant if -c option is also provided."
 
     args = parser.parse_args()
     earliest_date, latest_date = None, None
     show_changelog = True if args.num_lookbacks > 0 else False
 
     today = date.today()
-    using_default_calendar_dir = args.calendar_list_directory == DEF_CALS_DIR
+    using_default_calendar_dir = args.config_dir == DEF_CALS_DIR
     if args.help:
         parser.print_help()
         sys.exit(1)
-    if args.calendar_list_directory:
+    if args.config_dir:
         try:
-            print(
-                f"\nLooking for {DEF_CALS_FILE} config file in: "
-                + f" {args.calendar_list_directory}"
-            )
             with open(
-                args.calendar_list_directory + DEF_CALS_FILE,
+                Path(args.config_dir) / DEF_CALS_FILE,
                 "r",
                 encoding="utf-8",
             ) as f:
@@ -286,7 +272,7 @@ def cli():
         except FileNotFoundError:
             print(
                 f"Could NOT locate {DEF_CALS_FILE} in "
-                + f"{args.calendar_list_directory}"
+                + f"{args.config_dir}"
             )
             if not using_default_calendar_dir:
                 print("\n\nQuitting.")
@@ -298,7 +284,7 @@ def cli():
                 if query_yes_no(question):
                     print("\nOK, attempting to create file...")
                     with open(
-                        args.calendar_list_directory + DEF_CALS_FILE,
+                        Path(args.config_dir) / DEF_CALS_FILE,
                         "w",
                         encoding="utf-8",
                     ) as f:
@@ -318,7 +304,7 @@ def cli():
             sys.exit(1)
     else:
         print(f"\nYou must provide a valid directory for {DEF_CALS_FILE}")
-        print("Quitting.\n")
+        print("\nQuitting.\n")
         sys.exit(1)
     if args.start_date:
         if isinstance(args.start_date, date):
@@ -338,25 +324,22 @@ def cli():
 
     csv_conversion_dict = {}
     if args.csv_file:
-        try:
-            print("\nAttempting to write to CSV file: " + f"{args.csv_file}")
-            conv_file_path = args.csv_conversion_dir + DEF_CONVERSION_FILE
-            with open(conv_file_path, "r", encoding="utf-8") as f:
-                csv_conversion_dict = json.loads(f.read())
-            print(
-                "\nFound/using event summary conversion info from: "
-                + f"{conv_file_path}"
-            )
-        except FileNotFoundError:
-            print(
-                "\nCould not locate conversion table file:"
-                + f"{conv_file_path}.  Will export events "
-                + "to csv without doing any conversions."
-            )
+        print("\nFilename for CSV export: " + f"{args.csv_file}")
+        if args.convert_file:
+            print(f"CSV export conversion file specified: {args.convert_file}")
+            try:
+                with open(Path(args.convert_file), "r", encoding="utf-8") as f:
+                    csv_conversion_dict = json.loads(f.read())
+                print("CSV conversion file successfully located.\n")
+            except FileNotFoundError:
+                print("However, CSV conversion file NOT FOUND! \nQuitting.\n"
+                )
+                sys.exit(1)
+
 
     if not any([args.schedule, show_changelog, args.get_today, args.csv_file]):
         print(
-            "You MUST specify at least one of the Main Operations.\n"
+            "You MUST specify at least one of the primary options.\n"
             + "\nFor help, run ionical with the -h option.\n"
         )
         sys.exit(1)
