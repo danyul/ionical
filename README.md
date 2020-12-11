@@ -7,7 +7,6 @@
     summary text.
   - Compare sets of icalendar files obtained on different dates  
     to generate changelogs showing added/removed events.
-  - Export events to CSV.
 - Limitations: 
   - At present, ionical only compares and displays event  
     start times and summary text.  Other fields are ignored.  
@@ -41,12 +40,11 @@ $ .\env\Scripts\activate
 ## Command line usage:
 ```
 Usage: ionical [-v] [-h] 
-               [-g] [-s] [-l [#_COMPARISONS]] [-c CSV_FILE] 
+               [-g] [-s] [-l [#_COMPARISONS]]
                [-i NAME [NAME ...]] 
                [-t TEXT [TEXT ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
                [-f CALS_CFG_DIR] [-d ICS_DIR] 
-               [-x CONVERSION_DIR]
 
 Help/About:
   -v, --version       Print version, then exit.
@@ -69,8 +67,6 @@ Primary Options:
                       prior versions (per each calendar) for which to show
                       comparison changelogs.
                       (If left unspecified, #_COMPARISONS default is 2.)
-
-  -c CSV_FILE         Export calendar events to CSV_FILE (also, see -x).
 
 
 Calendar Filters:
@@ -111,9 +107,6 @@ File Locations Config:
                       URLs, and timezones.  See README for specifications.
 
   -d ICS_DIR          Directory for downloading or accessing .ics files.
-
-  -x CONVERSION_DIR   Directory containing (optional) file csv_convert.json.
-                      (This option only applicable when -c also specified.)
 
 
 

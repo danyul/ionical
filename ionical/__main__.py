@@ -3,7 +3,6 @@
     changed since the ics files were last downloaded
     (eg, to monitor for added or removed events) 
   - Events may be filtered by event summary text or start date.
-  - Filtered event data may also be exported to CSV.
 """
 import argparse
 import json
@@ -126,7 +125,6 @@ def cli():
     event_filter_options = parser.add_argument_group(
         "Event Filters",
         "Filter events shown in changelogs, schedule displays, "
-        + "and CSV exports.",
     )
     file_options = parser.add_argument_group(
         "File Locations",
@@ -175,12 +173,6 @@ def cli():
         "\nprior versions (per each calendar) for which to show "
         "\ncomparison changelogs. \n(If left unspecified, "
         f"#_COMPARISONS default is {DEF_NUM_LOOKBACKS}.)\n\n",
-    )
-    main_options.add_argument(
-        "-c",
-        metavar="CSV_FILE",
-        dest="csv_file",
-        help="Export calendar events to CSV_FILE. (Also see: -x .)\n\n",
     )
     calendar_filter_options.add_argument(
         "-i",
@@ -243,13 +235,6 @@ def cli():
         dest="directory",
         default=ICS_DIR,
         help=f"Directory for downloading or accessing .ics files.\n\n",
-    )
-    file_options.add_argument(
-        "-x",
-        metavar="CONVERSION_FILE",
-        dest="convert_file",
-        help="Path to event summary conversion file for CSV export."
-        "\n(This option only applicable when -c also specified.)\n\n",
     )
 
     args = parser.parse_args()
@@ -322,22 +307,7 @@ def cli():
             + f"{args.directory}"
         )
 
-    csv_conversion_dict = {}
-    if args.csv_file:
-        print("\nFilename for CSV export: " + f"{args.csv_file}")
-        if args.convert_file:
-            print(f"CSV export conversion file specified: {args.convert_file}")
-            try:
-                with open(Path(args.convert_file), "r", encoding="utf-8") as f:
-                    csv_conversion_dict = json.loads(f.read())
-                print("CSV conversion file successfully located.\n")
-            except FileNotFoundError:
-                print("However, CSV conversion file NOT FOUND! \nQuitting.\n"
-                )
-                sys.exit(1)
-
-
-    if not any([args.schedule, show_changelog, args.get_today, args.csv_file]):
+    if not any([args.schedule, show_changelog, args.get_today]):
         print(
             "You MUST specify at least one of the primary options.\n"
             + "\nFor help, run ionical with the -h option.\n"
@@ -361,9 +331,7 @@ def cli():
         show_changelog=show_changelog,
         people_filter=args.ids,
         filters=args.text_filters,
-        csv_file=args.csv_file,
         include_empty_dates=True,
-        conversion_table=csv_conversion_dict,
         num_changelog_lookbacks=args.num_lookbacks,
         date_fmt=date_fmt,
         time_fmt=time_fmt,

@@ -1,3 +1,7 @@
 """ionical provides command line tools for ics management"""
 
-__version__ = "0.2.6-beta"
+from .ionical import Person, ScheduleHistory
+
+__all__ = ["Person", "ScheduleHistory"]
+
+__version__ = "0.2.6-csvfree"
