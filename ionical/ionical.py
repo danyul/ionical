@@ -202,7 +202,7 @@ class MonitoredEventData:
                 time_str = time_str.replace(pre, post)
 
         if shift_str_template is None:
-            shift_str_template = "" #"Shift: {:11}"
+            shift_str_template = ""  # "Shift: {:11}"
         shift_str = shift_str_template.format(self.workshift)
 
         return schedule_summary_line.format(

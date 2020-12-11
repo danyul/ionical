@@ -52,7 +52,7 @@ def test_display_schedule(capsys):
         show_schedule=True,
         people_filter=["Gilliam, Terry"],
         filters=["IHS"],
-        shift_str_template = "Shift: {:11}",
+        shift_str_template="Shift: {:11}",
     )
     out, err = capsys.readouterr()
     assert out == Path(exp_output_dir + "gilliam_schedule_1.txt").read_text()

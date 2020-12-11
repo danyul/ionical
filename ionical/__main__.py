@@ -19,15 +19,6 @@ DEF_CALS_DIR = "./"
 DEF_CALS_FILE = "cals.json"
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
-
-CHANGELOG_DATE_FMT = "%a, %b %d %Y"
-CHANGELOG_TIME_FMT = " (%I%p)  "
-SHIFT_STR_TEMPLATE = ""
-SCHEDULE_SUMMARY_LINE = " {0:16}{1:12}{2:7}{3:30}"
-SCHEDULE_EVENT_DATE_FMT = "%a, %b %d %Y"
-SCHEDULE_EVENT_TIME_FMT = " %I%p"
-SCHEDULE_EVENT_TIME_REPLACEMENTS = {"(0": "(", "AM": "am", "PM": "pm"}
-
 SAMPLE_CALENDAR_LISTING_JSON = """
 [
     [
@@ -129,6 +120,9 @@ def cli():
     file_options = parser.add_argument_group(
         "File Locations",
         "Specify expected locations for config files and calendar downloads.",
+    )
+    experimental_options = parser.add_argument_group(
+        "Experimental",
     )
 
     help_options.add_argument(
@@ -236,6 +230,13 @@ def cli():
         default=ICS_DIR,
         help=f"Directory for downloading or accessing .ics files.\n\n",
     )
+    experimental_options.add_argument(
+        "-e",
+        nargs="+",
+        metavar="ARG",
+        dest="experimentals",
+        help=f"Pass experimental arguments.\n\n",
+    )
 
     args = parser.parse_args()
     earliest_date, latest_date = None, None
@@ -313,12 +314,42 @@ def cli():
         )
         sys.exit(1)
 
-    if show_changelog:
-        date_fmt = CHANGELOG_DATE_FMT
-        time_fmt = CHANGELOG_TIME_FMT
+    # Schdule Summary Line Field Variables
+    # 0: date (further formatted by date_fmt variable)
+    # 1: time (further formatted by time_fmt and time_replacements dict)
+    # 2: shift (further formatted by shift_str_template)
+    # 3: summary text
+
+    if args.experimentals:
+        shift_str_template, event_summary_fmt = args.experimentals
     else:
-        date_fmt = SCHEDULE_EVENT_DATE_FMT
-        time_fmt = SCHEDULE_EVENT_TIME_FMT
+        # "Shift: {:11}", " {0:16}{1:12}{2:7}{3:30}"
+        shift_str_template, event_summary_fmt = "", "    {0:16}  {1:12}{3:30}"
+
+    date_fmt = "%a, %b %d %Y"
+    time_fmt = " (%I%p)  " if show_changelog else " %I%p"
+    time_replacements = {
+        " 0": " ",
+        "(0": "(",
+        "AM": "am",
+        "PM": "pm",
+    }
+
+    print(
+        "\nEvent filters to be applied:\n"
+        f"  Earliest Date: {earliest_date}\n"
+        f"  Latest Date:   {latest_date if latest_date else 'No limit'}\n"
+        "  Summary Text:  "
+        f"{args.text_filters if args.text_filters else 'No text filters'}\n"
+    )
+
+    if args.ids:
+        print(f"Restricting actions to calendars: {args.ids}\n")
+    else:
+        print(
+            "No calendar filters specified. "
+            f"Will use all calendars listed in {DEF_CALS_FILE}."
+        )
 
     main(
         people_data=people_tuples,
@@ -334,9 +365,9 @@ def cli():
         num_changelog_lookbacks=args.num_lookbacks,
         date_fmt=date_fmt,
         time_fmt=time_fmt,
-        time_replacements=SCHEDULE_EVENT_TIME_REPLACEMENTS,
-        shift_str_template=SHIFT_STR_TEMPLATE,
-        schedule_summary_line=SCHEDULE_SUMMARY_LINE,
+        time_replacements=time_replacements,
+        shift_str_template=shift_str_template,
+        schedule_summary_line=event_summary_fmt,
     )
     print("\n")
 
