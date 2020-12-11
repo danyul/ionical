@@ -35,79 +35,6 @@ from ionical.cli_helpers import (
 )
 
 
-def cli():
-    print(f"ionical version: {__version__}")
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter
-    )
-    add_event_filter_arguments(parser)
-    add_path_arguments(parser)
-    add_calendar_filter_arguments(parser)
-    parser.add_argument(
-        "-c",
-        metavar="CSV_FILE",
-        dest="csv_file",
-        help="Export calendar events to CSV_FILE. (Also see: -x .)\n\n",
-    )
-    parser.add_argument(
-        "-x",
-        metavar="CONVERSION_FILE",
-        dest="convert_file",
-        help="Path to event summary conversion file for CSV export.",
-    )
-    args = parser.parse_args()
-
-    try:
-        with open(
-            Path(args.config_dir) / DEF_CALS_FILE,
-            "r",
-            encoding="utf-8",
-        ) as f:
-            people_tuples = json.loads(f.read())
-    except FileNotFoundError:
-        print(f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}")
-
-    earliest_date, latest_date = ionical.cli_helpers.date_range_from_args(
-        args.start_date, args.end_date
-    )
-
-    csv_conversion_dict = {}
-    if args.csv_file:
-        print("\nFilename for CSV export: " + f"{args.csv_file}")
-        if args.convert_file:
-            print(f"CSV export conversion file specified: {args.convert_file}")
-            try:
-                with open(Path(args.convert_file), "r", encoding="utf-8") as f:
-                    csv_conversion_dict = json.loads(f.read())
-                print("CSV conversion file successfully located.\n")
-            except FileNotFoundError:
-                print("However, CSV conversion file NOT FOUND! \nQuitting.\n")
-                sys.exit(1)
-
-    all_people = [
-        Person.from_tuple(person_tuple=person_tuple, ics_dir=args.directory)
-        for person_tuple in people_tuples
-    ]
-
-    if args.ids:
-        chosen_people = [p for p in all_people if p.person_id in args.ids]
-    else:
-        chosen_people = all_people
-
-    writer = ScheduleWriter(
-        people=chosen_people,
-        earliest_date=earliest_date,
-        latest_date=latest_date,
-        filters=args.text_filters,
-    )
-
-    writer.csv_write(
-        conversion_table=csv_conversion_dict,
-        csv_file=args.csv_file,
-        include_empty_dates=True,
-    )
-
-
 class ScheduleWriter:
     def __init__(
         self,
@@ -230,6 +157,77 @@ class ScheduleWriter:
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
 
+def cli():
+    print(f"ionical version: {__version__}")
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    add_event_filter_arguments(parser)
+    add_path_arguments(parser)
+    add_calendar_filter_arguments(parser)
+    parser.add_argument(
+        "-c",
+        metavar="CSV_FILE",
+        dest="csv_file",
+        help="Export calendar events to CSV_FILE. (Also see: -x .)\n\n",
+    )
+    parser.add_argument(
+        "-x",
+        metavar="CONVERSION_FILE",
+        dest="convert_file",
+        help="Path to event summary conversion file for CSV export.",
+    )
+    args = parser.parse_args()
+
+    try:
+        with open(
+            Path(args.config_dir) / DEF_CALS_FILE,
+            "r",
+            encoding="utf-8",
+        ) as f:
+            people_tuples = json.loads(f.read())
+    except FileNotFoundError:
+        print(f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}")
+
+    earliest_date, latest_date = ionical.cli_helpers.date_range_from_args(
+        args.start_date, args.end_date
+    )
+
+    csv_conversion_dict = {}
+    if args.csv_file:
+        print("\nFilename for CSV export: " + f"{args.csv_file}")
+        if args.convert_file:
+            print(f"CSV export conversion file specified: {args.convert_file}")
+            try:
+                with open(Path(args.convert_file), "r", encoding="utf-8") as f:
+                    csv_conversion_dict = json.loads(f.read())
+                print("CSV conversion file successfully located.\n")
+            except FileNotFoundError:
+                print("However, CSV conversion file NOT FOUND! \nQuitting.\n")
+                sys.exit(1)
+
+    all_people = [
+        Person.from_tuple(person_tuple=person_tuple, ics_dir=args.directory)
+        for person_tuple in people_tuples
+    ]
+
+    if args.ids:
+        chosen_people = [p for p in all_people if p.person_id in args.ids]
+    else:
+        chosen_people = all_people
+
+    writer = ScheduleWriter(
+        people=chosen_people,
+        earliest_date=earliest_date,
+        latest_date=latest_date,
+        filters=args.text_filters,
+    )
+
+    writer.csv_write(
+        conversion_table=csv_conversion_dict,
+        csv_file=args.csv_file,
+        include_empty_dates=True,
+    )
 
 if __name__ == "__main__":
     cli()
