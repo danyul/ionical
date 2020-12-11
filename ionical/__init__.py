@@ -2,6 +2,6 @@
 
 from .ionical import Person, ScheduleHistory
 
-__all__ = ["Person", "ScheduleHistory"]
+# __all__ = ["Person", "ScheduleHistory"]
 
 __version__ = "0.3.2-beta"
