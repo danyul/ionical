@@ -7,3 +7,6 @@ Initial release
 
 # 0.2.5 (12/9/2020)
 - Google Calendar event viewing working
+
+# 0.3.0 
+- Removed hacky csv functionality for now
