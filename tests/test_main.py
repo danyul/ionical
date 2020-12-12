@@ -10,6 +10,13 @@ base_dir = "./"
 
 from ionical.ionical import main
 
+from ionical.__main__ import (
+    __version__,
+    cals_from_cfg,
+    date_range_from_args,
+)
+
+
 # CONVERSION_TABLE = {
 #     "PM: IHS Continuity Clinic": "C",
 #     "AM: IHS Continuity Clinic": "C",
@@ -24,8 +31,7 @@ exp_output_dir = test_dir + "expected_output/"
 test_config_dir = test_dir + "config_test/"
 
 
-with open(test_config_dir + "people.json", "r", encoding="utf-8") as f:
-    people_tuples = json.loads(f.read())
+people_tuples = cals_from_cfg(test_config_dir, "test_ionical_config.toml")
 
 
 def test_1984_not_here_yet():
