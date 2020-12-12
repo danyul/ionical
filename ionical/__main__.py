@@ -32,7 +32,42 @@ title = "ionical configuration"
     url = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
     tz = "US/Eastern"
 
+
+
+# You can ignore the below unless you want to change display settings
+[formatting_options]
+    date_fmt      = "%a, %b %d %Y"
+    time_fmt      = " (%I%p)  "
+    time_group    = "Shift: {:11}"
+    event_summary = "    {0:16}  {1:12}{3:30}"
+
+    [formatting_options.time_replacements] 
+        " 0" = " "
+        "(0" = "("
+        "AM" = "am"
+        "PM" = "pm"
+
+
+    # Schdule Summary Line Field Variables
+    # 0: date (further formatted by date_fmt variable)
+    # 1: time (further formatted by time_fmt and time_replacements dict)
+    # 2: shift (further formatted by shift_str_template)
+    # 3: summary text
+
 """
+
+
+def fmt_options_from_cfg(cfg_dir, cfg_fn):
+    cfg_fn_path = Path(cfg_dir) / cfg_fn
+    try:
+        with open(cfg_fn_path, "r", encoding="utf-8") as f:
+            fmt_options = toml.loads(f.read())["formatting_options"]
+    except FileNotFoundError:
+        print("Config file not found when getting format options. Quitting!\n")
+        sys.exit(1)
+    except KeyError:
+        return None
+    return fmt_options
 
 
 def cals_from_cfg(cfg_dir, cfg_fn, sample_toml=None):
@@ -320,7 +355,6 @@ def cli():
             "File Locations",
             "Specify expected locations for config files and calendar downloads.",
         ],
-        # "experimental": ["Experimental", None],
     }
     option_groups = {}
     for key, (name, desc) in help_option_group_info.items():
@@ -337,7 +371,6 @@ def cli():
 
     cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG)
 
-    # earliest_date, latest_date = None, None
     earliest_date, latest_date = date_range_from_args(
         args.start_date, args.end_date
     )
@@ -355,41 +388,7 @@ def cli():
         )
         sys.exit(1)
 
-    # Schdule Summary Line Field Variables
-    # 0: date (further formatted by date_fmt variable)
-    # 1: time (further formatted by time_fmt and time_replacements dict)
-    # 2: shift (further formatted by shift_str_template)
-    # 3: summary text
-
-    # if args.experimentals:
-    #     shift_str_template, event_summary_fmt = args.experimentals
-    # else:
-    # "Shift: {:11}", " {0:16}{1:12}{2:7}{3:30}"
-    # shift_str_template, event_summary_fmt = "", "    {0:16}  {1:12}{3:30}"
-
-    # date_fmt = "%a, %b %d %Y"
-    # time_fmt = " (%I%p)  " if show_changelog else " %I%p"
-    # time_replacements = {
-    #     " 0": " ",
-    #     "(0": "(",
-    #     "AM": "am",
-    #     "PM": "pm",
-    # }
-
-    # fmt_options = get_fmt_options_from_cfg(args.config_dir, DEF_CFG)
-
-    fmt_options = {
-        "date_fmt": "%a, %b %d %Y",
-        "time_fmt": " (%I%p)  " if show_changelog else " %I%p",
-        "time_replacements": {
-            " 0": " ",
-            "(0": "(",
-            "AM": "am",
-            "PM": "pm",
-        },
-        "time_grp": "Shift {:11}",
-        "event_summary": "    {0:16}  {1:12}{3:30}",
-    }
+    fmt_options = fmt_options_from_cfg(args.config_dir, DEF_CFG)
 
     if args.verbose:
         print(
@@ -420,11 +419,6 @@ def cli():
         filters=args.text_filters,
         num_changelog_lookbacks=args.num_lookbacks,
         fmt_options=fmt_options,
-        # date_fmt=date_fmt,
-        # time_fmt=time_fmt,
-        # time_replacements=time_replacements,
-        # shift_str_template=shift_str_template,
-        # schedule_summary_line=event_summary_fmt,
     )
     print("\n")
 

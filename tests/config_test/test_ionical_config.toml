@@ -5,27 +5,44 @@ title = "test ionical configuration"
 
 [calendars]
 
-        [calendars.110]
-            description = "John Cleese"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1283&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
-        [calendars.111]
-            description = "Eric Idle"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1218&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
-        [calendars."Gilliam, Terry"]
-            description = "Terry Gilliam"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1292&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
-        [calendars.119]
-            description = "Michael Palin"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1207&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
-        [calendars.120]
-            description = "Graham Chapman"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1133&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
-        [calendars.112]
-            description = "Terry Jones"
-            url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
-            tz = "US/Mountain"
+    [calendars.110]
+        description = "John Cleese"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1283&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+    [calendars.111]
+        description = "Eric Idle"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1218&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+    [calendars."Gilliam, Terry"]
+        description = "Terry Gilliam"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1292&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+    [calendars.119]
+        description = "Michael Palin"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1207&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+    [calendars.120]
+        description = "Graham Chapman"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1133&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+    [calendars.112]
+        description = "Terry Jones"
+        url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
+        tz = "US/Mountain"
+
+[formatting_options]
+
+    # date_fmt = "%a, %b %d %Y"
+    # time_fmt = " (%I%p)  "
+    #event_summary = "    {0:16}  {1:12}{3:30}"
+    time_group = "Shift: {:11}"
+    event_summary  = "Start: {:12}   Time: {:12} {}  {}"
+    change_report  = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
+
+    [formatting_options.time_replacements] 
+        " 0" = " "
+        "(0" = "("
+        "AM" = "am"
+        "PM" = "pm"
+
+
