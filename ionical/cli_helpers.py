@@ -1,20 +1,37 @@
 from datetime import date, datetime, timedelta
+import sys
+import toml
 
+DEF_CFG = "ionical_config.toml"
+DEF_CFG_DIR = "./"
 DEF_ICS_DIR = "./"
-DEF_CALS_DIR = "./"
-DEF_CALS_FILE = "cals.json"
+
 DEF_DAYSBACK = 1
 DEF_NUM_LOOKBACKS = 2
-SAMPLE_CALENDAR_LISTING_JSON = """
-[
-    [
-      "BMI", 
-      "BMI Music Industry Events Calendar",  
-      "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics",
-      "US/Eastern"
-    ]
-]
+SAMPLE_CALENDAR_LISTING_TOML = """
+# ionical configuration file
+
+title = "ionical configuration"
+
+[calendars]
+  [calendars.BMI]
+    description = "BMI Music Industry Events Calendar"
+    url = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
+    tz = "US/Eastern"
+
 """
+
+
+def cals_from_cfg(fn):
+
+    with open(fn, "r", encoding="utf-8") as f:
+        cfg_dict = toml.loads(f.read())
+        cal_tuples = [
+            (k, v["description"], v["url"], v["tz"])
+            for k, v in cfg_dict["calendars"].items()
+        ]
+    return cal_tuples
+
 
 def valid_date(s):
     try:
@@ -51,6 +68,7 @@ def valid_pos_integer(value):
         raise argparse.ArgumentTypeError("Needs to be a positive integer.")
     return ivalue
 
+
 # https://stackoverflow.com/questions/3041986/apt-command-line-interface-like-yes-no-input
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
@@ -84,6 +102,7 @@ def query_yes_no(question, default="yes"):
                 "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
             )
 
+
 def add_calendar_filter_arguments(parser):
     parser.add_argument(
         "-i",
@@ -92,17 +111,18 @@ def add_calendar_filter_arguments(parser):
         nargs="+",
         help="Only operate on calendars with a specified NAME."
         + "\n(If -i not specified, operate on every calendar"
-        + "\nlisted in cals.json.)\n\n",
+        + f"\nlisted in {DEF_CFG}.)\n\n",
     )
-            
+
+
 def add_path_arguments(parser):
     parser.add_argument(
         "-f",
         metavar="CONFIG_DIRECTORY",
         dest="config_dir",
-        default=DEF_CALS_DIR,
+        default=DEF_CFG_DIR,
         help=f"Directory where config files located."
-        f"\nThe primary config file, {DEF_CALS_FILE}, should "
+        f"\nThe primary config file, {DEF_CFG}, should "
         f"\ncontain a list of calendar names, URLs, and timezones."
         f"\nSee README for config file format info."
         f"\n(Default config directory is user's current directory.)\n\n",
@@ -114,7 +134,7 @@ def add_path_arguments(parser):
         default=DEF_ICS_DIR,
         help=f"Directory for downloading or accessing .ics files.\n\n",
     )
-    
+
 
 def add_event_filter_arguments(parser):
     parser.add_argument(
@@ -152,9 +172,9 @@ def add_event_filter_arguments(parser):
         + "\nthat match a TEXT item."
         + "\n(If option not specified, no text filters are applied.)\n\n",
     )
- 
 
-def date_range_from_args(start,end):
+
+def date_range_from_args(start, end):
     today = date.today()
     earliest_date, latest_date = None, None
     if start:

@@ -1,5 +1,4 @@
 import argparse
-import json
 import re
 import sys
 from datetime import date, datetime, timedelta
@@ -13,18 +12,19 @@ from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional
 from typing import Set, Tuple
 
+import toml
+
 import ionical.cli_helpers
 
 from ionical.ionical import MonitoredEventData, Person
 from ionical import __version__
 
 from ionical.cli_helpers import (
-    DEF_CALS_DIR,
-    DEF_CALS_FILE,
+    DEF_CFG,
     DEF_ICS_DIR,
     DEF_DAYSBACK,
     DEF_NUM_LOOKBACKS,
-    SAMPLE_CALENDAR_LISTING_JSON,
+    SAMPLE_CALENDAR_LISTING_TOML,
     valid_date,
     valid_pos_integer,
     valid_pos_integer_or_date,
@@ -32,19 +32,20 @@ from ionical.cli_helpers import (
     add_event_filter_arguments,
     add_calendar_filter_arguments,
     add_path_arguments,
+    cals_from_cfg,
 )
 
 
 class ScheduleWriter:
     def __init__(
         self,
-        people: List[Person],
+        cals: List[Person],
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
         filters: Optional[List[str]] = None,
     ):
         self.filters = filters
-        self.people = people
+        self.cals = cals
 
         self.events_by_person_id: Dict[str, List[MonitoredEventData]] = {
             person.person_id: person.current_schedule.filtered_events(
@@ -52,7 +53,7 @@ class ScheduleWriter:
                 latest_date=latest_date,
                 filters=filters,
             )
-            for person in people
+            for person in cals
         }
 
         event_dates = [
@@ -95,10 +96,10 @@ class ScheduleWriter:
         # DON'T CRITICIZE!
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
-            plist = list("" for _ in range(len(self.people)))
-            for person in self.people:
+            plist = list("" for _ in range(len(self.cals)))
+            for person in self.cals:
                 events = self.events_by_person_id[person.person_id]
-                index_ = self.people.index(person)
+                index_ = self.cals.index(person)
                 am_shift = next(
                     (
                         x
@@ -153,9 +154,10 @@ class ScheduleWriter:
 
         with open(csv_file, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f, dialect=csv_dialect)
-            writer.writerow([""] + [p.person_id for p in self.people])
+            writer.writerow([""] + [p.person_id for p in self.cals])
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
+
 
 def cli():
     print(f"ionical version: {__version__}")
@@ -171,23 +173,14 @@ def cli():
         dest="csv_file",
         help="Export calendar events to CSV_FILE. (Also see: -x .)\n\n",
     )
-    parser.add_argument(
-        "-x",
-        metavar="CONVERSION_FILE",
-        dest="convert_file",
-        help="Path to event summary conversion file for CSV export.",
-    )
     args = parser.parse_args()
 
+    cfg_filename = Path(args.config_dir) / DEF_CFG
     try:
-        with open(
-            Path(args.config_dir) / DEF_CALS_FILE,
-            "r",
-            encoding="utf-8",
-        ) as f:
-            people_tuples = json.loads(f.read())
+        cal_tuples = cals_from_cfg(cfg_filename)
     except FileNotFoundError:
-        print(f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}")
+        print(f"Could NOT locate {DEF_CFG} in " + f"{args.config_dir}")
+        sys.exit(1)
 
     earliest_date, latest_date = ionical.cli_helpers.date_range_from_args(
         args.start_date, args.end_date
@@ -196,28 +189,28 @@ def cli():
     csv_conversion_dict = {}
     if args.csv_file:
         print("\nFilename for CSV export: " + f"{args.csv_file}")
-        if args.convert_file:
-            print(f"CSV export conversion file specified: {args.convert_file}")
-            try:
-                with open(Path(args.convert_file), "r", encoding="utf-8") as f:
-                    csv_conversion_dict = json.loads(f.read())
-                print("CSV conversion file successfully located.\n")
-            except FileNotFoundError:
-                print("However, CSV conversion file NOT FOUND! \nQuitting.\n")
-                sys.exit(1)
+        try:
+            with open(cfg_filename, "r", encoding="utf-8") as f:
+                csv_conversion_dict = toml.loads(f.read())["csv_substitutions"]
+            print(f"Found/using 'csv_subtitutions' in {DEF_CFG}.\n")
+        except FileNotFoundError:
+            print(f"{cfg_filename} NOT FOUND! \nQuitting.\n")
+            sys.exit(1)
+        except KeyError:
+            print(f"Note: No 'csv_substitutions' section in {DEF_CFG}.\n")
 
-    all_people = [
-        Person.from_tuple(person_tuple=person_tuple, ics_dir=args.directory)
-        for person_tuple in people_tuples
+    all_cals = [
+        Person.from_tuple(person_tuple=cal_tuple, ics_dir=args.directory)
+        for cal_tuple in cal_tuples
     ]
 
     if args.ids:
-        chosen_people = [p for p in all_people if p.person_id in args.ids]
+        chosen_cals = [p for p in all_cals if p.person_id in args.ids]
     else:
-        chosen_people = all_people
+        chosen_cals = all_cals
 
     writer = ScheduleWriter(
-        people=chosen_people,
+        cals=chosen_cals,
         earliest_date=earliest_date,
         latest_date=latest_date,
         filters=args.text_filters,
@@ -228,6 +221,7 @@ def cli():
         csv_file=args.csv_file,
         include_empty_dates=True,
     )
+
 
 if __name__ == "__main__":
     cli()

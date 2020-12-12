@@ -11,21 +11,30 @@ import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import toml
+
 import ionical.cli_helpers
 from ionical.ionical import main
 from . import __version__
 
-DEF_ICS_DIR = ionical.cli_helpers.DEF_ICS_DIR
-DEF_CALS_DIR = ionical.cli_helpers.DEF_CALS_DIR
-DEF_CALS_FILE = ionical.cli_helpers.DEF_CALS_FILE
-DEF_DAYSBACK = ionical.cli_helpers.DEF_DAYSBACK
-DEF_NUM_LOOKBACKS = ionical.cli_helpers.DEF_NUM_LOOKBACKS
-SAMPLE_CALENDAR_LISTING_JSON = ionical.cli_helpers.SAMPLE_CALENDAR_LISTING_JSON
 
-valid_date = ionical.cli_helpers.valid_date
-valid_pos_integer_or_date = ionical.cli_helpers.valid_pos_integer_or_date
-valid_pos_integer = ionical.cli_helpers.valid_pos_integer
-query_yes_no = ionical.cli_helpers.query_yes_no
+from ionical.cli_helpers import (
+    DEF_CFG,
+    DEF_CFG_DIR,
+    DEF_ICS_DIR,
+    DEF_DAYSBACK,
+    DEF_NUM_LOOKBACKS,
+    SAMPLE_CALENDAR_LISTING_TOML,
+    valid_date,
+    valid_pos_integer,
+    valid_pos_integer_or_date,
+    query_yes_no,
+    add_event_filter_arguments,
+    add_calendar_filter_arguments,
+    add_path_arguments,
+    cals_from_cfg,
+)
+
 
 def cli():
     parser = argparse.ArgumentParser(
@@ -95,9 +104,9 @@ def cli():
         f"#_COMPARISONS default is {DEF_NUM_LOOKBACKS}.)\n\n",
     )
 
-    ionical.cli_helpers.add_event_filter_arguments(event_filter_options)
-    ionical.cli_helpers.add_path_arguments(file_options)
-    ionical.cli_helpers.add_calendar_filter_arguments(calendar_filter_options)
+    add_event_filter_arguments(event_filter_options)
+    add_path_arguments(file_options)
+    add_calendar_filter_arguments(calendar_filter_options)
 
     experimental_options.add_argument(
         "--verbose",
@@ -116,22 +125,16 @@ def cli():
     earliest_date, latest_date = None, None
     show_changelog = True if args.num_lookbacks > 0 else False
 
-    using_default_calendar_dir = args.config_dir == DEF_CALS_DIR
+    using_default_calendar_dir = args.config_dir == DEF_CFG_DIR
     if args.help:
         parser.print_help()
         sys.exit(1)
     if args.config_dir:
         try:
-            with open(
-                Path(args.config_dir) / DEF_CALS_FILE,
-                "r",
-                encoding="utf-8",
-            ) as f:
-                people_tuples = json.loads(f.read())
+            fn = Path(args.config_dir) / DEF_CFG
+            cal_tuples = cals_from_cfg(fn)
         except FileNotFoundError:
-            print(
-                f"Could NOT locate {DEF_CALS_FILE} in " + f"{args.config_dir}"
-            )
+            print(f"Could NOT locate {DEF_CFG} in {args.config_dir}")
             if not using_default_calendar_dir:
                 print("\n\nQuitting.")
             else:
@@ -142,11 +145,11 @@ def cli():
                 if query_yes_no(question):
                     print("\nOK, attempting to create file...")
                     with open(
-                        Path(args.config_dir) / DEF_CALS_FILE,
+                        Path(args.config_dir) / DEF_CFG,  # DEF_CALS_FILE,
                         "w",
                         encoding="utf-8",
                     ) as f:
-                        f.write(SAMPLE_CALENDAR_LISTING_JSON)
+                        f.write(SAMPLE_CALENDAR_LISTING_TOML)
                         print(
                             "File created.\n\nYou could try running:\n"
                             "'ionical -g' to download the latest .ics files, then\n"
@@ -156,15 +159,15 @@ def cli():
                 else:
                     print(
                         "OK.  To use ionical you'll need to create/use"
-                        " a valid cals.json file, \nas described in"
+                        f" a valid {DEF_CFG} file, \nas described in"
                         " this project's README.\n\n"
                     )
             sys.exit(1)
     else:
-        print(f"\nYou must provide a valid directory for {DEF_CALS_FILE}")
+        print(f"\nYou must provide a valid directory for {DEF_CFG}")
         print("\nQuitting.\n")
         sys.exit(1)
-    
+
     earliest_date, latest_date = ionical.cli_helpers.date_range_from_args(
         args.start_date, args.end_date
     )
@@ -217,11 +220,11 @@ def cli():
         else:
             print(
                 "No calendar filters specified. "
-                f"Will use all calendars listed in {DEF_CALS_FILE}."
+                f"Will use all calendars listed in {DEF_CFG}."
             )
 
     main(
-        people_data=people_tuples,
+        people_data=cal_tuples,
         download_option=args.get_today,
         ics_dir=args.directory,
         earliest_date=earliest_date,

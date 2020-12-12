@@ -4,4 +4,4 @@
 
 # __all__ = ["Person", "ScheduleHistory"]
 
-__version__ = "0.3.2"
+__version__ = "0.3.4-csvg"
