@@ -42,73 +42,79 @@ $ .\env\Scripts\activate
 Usage: ionical [-v] [-h] 
                [-g] [-s] [-l [#_COMPARISONS]]
                [-i NAME [NAME ...]] 
-               [-t TEXT [TEXT ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
-               [-f CALS_CFG_DIR] [-d ICS_DIR] 
+               [-t TEXT [TEXT ...]] 
+               [-f CONFIG_DIRECTORY] [-d ICS_DIR] 
+               [--verbose] [-e ARG [ARG ...]]
 
 Help/About:
-  -v, --version       Print version, then exit.
-  -h, --help          Print help message, then exit.
-
+  -v, --version        Print version, then exit.
+  -h, --help           Print help message, then exit.
+                       
 
 Primary Options:
   One or more primary options MUST be specified.
 
-  -g, --get_today     Download current .ics files and label them with today's
-                      date. This will be done prior to other actions.
-                      (If this is left unspecified, operations will only use
-                      .ics files that have been previously downloaded.)
-
-  -s, --schedule      Display events from most recent ical file version for
-                      each calendar.
-
-  -l [#_COMPARISONS]  Show changelogs comparing calendar versions from
-                      multiple dates. Optionally, specify the number of
-                      prior versions (per each calendar) for which to show
-                      comparison changelogs.
-                      (If left unspecified, #_COMPARISONS default is 2.)
-
+  -g, --get_today      Download current .ics files and label them with today's
+                       date. This will be done prior to other actions. 
+                       (If this is left unspecified, operations will only use
+                       .ics files that have been previously downloaded.)
+                       
+  -s, --schedule       Display events from most recent ical file version for 
+                       each calendar.
+                       
+  -l [#_COMPARISONS]   Show changelogs comparing calendar versions from 
+                       multiple dates. Optionally, specify the number of 
+                       prior versions (per each calendar) for which to show 
+                       comparison changelogs. 
+                       (If left unspecified, #_COMPARISONS default is 2.)
+                       
 
 Calendar Filters:
   Restrict all actions to a subset of calendars.
 
-  -i NAME [NAME ...]  Only operate on calendars with a specified NAME.
-                      (If -i not specified, operate on every calendar
-                      listed in cals.json.)
-
+  -i NAME [NAME ...]   Only operate on calendars with a specified NAME.
+                       (If -i not specified, operate on every calendar
+                       listed in ionical_config.toml.)
+                       
 
 Event Filters:
-  Filter events shown in changelogs, schedule displays, and CSV exports.
+  Filter events shown in changelogs, schedule displays
 
-  -t TEXT [TEXT ...]  Only include events whose summary text includes words
-                      that match a TEXT item.
-                      (If option not specified, no text filters are applied.)
+  -a DATE_OR_NUMBER    Only include events that start AFTER a specified date.
+                       (I.e., exclude events starting before the date.) 
+                       Value must be EITHER a date in format YYYY-MM-DD, or 
+                       a positive integer representing # of days in the past.
+                       (If option unspecified, default behavior is to exclude
+                       any events starting prior to 1 day ago.)
+                       
+  -b DATE_OR_NUMBER    Only include events that start BEFORE a specified date.
+                       (I.e., exclude events starting on or after the date.)
+                       Value must be EITHER a date in format YYYY-MM-DD, or 
+                       a positive integer representing # of days in the future.
+                       (If option unspecified, default behavior is to
+                       have no upper limit on event dates.)
+                       
+  -t TEXT [TEXT ...]   Only include events whose summary text includes words
+                       that match a TEXT item.
+                       (If option not specified, no text filters are applied.)
+                       
 
-  -a DATE_OR_NUMBER   Only include events that start AFTER a specified date.
-                      (I.e., exclude events starting before the date.)
-                      Value must be EITHER a date in format YYYY-MM-DD, or
-                      a positive integer representing # of days in the past.
-                      (If option unspecified, default behavior is to exclude
-                      any events starting prior to 1 day ago.)
+File Locations:
+  Specify expected locations for config files and calendar downloads.
 
-  -b DATE_OR_NUMBER   Only include events that start BEFORE a specified date.
-                      (I.e., exclude events starting on or after the date.)
-                      Value must be EITHER a date in format YYYY-MM-DD, or
-                      a positive integer representing # of days in the future.
-                      (If option unspecified, default behavior is to
-                      have no upper limit on event dates.)
+  -f CONFIG_DIRECTORY  Directory where config file located.
+                       The primary config file, ionical_config.toml, should 
+                       contain a list of calendar names, URLs, and timezones.
+                       See README for config file format info.
+                       (Default config directory is user's current directory.)
+                       
+  -d ICS_DIR           Directory for downloading or accessing .ics files.
+                       
 
-
-File Locations Config:
-  Specify expected file locations, if different from the current directory.
-
-  -f CALS_CFG_DIR     Directory where primary config file cals.json located.
-                      cals.json should contain a list of calendar names,
-                      URLs, and timezones.  See README for specifications.
-
-  -d ICS_DIR          Directory for downloading or accessing .ics files.
-
-
+Experimental:
+  --verbose            Verbose mode.
+  -e ARG [ARG ...]     Pass experimental arguments.
 
 ```
 
@@ -116,25 +122,27 @@ File Locations Config:
  in the above usage example.*
    
   
-## File format for cals.json (ionical's primary configuration file):
+## File format for ionical_config.toml:
 ```
-[
-  [
-    "NAME_for_CAL_1", 
-    "LONG_NAME_for_CAL_1", 
-    "http://url_to_ics_download_for_CAL_1.ics", 
-    "Timezone_in_pytz_format_for_CAL_1"
-  ],
-  [
-    "NAME_for_CAL_2", 
-    "LONG_NAME_for_CAL_2", 
-    "http://url_to_ics_download_for_CAL_2.ics", 
-    "Timezone_in_pytz_format_for_CAL_2"
-  ],
-  ...
-]
+# ionical configuration file
+
+title = "ionical configuration"
+
+[calendars]
+  [calendars.CAL1_NAME]
+    description = "CAL1_LONG_NAME"
+    url = "http://url_to_ics_download_for_CAL_1.ics"
+    tz = "Timezone_in_pytz_format_for_CAL_1"
+
+  [calendars.CAL2_NAME]
+    description = "CAL2_LONG_NAME"
+    url = "http://url_to_ics_download_for_CAL_2.ics"
+    tz = "Timezone_in_pytz_format_for_CAL_2"
+
+  Etc...
 ```
- - Listing of pytz timezones [can be found here](https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones).
+ - Timezones are in pytz format, e.g., "US/Eastern".  
+   Listing of pytz timezones [can be found here](https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones).
  - The calendar **NAME**:
      - Serves as an ID when asking ionical (via -i option)    
        to restrict actions to a subset of calendars.

@@ -1,39 +1,40 @@
 import argparse
-import re
 import sys
-from datetime import date, datetime, timedelta
-from pathlib import Path
 import csv
-import re
-import sys
-from collections import OrderedDict, defaultdict
-from datetime import date, datetime, time, timedelta  # , tzinfo
 from pathlib import Path
-from typing import DefaultDict, Dict, List, NamedTuple, Optional
-from typing import Set, Tuple
+from collections import OrderedDict
+from datetime import date, timedelta  # , tzinfo
+from typing import DefaultDict, Dict, List, Optional
+from typing import Set
 
 import toml
 
-import ionical.cli_helpers
-
 from ionical.ionical import MonitoredEventData, Person
-from ionical import __version__
 
-from ionical.cli_helpers import (
+from ionical.__main__ import (
+    __version__,
     DEF_CFG,
-    DEF_ICS_DIR,
-    DEF_DAYSBACK,
-    DEF_NUM_LOOKBACKS,
-    SAMPLE_CALENDAR_LISTING_TOML,
-    valid_date,
-    valid_pos_integer,
-    valid_pos_integer_or_date,
-    query_yes_no,
-    add_event_filter_arguments,
-    add_calendar_filter_arguments,
-    add_path_arguments,
+    add_args_for_category,
     cals_from_cfg,
+    date_range_from_args,
 )
+
+SAMPLE_CFG_TOML_W_CSV = """
+# ionical configuration file
+
+title = "ionical configuration"
+
+[calendars]
+  [calendars.BMI]
+    description = "BMI Music Industry Events Calendar"
+    url = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
+    tz = "US/Eastern"
+
+[csv_substitutions]
+    "Phrase One" = "Synonym One"
+    "Phrase Two" = "Synonym Two"
+
+"""
 
 
 class ScheduleWriter:
@@ -164,9 +165,9 @@ def cli():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
     )
-    add_event_filter_arguments(parser)
-    add_path_arguments(parser)
-    add_calendar_filter_arguments(parser)
+    add_args_for_category(parser, "event")
+    add_args_for_category(parser, "path")
+    add_args_for_category(parser, "calendar")
     parser.add_argument(
         "-c",
         metavar="CSV_FILE",
@@ -175,32 +176,28 @@ def cli():
     )
     args = parser.parse_args()
 
-    cfg_filename = Path(args.config_dir) / DEF_CFG
-    try:
-        cal_tuples = cals_from_cfg(cfg_filename)
-    except FileNotFoundError:
-        print(f"Could NOT locate {DEF_CFG} in " + f"{args.config_dir}")
-        sys.exit(1)
+    cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG, SAMPLE_CFG_TOML_W_CSV)
 
-    earliest_date, latest_date = ionical.cli_helpers.date_range_from_args(
+    earliest_date, latest_date = date_range_from_args(
         args.start_date, args.end_date
     )
+    cfg_fn_path = Path(args.config_dir) / DEF_CFG
 
     csv_conversion_dict = {}
     if args.csv_file:
         print("\nFilename for CSV export: " + f"{args.csv_file}")
         try:
-            with open(cfg_filename, "r", encoding="utf-8") as f:
+            with open(cfg_fn_path, "r", encoding="utf-8") as f:
                 csv_conversion_dict = toml.loads(f.read())["csv_substitutions"]
             print(f"Found/using 'csv_subtitutions' in {DEF_CFG}.\n")
         except FileNotFoundError:
-            print(f"{cfg_filename} NOT FOUND! \nQuitting.\n")
+            print(f"{cfg_fn_path} NOT FOUND! \nQuitting.\n")
             sys.exit(1)
         except KeyError:
             print(f"Note: No 'csv_substitutions' section in {DEF_CFG}.\n")
 
     all_cals = [
-        Person.from_tuple(person_tuple=cal_tuple, ics_dir=args.directory)
+        Person.from_tuple(person_tuple=cal_tuple, ics_dir=args.ics_dir)
         for cal_tuple in cal_tuples
     ]
 
