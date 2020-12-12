@@ -179,15 +179,29 @@ class MonitoredEventData:
         else:
             return "All-Day"
 
-    def display(
-        self,
-        date_fmt="%Y-%m-%d",
-        time_fmt="%H:%M:%S",
-        schedule_summary_line=None,
-        shift_str_template=None,
-        time_replacements=None,
-        **kwargs,
-    ):
+    def display(self, fmt_options=None):
+        if fmt_options is None:
+            fmt_options = {}
+        try:
+            date_fmt = fmt_options["date_fmt"]
+        except KeyError:
+            date_fmt = "%Y-%m-%d"
+        try:
+            time_fmt = fmt_options["time_fmt"]
+        except KeyError:
+            time_fmt = "%H:%M:%S"
+        try:
+            time_replacements = fmt_options["time_replacements"]
+        except KeyError:
+            time_replacements = None
+        try:
+            schedule_summary_line = fmt_options["event_summary"]
+        except KeyError:
+            schedule_summary_line = None
+        try:
+            shift_str_template = fmt_options["time_group"]
+        except KeyError:
+            shift_str_template = None
 
         if schedule_summary_line is None:
             schedule_summary_line = "Start: {:12}   Time: {:12} {}  {}"
@@ -322,16 +336,13 @@ class Schedule:
             if meets_filter_criteria(event)
         ]
 
-    # paramaters possibly passed via **kwargs
-    # include: date_fmt, time_fmt, shift_str,
-    # schedule_summary_line, time_replacements
     def display(
         self,
         earliest_date: date = None,
         latest_date: date = None,
         filters: Optional[List[str]] = None,
         version_date: Optional[date] = None,
-        **kwargs,
+        fmt_options=None,
     ) -> str:
         if filters is None:
             filters = []
@@ -342,7 +353,7 @@ class Schedule:
         header += "\n\n"
         body = "\n".join(
             [
-                event.display(**kwargs)
+                event.display(fmt_options)
                 for event in self.filtered_events(
                     earliest_date=earliest_date,
                     latest_date=latest_date,
@@ -524,14 +535,9 @@ class ScheduleHistory:
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
         filters: Optional[List[str]] = None,
-        date_fmt=None,
-        time_fmt=None,
-        time_replacements=None,
         num_lookbacks=None,
-        change_report_record_template=" {label:8} {name:17} {start_str}"
-        + " {summary}  [comp {compare_date}]\n",
         changelog_action_dict=None,
-        **kwargs,
+        fmt_options=None,
     ) -> str:
         """Return a filtered/sorted list of changes.
 
@@ -544,6 +550,24 @@ class ScheduleHistory:
         If no filters are provided, then
         no search filter is applied.
         """
+        if fmt_options is None:
+            fmt_options = {}
+        try:
+            date_fmt = fmt_options["date_fmt"]
+        except KeyError:
+            date_fmt = None
+        try:
+            time_fmt = fmt_options["time_fmt"]
+        except KeyError:
+            time_fmt = None
+        try:
+            time_replacements = fmt_options["time_replacements"]
+        except KeyError:
+            time_replacements = None
+        try:
+            change_report_record_template = fmt_options["change_report"]
+        except KeyError:
+            change_report_record_template = " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
 
         def person_by_id(person_id: str) -> Person:
             for p in people:
@@ -652,14 +676,6 @@ class ScheduleHistory:
         return c
 
 
-# Parameters optionally passed through as **kwargs:
-#   date_fmt=None,  # (for showing changelogs or schedules)
-#   time_fmt=None,  # (for showing changelogs or schedules)
-#   time_replacements=None,  # (for showing changelogs or schedules)
-#   shift_str_template=None,  # (for showing schedules)
-#   schedule_summary_line=None,  # (for showing schedules)
-#   include_empty_dates=False,  # (for CSV writing)
-#   conversion_table=None,   # (for CSV writing)
 def main(
     people_data: List[Tuple[str, str, str, str]],
     people_filter: Optional[List[str]] = None,
@@ -667,12 +683,11 @@ def main(
     download_option: bool = False,
     show_schedule: bool = False,
     show_changelog: bool = False,
-    csv_file=None,
     earliest_date: Optional[date] = None,
     latest_date: Optional[date] = None,
     filters: Optional[List[str]] = None,
     num_lookbacks=None,  # (for changelogs)
-    **kwargs,
+    fmt_options=None,
 ) -> None:
 
     output = ""
@@ -698,10 +713,8 @@ def main(
             latest_date=latest_date,
             filters=filters,
             num_lookbacks=num_lookbacks,
-            **kwargs,
+            fmt_options=fmt_options,
         )
-        # **kwargs to possibly include the parameters:
-        #   date_fmt, time_fmt, time_replacements,
         output += report
 
     if show_schedule:
@@ -712,11 +725,8 @@ def main(
                 latest_date=latest_date,
                 filters=filters,
                 version_date=version_date,
-                **kwargs,
+                fmt_options=fmt_options,
             )
-            # **kwargs to possibly include the parameters:
-            # date_fmt, time_fmt, time_replacements,
-            # shift_str_template, schedule_summary_line
             output += schedule_display
 
     print(output, end="")

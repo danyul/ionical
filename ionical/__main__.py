@@ -165,7 +165,12 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "-h",
             "--help",
             action="store_true",
-            help="Print help message, then exit.\n\n",
+            help="Print help message, then exit.\n",
+        )
+        parser.add_argument(
+            "--verbose",
+            action="store_true",
+            help=f"Verbose mode.\n\n",
         )
     if cat == "main":
         parser.add_argument(
@@ -269,11 +274,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
 
     if cat == "experimental":
         parser.add_argument(
-            "--verbose",
-            action="store_true",
-            help=f"Verbose mode.\n",
-        )
-        parser.add_argument(
             "-e",
             nargs="+",
             metavar="ARG",
@@ -320,7 +320,7 @@ def cli():
             "File Locations",
             "Specify expected locations for config files and calendar downloads.",
         ],
-        "experimental": ["Experimental", None],
+        # "experimental": ["Experimental", None],
     }
     option_groups = {}
     for key, (name, desc) in help_option_group_info.items():
@@ -361,19 +361,34 @@ def cli():
     # 2: shift (further formatted by shift_str_template)
     # 3: summary text
 
-    if args.experimentals:
-        shift_str_template, event_summary_fmt = args.experimentals
-    else:
-        # "Shift: {:11}", " {0:16}{1:12}{2:7}{3:30}"
-        shift_str_template, event_summary_fmt = "", "    {0:16}  {1:12}{3:30}"
+    # if args.experimentals:
+    #     shift_str_template, event_summary_fmt = args.experimentals
+    # else:
+    # "Shift: {:11}", " {0:16}{1:12}{2:7}{3:30}"
+    # shift_str_template, event_summary_fmt = "", "    {0:16}  {1:12}{3:30}"
 
-    date_fmt = "%a, %b %d %Y"
-    time_fmt = " (%I%p)  " if show_changelog else " %I%p"
-    time_replacements = {
-        " 0": " ",
-        "(0": "(",
-        "AM": "am",
-        "PM": "pm",
+    # date_fmt = "%a, %b %d %Y"
+    # time_fmt = " (%I%p)  " if show_changelog else " %I%p"
+    # time_replacements = {
+    #     " 0": " ",
+    #     "(0": "(",
+    #     "AM": "am",
+    #     "PM": "pm",
+    # }
+
+    # fmt_options = get_fmt_options_from_cfg(args.config_dir, DEF_CFG)
+
+    fmt_options = {
+        "date_fmt": "%a, %b %d %Y",
+        "time_fmt": " (%I%p)  " if show_changelog else " %I%p",
+        "time_replacements": {
+            " 0": " ",
+            "(0": "(",
+            "AM": "am",
+            "PM": "pm",
+        },
+        "time_grp": "Shift {:11}",
+        "event_summary": "    {0:16}  {1:12}{3:30}",
     }
 
     if args.verbose:
@@ -403,13 +418,13 @@ def cli():
         show_changelog=show_changelog,
         people_filter=args.ids,
         filters=args.text_filters,
-        include_empty_dates=True,
         num_changelog_lookbacks=args.num_lookbacks,
-        date_fmt=date_fmt,
-        time_fmt=time_fmt,
-        time_replacements=time_replacements,
-        shift_str_template=shift_str_template,
-        schedule_summary_line=event_summary_fmt,
+        fmt_options=fmt_options,
+        # date_fmt=date_fmt,
+        # time_fmt=time_fmt,
+        # time_replacements=time_replacements,
+        # shift_str_template=shift_str_template,
+        # schedule_summary_line=event_summary_fmt,
     )
     print("\n")
 
