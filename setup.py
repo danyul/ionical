@@ -13,7 +13,6 @@ version = next(
      for line in vlines
      if re.match(version_regex, line)
  )
-version ="test"
 
 with open("requirements.txt") as requirements_file:
     requirements = requirements_file.read().splitlines()
