@@ -4,4 +4,4 @@
 
 # __all__ = ["Person", "ScheduleHistory"]
 
-__version__ = "0.4.2-beta"
+__version__ = "0.4.2"
