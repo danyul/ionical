@@ -5,14 +5,15 @@ from setuptools import find_packages, setup  # type: ignore
 with open("README.md") as r, open("CHANGELOG.md") as c:
     long_description = r.read() + "\n\n" + c.read()
 
-version_regex = re.compile(r"__version__ = [\'\"]((\d+\.?)+)[\'\"]")
+version_regex = re.compile(r"__version__ = [\'\"]((\d+\.?)+(-beta)?)[\'\"]")
 with open("ionical/__init__.py") as f:
     vlines = f.readlines()
 version = next(
-    re.match(version_regex, line).group(1)  # type: ignore
-    for line in vlines
-    if re.match(version_regex, line)
-)
+     re.match(version_regex, line).group(1)  # type: ignore
+     for line in vlines
+     if re.match(version_regex, line)
+ )
+version ="test"
 
 with open("requirements.txt") as requirements_file:
     requirements = requirements_file.read().splitlines()
