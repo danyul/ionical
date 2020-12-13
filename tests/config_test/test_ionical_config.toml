@@ -30,6 +30,13 @@ title = "test ionical configuration"
         url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
         tz = "US/Mountain"
 
+[csv_substitutions]
+       "PM: IHS Continuity Clinic"        = "C"
+       "AM: IHS Continuity Clinic"        = "C"
+       "AM: 8:30 IHS Continuity Clinic"   = "CL"
+       "PM: IHS Continuity Clinic IPCS"   = "CI"
+       "Pediatric Outpatient Clinic-IHS"  = "RP"
+
 [formatting_options]
 
     # date_fmt = "%a, %b %d %Y"

@@ -74,8 +74,14 @@ class ScheduleWriter:
         csv_dialect: str = "excel",
         include_empty_dates: bool = False,
         conversion_table: Dict[str, str] = None,
-        **kwargs,
+        fmt_options=None,
     ):
+
+        try:
+            start_time_cat_dict = fmt_options["start_time_cat_dict"]
+        except KeyError:
+            sys.exit(1)
+            #start_time_cat_dict = DEF_START_TIME_CAT_DICT
 
         # QUICK HACK TO GET IT WORKING - DON'T CRITICIZE!! :)
         # TODO: OBVIOUSLY MAKE GENERALIZABLE and dekludge/dehack
@@ -105,7 +111,7 @@ class ScheduleWriter:
                     (
                         x
                         for x in events
-                        if x.forced_date == date_ and x.workshift == "AM"
+                        if x.forced_date == date_ and x.start_time_cats(start_time_cat_dict)["shift"] == "AM"
                     ),
                     None,
                 )
@@ -113,7 +119,7 @@ class ScheduleWriter:
                     (
                         x
                         for x in events
-                        if x.forced_date == date_ and x.workshift == "PM"
+                        if x.forced_date == date_ and x.start_time_cats(start_time_cat_dict)["shift"] == "PM"
                     ),
                     None,
                 )
@@ -121,7 +127,7 @@ class ScheduleWriter:
                     (
                         x
                         for x in events
-                        if x.forced_date == date_ and x.workshift == "All-Day"
+                        if x.forced_date == date_ and x.start_time_cats(start_time_cat_dict)["shift"] == "All-Day"
                     ),
                     None,
                 )
