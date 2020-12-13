@@ -35,13 +35,13 @@ title = "ionical configuration"
 
 
 # You can ignore the below unless you want to change display settings
-[formatting_options]
+[formatting]
     date_fmt      = "%a, %b %d %Y"
     time_fmt      = " (%I%p)  "
     time_group    = "Shift: {:11}"
     event_summary = "    {0:16}  {1:12}{3:30}"
 
-    [formatting_options.time_replacements] 
+    [formatting.time_replacements] 
         " 0" = " "
         "(0" = "("
         "AM" = "am"
@@ -57,17 +57,17 @@ title = "ionical configuration"
 """
 
 
-def fmt_options_from_cfg(cfg_dir, cfg_fn):
+def cfg_from_cfg_file(cfg_dir, cfg_fn):
     cfg_fn_path = Path(cfg_dir) / cfg_fn
     try:
         with open(cfg_fn_path, "r", encoding="utf-8") as f:
-            fmt_options = toml.loads(f.read())["formatting_options"]
+            cfg = toml.loads(f.read())
     except FileNotFoundError:
-        print("Config file not found when getting format options. Quitting!\n")
+        print("Config file not found. Quitting!\n")
         sys.exit(1)
     except KeyError:
         return None
-    return fmt_options
+    return cfg
 
 
 def cals_from_cfg(cfg_dir, cfg_fn, sample_toml=None):
@@ -371,11 +371,31 @@ def cli():
 
     cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG)
 
+
+    cfg = cfg_from_cfg_file(args.config_dir, DEF_CFG)
+
+    try:
+        fmt_options = cfg["formatting"]
+    except KeyError:
+        fmt_options = None
+
+
+    verbose_mode = False
+    if args.verbose:
+        verbose_mode = True
+        print ("Operating in verbose mode (--verbose argument passeed).")
+    try:
+        if cfg["verbose"]:
+            verbose_mode = True
+            print ("Operating in verbose mode (per config file).")
+    except KeyError:
+        pass
+        
     earliest_date, latest_date = date_range_from_args(
         args.start_date, args.end_date
     )
 
-    if args.get_today and args.verbose:
+    if args.get_today and verbose_mode:
         print(
             f"\nWill download today's ics files to directory: {args.ics_dir}"
         )
@@ -388,9 +408,7 @@ def cli():
         )
         sys.exit(1)
 
-    fmt_options = fmt_options_from_cfg(args.config_dir, DEF_CFG)
-
-    if args.verbose:
+    if verbose_mode:
         print(
             "\nEvent filters to be applied:\n"
             f"  Earliest Date: {earliest_date}\n"
@@ -417,7 +435,7 @@ def cli():
         show_changelog=show_changelog,
         people_filter=args.ids,
         filters=args.text_filters,
-        num_changelog_lookbacks=args.num_lookbacks,
+        num_lookbacks=args.num_lookbacks,
         fmt_options=fmt_options,
     )
     print("\n")

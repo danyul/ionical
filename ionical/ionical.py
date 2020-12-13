@@ -26,8 +26,8 @@ DEF_CHANGE_REPORT_FMT = " {label:8} {name:17} {start_str} {summary}  [comp {comp
 DEF_START_TIME_CAT_DICT =  {
                 "shift": {
                     "All-Day": False,
-                    "AM": [0, 12],
-                    "PM": [12, 24],
+                    "AM": [[0, 12]],
+                    "PM": [[12, 24]],
                 }
             }
 
@@ -179,7 +179,7 @@ class MonitoredEventData:
     def summary(self):
         return self._summary
 
-    def start_time_cats(self, cat_class) -> dict[str,str]:
+    def start_time_cats(self, cat_class) -> Dict[str,str]:
         start_time_cats = {}
         for cat_type, cat_rules in cat_class.items():
             start_time_cats[cat_type] = "Unspecified"

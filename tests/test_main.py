@@ -5,7 +5,7 @@ from ionical.ionical import main, Person
 
 from ionical.__main__ import (
     cals_from_cfg,
-    fmt_options_from_cfg,
+    cfg_from_cfg_file,
 )
 from ionical.csv_export import ScheduleWriter
 
@@ -17,7 +17,7 @@ test_config_dir = test_dir + "config_test/"
 cfg_fn = "test_ionical_config.toml"
 
 people_tuples = cals_from_cfg(test_config_dir, cfg_fn)
-fmt_options = fmt_options_from_cfg(test_config_dir, cfg_fn)
+fmt_options = cfg_from_cfg_file(test_config_dir, cfg_fn)["formatting"]
 
 test_cfg_fn_path = Path(test_config_dir) / cfg_fn
 

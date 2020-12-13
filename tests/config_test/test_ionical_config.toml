@@ -37,7 +37,7 @@ title = "test ionical configuration"
        "PM: IHS Continuity Clinic IPCS"   = "CI"
        "Pediatric Outpatient Clinic-IHS"  = "RP"
 
-[formatting_options]
+[formatting]
 
     # date_fmt = "%a, %b %d %Y"
     # time_fmt = " (%I%p)  "
@@ -46,15 +46,15 @@ title = "test ionical configuration"
     event_summary  = "Start: {:12}   Time: {:12} {}  {}"
     change_report  = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
 
-    [formatting_options.time_replacements] 
+    [formatting.time_replacements] 
         " 0" = " "
         "(0" = "("
         "AM" = "am"
         "PM" = "pm"
 
-    [formatting_options.start_time_cat_dict]
+    [formatting.start_time_cat_dict]
 
-            [formatting_options.start_time_cat_dict.shift]
+            [formatting.start_time_cat_dict.shift]
 
                     All-Day = false
                     AM = [[7, 12]]
