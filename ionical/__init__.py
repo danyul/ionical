@@ -4,4 +4,4 @@
 
 # __all__ = ["Person", "ScheduleHistory"]
 
-__version__ = "0.3.5-shifts"
+__version__ = "0.4.0-pre"

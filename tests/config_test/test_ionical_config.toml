@@ -45,4 +45,10 @@ title = "test ionical configuration"
         "AM" = "am"
         "PM" = "pm"
 
+    [formatting_options.start_time_cat_dict]
 
+            [formatting_options.start_time_cat_dict.shift]
+
+                    All-Day = false
+                    AM = [[7, 12]]
+                    PM = [[12, 18]]

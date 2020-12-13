@@ -16,7 +16,20 @@ import pytz
 import recurring_ical_events  # type: ignore
 
 
-DEF_ICS_DIR = "./ics/"
+DEF_ICS_DIR = "./"
+
+DEF_TIME_FMT = "%H:%M:%S"
+DEF_DATE_FMT = "%Y-%m-%d"
+DEF_TIME_GROUP_FMT = ""
+DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
+DEF_CHANGE_REPORT_FMT = " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
+DEF_START_TIME_CAT_DICT =  {
+                "shift": {
+                    "All-Day": False,
+                    "AM": [0, 12],
+                    "PM": [12, 24],
+                }
+            }
 
 # TODO: Timezone config management
 # TODO: Include sample people.json file in manifest (or whatever necessary)
@@ -166,18 +179,27 @@ class MonitoredEventData:
     def summary(self):
         return self._summary
 
-    # TODO: CORRECT FOR TIMEZONES
-    # TODO: CORRECT THIS UGLY (AND COMPLETELY WRONG) HACK!!!!!
-    #   (It does work for AM / PM IHS workshifts.)
-    @property
-    def workshift(self) -> str:  # am or pm or all-day
-        if self.time:
-            if self._date_or_datetime.time().hour > 18:
-                return "PM"
-            else:
-                return "AM"
-        else:
-            return "All-Day"
+    def start_time_cats(self, cat_class) -> dict[str,str]:
+        start_time_cats = {}
+        for cat_type, cat_rules in cat_class.items():
+            start_time_cats[cat_type] = "Unspecified"
+            for cat, ranges_list in cat_rules.items():
+                if ranges_list==False:
+                    if not self.time:  # TODO: Make sure no falsy error
+                        start_time_cats[cat_type] = cat
+                        break
+                    continue
+                for range in ranges_list:
+                    lower_bound_in_hours, upper_bound_in_hours = range
+                    lower_bound_in_mins = lower_bound_in_hours * 60
+                    upper_bound_in_mins = upper_bound_in_hours * 60
+                    start_time = self.local_time
+                    event_time_in_mins = start_time.hour * 60 + start_time.minute
+                    if (lower_bound_in_mins <= event_time_in_mins) and (event_time_in_mins < upper_bound_in_mins):
+                        start_time_cats[cat_type] = cat
+                        break #not great, because should really break out of 2 loops
+        return start_time_cats
+            
 
     def display(self, fmt_options=None):
         if fmt_options is None:
@@ -185,11 +207,11 @@ class MonitoredEventData:
         try:
             date_fmt = fmt_options["date_fmt"]
         except KeyError:
-            date_fmt = "%Y-%m-%d"
+            date_fmt = DEF_DATE_FMT
         try:
             time_fmt = fmt_options["time_fmt"]
         except KeyError:
-            time_fmt = "%H:%M:%S"
+            time_fmt = DEF_TIME_FMT
         try:
             time_replacements = fmt_options["time_replacements"]
         except KeyError:
@@ -199,12 +221,16 @@ class MonitoredEventData:
         except KeyError:
             schedule_summary_line = None
         try:
+            start_time_cat_dict = fmt_options["start_time_cat_dict"]
+        except KeyError:
+            start_time_cat_dict = DEF_START_TIME_CAT_DICT
+        try:
             shift_str_template = fmt_options["time_group"]
         except KeyError:
             shift_str_template = None
 
         if schedule_summary_line is None:
-            schedule_summary_line = "Start: {:12}   Time: {:12} {}  {}"
+            schedule_summary_line = DEF_SUMMARY_LINE
 
         date_str = self.forced_date.strftime(date_fmt)
         time_str = (
@@ -216,8 +242,8 @@ class MonitoredEventData:
                 time_str = time_str.replace(pre, post)
 
         if shift_str_template is None:
-            shift_str_template = ""  # "Shift: {:11}"
-        shift_str = shift_str_template.format(self.workshift)
+            shift_str_template = DEF_TIME_GROUP_FMT
+        shift_str = shift_str_template.format(self.start_time_cats(start_time_cat_dict)["shift"])
 
         return schedule_summary_line.format(
             date_str,
@@ -567,9 +593,10 @@ class ScheduleHistory:
         try:
             change_report_record_template = fmt_options["change_report"]
         except KeyError:
-            change_report_record_template = " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
+            change_report_record_template = DEF_CHANGE_REPORT_FMT
 
         def person_by_id(person_id: str) -> Person:
+            found_person = None
             for p in people:
                 if p.person_id == person_id:
                     found_person = p
