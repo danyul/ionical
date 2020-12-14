@@ -20,7 +20,7 @@ DEF_ICS_DIR = "./"
 
 DEF_TIME_FMT = "%H:%M:%S"
 DEF_DATE_FMT = "%Y-%m-%d"
-CHANGELOG_DEF_DATE_FMT = "%b %d, %Y" 
+CHANGELOG_DEF_DATE_FMT = "%b %d, %Y"
 CHANGELOG_DEF_TIME_FMT = " %I%p"
 DEF_TIME_GROUP_FMT = ""
 DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
@@ -35,29 +35,25 @@ DEF_START_TIME_CAT_DICT = {
     }
 }
 
-# TODO: Timezone config management
-# TODO: Include sample people.json file in manifest (or whatever necessary)
 
-# TODO: will want to rename/refactor to "ScheduledEntity" or somesuch
-#       - since it doesn't really need to be a person. "Schedulee"?
-class Person:
-    """Person (or entity) with a schedule specified via .ics format."""
+class Cal:
+    """Cal (or entity) with a schedule specified via .ics format."""
 
     def __init__(
         self,
-        person_id: str,
+        cal_id: str,
         name: str,
         feed_url: Optional[str] = None,
         ics_dir: Optional[str] = DEF_ICS_DIR,
         timezone=None,
     ):
-        self.person_id = person_id
+        self.cal_id = cal_id
         self.name = name
         self.ics_dir = ics_dir
         self.timezone = timezone
         if feed_url is not None:
             self.schedule_feed: Optional[ScheduleFeed] = ScheduleFeed(
-                person=self, url=feed_url
+                cal=self, url=feed_url
             )
         else:
             self.schedule_feed = None
@@ -78,18 +74,18 @@ class Person:
     def schedule_history(self):
         assert self.ics_dir is not None, f"No ics_dir specified for {self}."
         if self._schedule_history is None:
-            self._schedule_history = ScheduleHistory.from_files_for_person(
-                person=self,
+            self._schedule_history = ScheduleHistory.from_files_for_cal(
+                cal=self,
                 ics_dir=self.ics_dir,
             )
         return self._schedule_history
 
     @classmethod
-    def from_tuple(cls, person_tuple, ics_dir=DEF_ICS_DIR):
-        id_, name, url, timezone = person_tuple
+    def from_tuple(cls, cal_tuple, ics_dir=DEF_ICS_DIR):
+        id_, name, url, timezone = cal_tuple
         timezone = None if timezone == "" else timezone
         return cls(
-            person_id=id_,
+            cal_id=id_,
             name=name,
             feed_url=url,
             ics_dir=ics_dir,
@@ -107,7 +103,7 @@ class Person:
         return schedule
 
     def __str__(self):
-        return f"{self.name} ({self.person_id})"
+        return f"{self.name} ({self.cal_id})"
 
 
 # TODO More flexible implementation to allow user-specification
@@ -123,25 +119,23 @@ class MonitoredEventData:
     objects *as they were generated* by the icalendar package.
     """
 
-    def __init__(self, event_date_or_datetime, summary, person):
+    def __init__(self, event_date_or_datetime, summary, cal):
         self._date_or_datetime = event_date_or_datetime
         self._summary = summary
-        self.person = person
+        self.cal = cal
 
     def __eq__(self, other) -> bool:
         return all(
             (
                 isinstance(other, MonitoredEventData),
                 self._date_or_datetime == other._date_or_datetime,
-                self.person.person_id == other.person.person_id,
+                self.cal.cal_id == other.cal.cal_id,
                 self._summary == other._summary,
             )
         )
 
     def __hash__(self):
-        return hash(
-            (self._date_or_datetime, self._summary, self.person.person_id)
-        )
+        return hash((self._date_or_datetime, self._summary, self.cal.cal_id))
 
     @property
     def date_or_datetime(self) -> date:
@@ -172,7 +166,7 @@ class MonitoredEventData:
 
     @property
     def local_time(self):
-        tz = pytz.timezone(self.person.timezone)
+        tz = pytz.timezone(self.cal.timezone)
         if isinstance(self._date_or_datetime, datetime):
             local_datetime = self._date_or_datetime.astimezone(tz)
             return local_datetime.time()
@@ -265,18 +259,18 @@ class MonitoredEventData:
 class Schedule:
     """Contain a set of MonitoredEventData objects."""
 
-    def __init__(self, person: Person):
+    def __init__(self, cal: Cal):
         self.events: Set[MonitoredEventData] = set()
-        self.person: Person = person
+        self.cal: Cal = cal
 
     @classmethod
     def from_icalendar(
         cls,
-        cal: icalendar.cal.Calendar,
-        person: Person,
+        icalCal: icalendar.cal.Calendar,
+        cal: Cal,
         extra_timedelta_days_for_repeating_events: int = 1,
     ) -> "Schedule":
-        """Initialize a schedule from an .ics file (cal).
+        """Initialize a schedule from an .ics file (icalCal).
 
         This is the primary way a Schedule object will be
         created in this package.
@@ -287,16 +281,16 @@ class Schedule:
         and combine the two sets.
         """
 
-        new_instance: Schedule = cls(person=person)
+        new_instance: Schedule = cls(cal=cal)
 
         kerr_count = 0
         events_by_icalendar_lookup: Set[MonitoredEventData] = set()
-        for ical_event in cal.subcomponents:
+        for ical_event in icalCal.subcomponents:
             try:
                 med: MonitoredEventData = MonitoredEventData(
                     event_date_or_datetime=ical_event["DTSTART"].dt,
                     summary=ical_event["SUMMARY"],
-                    person=new_instance.person,
+                    cal=new_instance.cal,
                 )
                 events_by_icalendar_lookup.add(med)
             except KeyError:
@@ -310,7 +304,7 @@ class Schedule:
         if kerr_count > 0:
             msg = (
                 f"{kerr_count} KeyErrors encountered while reading ical"
-                + f' for "{person.person_id}".\n'
+                + f' for "{cal.cal_id}".\n'
             )
             sys.stderr.write(msg)
 
@@ -327,9 +321,9 @@ class Schedule:
             MonitoredEventData(
                 event_date_or_datetime=ical_event["DTSTART"].dt,
                 summary=ical_event["SUMMARY"],
-                person=new_instance.person,
+                cal=new_instance.cal,
             )
-            for ical_event in recurring_ical_events.of(cal).between(
+            for ical_event in recurring_ical_events.of(icalCal).between(
                 (min_date.year, min_date.month, min_date.day),
                 (max_date.year, max_date.month, max_date.day),
             )
@@ -379,8 +373,8 @@ class Schedule:
     ) -> str:
         if filters is None:
             filters = []
-        tz = pytz.timezone(self.person.timezone)
-        header = f"\n\nSchedule for {self.person.name} ({tz})"
+        tz = pytz.timezone(self.cal.timezone)
+        header = f"\n\nSchedule for {self.cal.name} ({tz})"
         if version_date:
             header += f" [version {version_date}]:"
         header += "\n\n"
@@ -401,11 +395,11 @@ class Schedule:
 
 
 class ScheduleFeed:
-    """Holder for a Person's .ics URL."""
+    """Holder for a Cal's .ics URL."""
 
     downloaded_ics_default_filename_pattern = re.compile(
         r"""
-        ^(?P<person_id>.*)         # person_id at the start (any string)
+        ^(?P<cal_id>.*)         # cal_id at the start (any string)
         __                         # double _ delimiter
         (?P<ymd>                   # to capture concatenated year/month/day
         (?P<year>[0-9]{4})         # 4 digit year
@@ -417,16 +411,16 @@ class ScheduleFeed:
         re.VERBOSE,
     )
 
-    def __init__(self, person: Person, url: str):
-        self.person = person
+    def __init__(self, cal: Cal, url: str):
+        self.cal = cal
         self.url = url
 
     def ics_filename_for_today(self):
-        f = f"{self.person.person_id}__{date.today().strftime('%Y%m%d')}.ics"
+        f = f"{self.cal.cal_id}__{date.today().strftime('%Y%m%d')}.ics"
         return f
 
     def download_latest_schedule_version(self, ics_dir) -> None:
-        """Save the current .ics file version of the Person's schedule."""
+        """Save the current .ics file version of the Cal's schedule."""
 
         with urllib.request.urlopen(self.url) as ics_http_response:
             ics_text = ics_http_response.read().decode()
@@ -441,15 +435,15 @@ class ScheduleFeed:
 
 
 # TODO: consider making SC full class
-# if we do that, then switch to direct reference to Person object
-#   (rather than indirect lookup via Person.person_id)
+# if we do that, then switch to direct reference to Cal object
+#   (rather than indirect lookup via Cal.cal_id)
 #   ? Pros vs Cons ?
 class ScheduleChange(NamedTuple):
     """Data to be displayed on a change log report."""
 
     reference_date: date
     comparison_date: date
-    person_id: str
+    cal_id: str
     event_summary: str
     event_start: datetime  # TODO: ???? clarify naive/local/aware issues
     change_type: str  # either "a" for addition, or "r" for removal
@@ -458,35 +452,34 @@ class ScheduleChange(NamedTuple):
 class ScheduleHistory:
     """Container for multiple versions of .ics file data."""
 
-    def __init__(self, person):
-        self.person: Person = person
+    def __init__(self, cal):
+        self.cal: Cal = cal
         self.sched_versions_by_date: OrderedDict[
             date, icalendar.cal.Calendar
         ] = OrderedDict([])
 
     @classmethod
-    def from_files_for_person(
-        cls, person: Person, ics_dir, file_pat=None
+    def from_files_for_cal(
+        cls, cal: Cal, ics_dir, file_pat=None
     ) -> "ScheduleHistory":
-        """Instantiate by reading in .ics files for a Person.
+        """Instantiate by reading in .ics files for a Cal.
 
         Determination of which ics files correspond to
-        Person is made by matching Person.person_id to
+        Cal is made by matching Cal.cal_id to
         the id embedded in the filenames, as specified
         by the regex found in ScheduleFeed class.
         """
 
         if file_pat is None:
             file_pat = ScheduleFeed.downloaded_ics_default_filename_pattern
-        new_hx = cls(person)
+        new_hx = cls(cal)
         d = Path(ics_dir)
         files_matches = [
             (f, file_pat.match(f.name))
             for f in d.iterdir()
             if (
                 file_pat.match(f.name)
-                and file_pat.match(f.name).group("person_id")
-                == str(person.person_id)
+                and file_pat.match(f.name).group("cal_id") == str(cal.cal_id)
             )
         ]
         for f, m in sorted(files_matches, key=lambda x: (x[1].group("ymd"))):
@@ -496,13 +489,13 @@ class ScheduleHistory:
         return new_hx
 
     def get_changes_for_date(self, version_date) -> List[ScheduleChange]:
-        """Get a person's schedule changes for a given date.
+        """Get a cal's schedule changes for a given date.
 
-        Get the ScheduleChanges for the Person referenced by
+        Get the ScheduleChanges for the Cal referenced by
         this ScheduleHistory object, comparing the version
         of calendar events for the date given in the
         parameter version_date with the next older schedule
-        for that person.
+        for that cal.
         """
 
         i = list(self.sched_versions_by_date.keys()).index(version_date)
@@ -510,18 +503,18 @@ class ScheduleHistory:
         comp_date, comp_vers = list(self.sched_versions_by_date.items())[i - 1]
 
         reference_schedule = Schedule.from_icalendar(
-            cal=ref_vers,
-            person=self.person,
+            icalCal=ref_vers,
+            cal=self.cal,
         )
         comparison_schedule = Schedule.from_icalendar(
-            cal=comp_vers,
-            person=self.person,
+            icalCal=comp_vers,
+            cal=self.cal,
         )
 
         additions = reference_schedule.events - comparison_schedule.events
         removals = comparison_schedule.events - reference_schedule.events
 
-        pid = self.person.person_id
+        pid = self.cal.cal_id
         a = [
             ScheduleChange(
                 ref_date, comp_date, pid, x.summary, x.forced_datetime, "a"
@@ -536,8 +529,8 @@ class ScheduleHistory:
         ]
         return a + r
 
-    # TODO: consider directly referencing Person object from ScheduleChange?
-    #   (rather than indirect lookup via Person.person_id)
+    # TODO: consider directly referencing Cal object from ScheduleChange?
+    #   (rather than indirect lookup via Cal.cal_id)
     def change_log(
         self, num_lookbacks=None
     ) -> Dict[date, List[ScheduleChange]]:
@@ -562,9 +555,9 @@ class ScheduleHistory:
     # TODO allow user to specify sorting/grouping
     # TODO consider putting in its own class
     @classmethod
-    def change_log_report_for_people(
+    def change_log_report_for_cals(
         cls,
-        people: List[Person],
+        cals: List[Cal],
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
         filters: Optional[List[str]] = None,
@@ -575,7 +568,7 @@ class ScheduleHistory:
         """Return a filtered/sorted list of changes.
 
         Return a history of changes for multiple
-        dates/people, filtering events by a user-specifiable
+        dates/cals, filtering events by a user-specifiable
         list of search terms (matched to an event's
         summary field), and a user-specifiable date
         range.
@@ -592,11 +585,11 @@ class ScheduleHistory:
             fmt_options, "change_report", DEF_CHANGE_REPORT_FMT
         )
 
-        def person_by_id(person_id: str) -> Person:
-            for p in people:
-                if p.person_id == person_id:
+        def cal_by_id(cal_id: str) -> Cal:
+            for p in cals:
+                if p.cal_id == cal_id:
                     return p
-            raise KeyError(f"Did not find id {person_id}.")
+            raise KeyError(f"Did not find id {cal_id}.")
 
         def meets_filter_criteria(c: ScheduleChange) -> bool:
             return not any(
@@ -609,7 +602,7 @@ class ScheduleHistory:
 
         def local_format_dt(
             datetime_: datetime,
-            person: Person,
+            cal: Cal,
             date_fmt: Optional[str] = None,
             time_fmt=None,
             time_replacements=None,
@@ -621,7 +614,7 @@ class ScheduleHistory:
             if time_replacements is None:
                 time_replacements = {" 0": " ", "AM": "am", "PM": "pm"}
 
-            tz_datetime = datetime_.astimezone(pytz.timezone(person.timezone))
+            tz_datetime = datetime_.astimezone(pytz.timezone(cal.timezone))
 
             date_str = tz_datetime.date().strftime(date_fmt)
             time_str = tz_datetime.time().strftime(time_fmt)
@@ -640,7 +633,7 @@ class ScheduleHistory:
             date, List[ScheduleChange]
         ] = defaultdict(list)
 
-        for p in people:
+        for p in cals:
             for date_, changes in p.schedule_history.change_log(
                 num_lookbacks=num_lookbacks,
             ).items():
@@ -661,21 +654,21 @@ class ScheduleHistory:
                     x.event_start.year,
                     x.event_start.month,
                     x.event_start.day,
-                    person_by_id(x.person_id).name,
+                    cal_by_id(x.cal_id).name,
                     x.event_summary,
                 ),
             ):
-                person = person_by_id(c.person_id)
+                cal = cal_by_id(c.cal_id)
                 event_start_str = local_format_dt(
                     datetime_=c.event_start,
-                    person=person,
+                    cal=cal,
                     date_fmt=date_fmt,
                     time_fmt=time_fmt,
                     time_replacements=time_replacements,
                 )
 
                 report += change_report_record_template.format(
-                    name=person.name,
+                    name=cal.name,
                     label=changelog_action_dict[c.change_type],
                     start_str=event_start_str,
                     summary=c.event_summary,
@@ -701,7 +694,7 @@ class ScheduleHistory:
 class ScheduleWriter:
     def __init__(
         self,
-        cals: List[Person],
+        cals: List[Cal],
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
         filters: Optional[List[str]] = None,
@@ -709,18 +702,18 @@ class ScheduleWriter:
         self.filters = filters
         self.cals = cals
 
-        self.events_by_person_id: Dict[str, List[MonitoredEventData]] = {
-            person.person_id: person.current_schedule.filtered_events(
+        self.events_by_cal_id: Dict[str, List[MonitoredEventData]] = {
+            cal.cal_id: cal.current_schedule.filtered_events(
                 earliest_date=earliest_date,
                 latest_date=latest_date,
                 filters=filters,
             )
-            for person in cals
+            for cal in cals
         }
 
         event_dates = [
             event.forced_date
-            for person_id, events in self.events_by_person_id.items()
+            for cal_id, events in self.events_by_cal_id.items()
             for event in events
         ]
 
@@ -768,9 +761,9 @@ class ScheduleWriter:
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
             plist = list("" for _ in range(len(self.cals)))
-            for person in self.cals:
-                events = self.events_by_person_id[person.person_id]
-                index_ = self.cals.index(person)
+            for cal in self.cals:
+                events = self.events_by_cal_id[cal.cal_id]
+                index_ = self.cals.index(cal)
                 cat_range_names = start_time_cat_dict[
                     cat_type
                 ].keys()  # csv_options["output"][ "order" ]
@@ -804,7 +797,7 @@ class ScheduleWriter:
                     csv_exp_str.format(
                         *[
                             convert_if_lookup_found(
-                                event_date_groups[c].summary # type: ignore
+                                event_date_groups[c].summary  # type: ignore
                             )
                             if event_date_groups[c]
                             else not_found_str
@@ -833,7 +826,7 @@ class ScheduleWriter:
                 if all_day_spec_case and event_date_groups[all_day_field_name]:
                     if not any([event_date_groups[c] for c in shown_options]):
                         special_event = convert_if_lookup_found(
-                            event_date_groups[all_day_field_name].summary # type: ignore
+                            event_date_groups[all_day_field_name].summary  # type: ignore
                         )
                         text = csv_exp_str.format(
                             *([special_event] * len(shown_options))
@@ -842,11 +835,11 @@ class ScheduleWriter:
                         text = csv_exp_str.format(
                             *[
                                 convert_if_lookup_found(
-                                    event_date_groups[c].summary # type: ignore
+                                    event_date_groups[c].summary  # type: ignore
                                 )
                                 if event_date_groups[c]
                                 else convert_if_lookup_found(
-                                    event_date_groups[ # type: ignore
+                                    event_date_groups[  # type: ignore
                                         all_day_field_name
                                     ].summary
                                 )
@@ -861,7 +854,7 @@ class ScheduleWriter:
 
         with open(csv_file, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f, dialect=csv_dialect)
-            writer.writerow([""] + [p.person_id for p in self.cals])
+            writer.writerow([""] + [p.cal_id for p in self.cals])
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
 
@@ -893,8 +886,8 @@ def sub_cfg(
 
 
 def main(
-    people_data: List[Tuple[str, str, str, str]],
-    people_filter: Optional[List[str]] = None,
+    cals_data: List[Tuple[str, str, str, str]],
+    cals_filter: Optional[List[str]] = None,
     ics_dir=DEF_ICS_DIR,
     download_option: bool = False,
     show_schedule: bool = False,
@@ -913,23 +906,23 @@ def main(
     classification_rules = sub_cfg(cfg, "event_classifications")
     fmt_options = sub_cfg(cfg, "formatting")
 
-    all_people = [
-        Person.from_tuple(person_tuple=person_tuple, ics_dir=ics_dir)
-        for person_tuple in people_data
+    all_cals = [
+        Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=ics_dir)
+        for cal_tuple in cals_data
     ]
 
-    if people_filter:
-        chosen_people = [p for p in all_people if p.person_id in people_filter]
+    if cals_filter:
+        chosen_cals = [p for p in all_cals if p.cal_id in cals_filter]
     else:
-        chosen_people = all_people
+        chosen_cals = all_cals
 
     if download_option:
-        for p in chosen_people:
+        for p in chosen_cals:
             p.download_latest_schedule_version()
 
     if show_changelog:
-        report = ScheduleHistory.change_log_report_for_people(
-            people=chosen_people,
+        report = ScheduleHistory.change_log_report_for_cals(
+            cals=chosen_cals,
             earliest_date=earliest_date,
             latest_date=latest_date,
             filters=filters,
@@ -939,8 +932,8 @@ def main(
         output += report
 
     if show_schedule:
-        for person in chosen_people:
-            schedule, version_date = person.current_schedule_and_version_date()
+        for cal in chosen_cals:
+            schedule, version_date = cal.current_schedule_and_version_date()
             schedule_display = schedule.display(
                 earliest_date=earliest_date,
                 latest_date=latest_date,
@@ -968,7 +961,7 @@ def main(
             default_val={},
         )
         writer = ScheduleWriter(
-            cals=chosen_people,
+            cals=chosen_cals,
             earliest_date=earliest_date,
             latest_date=latest_date,
             filters=filters,

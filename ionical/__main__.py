@@ -462,14 +462,14 @@ def cli():
             csv_export_file = args.csv_file
 
     main(
-        people_data=cal_tuples,
+        cals_data=cal_tuples,
         download_option=args.get_today,
         ics_dir=args.ics_dir,
         earliest_date=earliest_date,
         latest_date=latest_date,
         show_schedule=args.schedule,
         show_changelog=show_changelog,
-        people_filter=args.ids,
+        cals_filter=args.ids,
         csv_export_file=csv_export_file,
         filters=args.text_filters,
         num_lookbacks=args.num_lookbacks,

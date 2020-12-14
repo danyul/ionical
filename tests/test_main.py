@@ -1,7 +1,7 @@
 import toml
 from pathlib import Path
 
-from ionical.ionical import main, Person
+from ionical.ionical import main, Cal
 
 from ionical.__main__ import (
     cals_from_cfg,
@@ -15,7 +15,7 @@ exp_output_dir = test_dir + "expected_output/"
 test_config_dir = test_dir + "config_test/"
 cfg_fn = "test_ionical_config.toml"
 
-people_tuples = cals_from_cfg(test_config_dir, cfg_fn)
+cal_tuples = cals_from_cfg(test_config_dir, cfg_fn)
 cfg_options = cfg_from_cfg_file(test_config_dir, cfg_fn)
 fmt_options = cfg_options["formatting"]
 
@@ -31,7 +31,7 @@ def test_1984_not_here_yet():
 
 def test_display_changelog(capsys):
     main(
-        people_data=people_tuples,
+        cals_data=cal_tuples,
         ics_dir=test_sched_dir,
         show_changelog=True,
         filters=["IHS"],
@@ -44,10 +44,10 @@ def test_display_changelog(capsys):
 
 def test_display_schedule(capsys):
     main(
-        people_data=people_tuples,
+        cals_data=cal_tuples,
         ics_dir=test_sched_dir,
         show_schedule=True,
-        people_filter=["Gilliam, Terry"],
+        cals_filter=["Gilliam, Terry"],
         filters=["IHS"],
         cfg=cfg_options,
         # fmt_options=fmt_options,
@@ -58,8 +58,8 @@ def test_display_schedule(capsys):
 
 def test_generate_csv(tmpdir):
     # all_cals = [
-    #     Person.from_tuple(person_tuple=cal_tuple, ics_dir=test_sched_dir)
-    #     for cal_tuple in people_tuples
+    #     Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=test_sched_dir)
+    #     for cal_tuple in cals_data
     # ]
     # writer = ScheduleWriter(
     #     cals=all_cals,
@@ -72,7 +72,7 @@ def test_generate_csv(tmpdir):
     #     fmt_options=fmt_options,
     # )
     main(
-        people_data=people_tuples,
+        cals_data=cal_tuples,
         ics_dir=test_sched_dir,
         csv_export_file=Path(tmpdir) / "tmpcsv.csv",
         filters=["IHS"],
