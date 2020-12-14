@@ -308,12 +308,20 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         )
 
     if cat == "experimental":
+        # parser.add_argument(
+        #     "-e",
+        #     nargs="+",
+        #     metavar="ARG",
+        #     dest="experimentals",
+        #     help=f"Pass experimental arguments.\n\n",
+        # )
         parser.add_argument(
-            "-e",
-            nargs="+",
-            metavar="ARG",
-            dest="experimentals",
-            help=f"Pass experimental arguments.\n\n",
+            "-c",
+            metavar="CSV_FILE",
+            dest="csv_file",
+            nargs="?",
+            const="cfg",
+            help="Export calendar events to csv.\n\n",
         )
 
 
@@ -355,6 +363,10 @@ def cli():
             "File Locations",
             "Specify expected locations for config files and calendar downloads.",
         ],
+        "experimental": [
+            "Experimental/Alpha",
+            None,
+        ],
     }
     option_groups = {}
     for key, (name, desc) in help_option_group_info.items():
@@ -370,27 +382,19 @@ def cli():
         sys.exit(1)
 
     cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG)
-
-
     cfg = cfg_from_cfg_file(args.config_dir, DEF_CFG)
-
-    try:
-        fmt_options = cfg["formatting"]
-    except KeyError:
-        fmt_options = None
-
 
     verbose_mode = False
     if args.verbose:
         verbose_mode = True
-        print ("Operating in verbose mode (--verbose argument passeed).")
+        print("Operating in verbose mode (--verbose argument passeed).")
     try:
         if cfg["verbose"]:
             verbose_mode = True
-            print ("Operating in verbose mode (per config file).")
+            print("Operating in verbose mode (per config file).")
     except KeyError:
         pass
-        
+
     earliest_date, latest_date = date_range_from_args(
         args.start_date, args.end_date
     )
@@ -401,7 +405,7 @@ def cli():
         )
 
     show_changelog = True if args.num_lookbacks > 0 else False
-    if not any([args.schedule, show_changelog, args.get_today]):
+    if not any([args.schedule, show_changelog, args.get_today, args.csv_file]):
         print(
             "You MUST specify at least one of the primary options.\n"
             + "\nFor help, run ionical with the -h option.\n"
@@ -425,6 +429,19 @@ def cli():
                 f"Will use all calendars listed in {DEF_CFG}."
             )
 
+    csv_export_file = None
+    if args.csv_file:
+        if args.csv_file == "cfg":
+            try:
+                csv_export_file = cfg["csv_file"]
+            except KeyError:
+                print(
+                    "Didn't locate 'csv_export_file' in config.\n  Quitting.\n"
+                )
+                sys.exit(1)
+        else:
+            csv_export_file = args.csv_file
+
     main(
         people_data=cal_tuples,
         download_option=args.get_today,
@@ -434,11 +451,11 @@ def cli():
         show_schedule=args.schedule,
         show_changelog=show_changelog,
         people_filter=args.ids,
+        csv_export_file=csv_export_file,
         filters=args.text_filters,
         num_lookbacks=args.num_lookbacks,
-        fmt_options=fmt_options,
+        cfg=cfg,
     )
-    print("\n")
 
 
 if __name__ == "__main__":

@@ -22,14 +22,16 @@ DEF_TIME_FMT = "%H:%M:%S"
 DEF_DATE_FMT = "%Y-%m-%d"
 DEF_TIME_GROUP_FMT = ""
 DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
-DEF_CHANGE_REPORT_FMT = " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
-DEF_START_TIME_CAT_DICT =  {
-                "shift": {
-                    "All-Day": False,
-                    "AM": [[0, 12]],
-                    "PM": [[12, 24]],
-                }
-            }
+DEF_CHANGE_REPORT_FMT = (
+    " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
+)
+DEF_START_TIME_CAT_DICT = {
+    "shift": {
+        "All-Day": False,
+        "AM": [[0, 12]],
+        "PM": [[12, 24]],
+    }
+}
 
 # TODO: Timezone config management
 # TODO: Include sample people.json file in manifest (or whatever necessary)
@@ -179,12 +181,12 @@ class MonitoredEventData:
     def summary(self):
         return self._summary
 
-    def start_time_cats(self, cat_class) -> Dict[str,str]:
+    def start_time_cats(self, cat_class) -> Dict[str, str]:
         start_time_cats = {}
         for cat_type, cat_rules in cat_class.items():
             start_time_cats[cat_type] = "Unspecified"
             for cat, ranges_list in cat_rules.items():
-                if ranges_list==False:
+                if ranges_list == False:
                     if not self.time:  # TODO: Make sure no falsy error
                         start_time_cats[cat_type] = cat
                         break
@@ -194,12 +196,15 @@ class MonitoredEventData:
                     lower_bound_in_mins = lower_bound_in_hours * 60
                     upper_bound_in_mins = upper_bound_in_hours * 60
                     start_time = self.local_time
-                    event_time_in_mins = start_time.hour * 60 + start_time.minute
-                    if (lower_bound_in_mins <= event_time_in_mins) and (event_time_in_mins < upper_bound_in_mins):
+                    event_time_in_mins = (
+                        start_time.hour * 60 + start_time.minute
+                    )
+                    if (lower_bound_in_mins <= event_time_in_mins) and (
+                        event_time_in_mins < upper_bound_in_mins
+                    ):
                         start_time_cats[cat_type] = cat
-                        break #not great, because should really break out of 2 loops
+                        break  # not great, because should really break out of 2 loops
         return start_time_cats
-            
 
     def display(self, fmt_options=None):
         if fmt_options is None:
@@ -243,7 +248,9 @@ class MonitoredEventData:
 
         if shift_str_template is None:
             shift_str_template = DEF_TIME_GROUP_FMT
-        shift_str = shift_str_template.format(self.start_time_cats(start_time_cat_dict)["shift"])
+        shift_str = shift_str_template.format(
+            self.start_time_cats(start_time_cat_dict)["shift"]
+        )
 
         return schedule_summary_line.format(
             date_str,
@@ -596,21 +603,19 @@ class ScheduleHistory:
             change_report_record_template = DEF_CHANGE_REPORT_FMT
 
         def person_by_id(person_id: str) -> Person:
-            found_person = None
             for p in people:
                 if p.person_id == person_id:
-                    found_person = p
-                    break
-            return found_person
+                    return p
+            raise KeyError(f"Did not find id {person_id}.")
 
         def meets_filter_criteria(c: ScheduleChange) -> bool:
-            if (
-                (filters and not any(f in c.event_summary for f in filters))
-                or (earliest_date and c.event_start.date() < earliest_date)
-                or (latest_date and c.event_start.date() > latest_date)
-            ):
-                return False
-            return True
+            return not any(
+                (
+                    filters and not any(f in c.event_summary for f in filters),
+                    earliest_date and c.event_start.date() < earliest_date,
+                    latest_date and c.event_start.date() > latest_date,
+                )
+            )
 
         def local_format_dt(
             datetime_: datetime,
@@ -703,6 +708,141 @@ class ScheduleHistory:
         return c
 
 
+class ScheduleWriter:
+    def __init__(
+        self,
+        cals: List[Person],
+        earliest_date: Optional[date] = None,
+        latest_date: Optional[date] = None,
+        filters: Optional[List[str]] = None,
+    ):
+        self.filters = filters
+        self.cals = cals
+
+        self.events_by_person_id: Dict[str, List[MonitoredEventData]] = {
+            person.person_id: person.current_schedule.filtered_events(
+                earliest_date=earliest_date,
+                latest_date=latest_date,
+                filters=filters,
+            )
+            for person in cals
+        }
+
+        event_dates = [
+            event.forced_date
+            for person_id, events in self.events_by_person_id.items()
+            for event in events
+        ]
+
+        self.earliest_date = (
+            earliest_date if earliest_date else min(event_dates)
+        )
+        self.latest_date = latest_date if latest_date else max(event_dates)
+
+    def csv_write(
+        self,
+        csv_file,
+        csv_dialect: str = "excel",
+        include_empty_dates: bool = False,
+        conversion_table: Dict[str, str] = None,
+        fmt_options=None,
+    ):
+
+        try:
+            start_time_cat_dict = fmt_options["start_time_cat_dict"]
+        except KeyError:
+            sys.exit(1)
+            # start_time_cat_dict = DEF_START_TIME_CAT_DICT
+
+        # QUICK HACK TO GET IT WORKING - DON'T CRITICIZE!! :)
+        # TODO: OBVIOUSLY MAKE GENERALIZABLE and dekludge/dehack
+        # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
+        def daterange(start_date, end_date):
+            for n in range(int((end_date - start_date).days)):
+                yield start_date + timedelta(n)
+
+        if conversion_table is None:
+            conversion_table = {}
+
+        def convert_if_lookup_found(summary):
+            if summary in conversion_table:
+                return conversion_table[summary]
+            else:
+                return summary
+
+        # TODO: De-HACK!  (Dirty implementation-specific code, to be fixed)
+        # DON'T CRITICIZE!
+        plists_by_date = OrderedDict([])
+        for date_ in daterange(self.earliest_date, self.latest_date):
+            plist = list("" for _ in range(len(self.cals)))
+            for person in self.cals:
+                events = self.events_by_person_id[person.person_id]
+                index_ = self.cals.index(person)
+                am_shift = next(
+                    (
+                        x
+                        for x in events
+                        if x.forced_date == date_
+                        and x.start_time_cats(start_time_cat_dict)["shift"]
+                        == "AM"
+                    ),
+                    None,
+                )
+                pm_shift = next(
+                    (
+                        x
+                        for x in events
+                        if x.forced_date == date_
+                        and x.start_time_cats(start_time_cat_dict)["shift"]
+                        == "PM"
+                    ),
+                    None,
+                )
+                all_day_shift = next(
+                    (
+                        x
+                        for x in events
+                        if x.forced_date == date_
+                        and x.start_time_cats(start_time_cat_dict)["shift"]
+                        == "All-Day"
+                    ),
+                    None,
+                )
+                text = ""
+                if all_day_shift and all([am_shift, pm_shift]):
+                    text = "ERROR"
+                else:
+                    if all_day_shift and not pm_shift:
+                        pm_shift = all_day_shift
+                    if all_day_shift and not am_shift:
+                        am_shift = all_day_shift
+                    if am_shift:
+                        text = convert_if_lookup_found(am_shift.summary) + "-"
+                    if pm_shift and not am_shift:
+                        text = "X" + "-"
+                    if pm_shift:
+                        text += convert_if_lookup_found(pm_shift.summary)
+                    if am_shift and not pm_shift:
+                        text += "X"
+                if am_shift:
+                    text = convert_if_lookup_found(am_shift.summary) + "-"
+                if pm_shift and not am_shift:
+                    text = "O" + "-"
+                if pm_shift:
+                    text += convert_if_lookup_found(pm_shift.summary)
+                if am_shift and not pm_shift:
+                    text += "O"
+                plist[index_] = text
+            if set(plist) != {""} or include_empty_dates:
+                plists_by_date[date_] = plist
+
+        with open(csv_file, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f, dialect=csv_dialect)
+            writer.writerow([""] + [p.person_id for p in self.cals])
+            for date_, plist in plists_by_date.items():
+                writer.writerow([date_] + plist)
+
+
 def main(
     people_data: List[Tuple[str, str, str, str]],
     people_filter: Optional[List[str]] = None,
@@ -710,14 +850,23 @@ def main(
     download_option: bool = False,
     show_schedule: bool = False,
     show_changelog: bool = False,
+    csv_export_file: str = None,
     earliest_date: Optional[date] = None,
     latest_date: Optional[date] = None,
     filters: Optional[List[str]] = None,
     num_lookbacks=None,  # (for changelogs)
-    fmt_options=None,
+    cfg=None,
 ) -> None:
 
     output = ""
+
+    if cfg is None:
+        fmt_options = None
+    else:
+        try:
+            fmt_options = cfg["formatting"]
+        except KeyError:
+            fmt_options = None
 
     all_people = [
         Person.from_tuple(person_tuple=person_tuple, ics_dir=ics_dir)
@@ -755,5 +904,29 @@ def main(
                 fmt_options=fmt_options,
             )
             output += schedule_display
+
+    if csv_export_file:
+        print(f"\nFilename for CSV export: {csv_export_file}.")
+        try:
+            csv_conversion_dict = cfg["csv_substitutions"]
+            print(f"Found/using 'csv_subtitutions' in config file.\n")
+        except KeyError:
+            csv_conversion_dict = {}
+            print(f"Note: No 'csv_substitutions' section in config file.\n")
+
+        writer = ScheduleWriter(
+            cals=chosen_people,
+            earliest_date=earliest_date,
+            latest_date=latest_date,
+            filters=filters,
+        )
+        writer.csv_write(
+            conversion_table=csv_conversion_dict,
+            csv_file=csv_export_file,
+            include_empty_dates=True,
+            fmt_options=fmt_options,
+        )
+
+        print("\n")
 
     print(output, end="")
