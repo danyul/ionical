@@ -31,10 +31,29 @@ verbose = "true"
         url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
         tz = "US/Mountain"
 
+
+[event_classifications.by_start_time.workshift]
+
+    All-Day     = "missing"        # If there is no start time, classify it as "All-Day" workshift
+    AM          = [ 
+                        [7, 12],   # Any event starting between 7 and 12 is classified as "AM" workshift
+                    ]  
+    PM          = [ 
+                        [12, 18],  # Any event starting between 12 and 18 is classified as "PM" workshift
+                    ]
+    Unspecified = "default"        # All other events will be classified as "Unspecified" workshift
+
+
 [csv]
+
     include_empty_dates= true
-    all_day_replacement_hack = true
-    all_day_replacement_category = "All-Day"
+    grouping = "workshift"
+    order = ["AM", "PM"]
+    format = "{0}-{1}"
+    text_if_not_present = "O"
+
+    all_day_behavior_workaround = true
+    all_day_category = "All-Day"
 
     [csv.substitutions]
         "PM: IHS Continuity Clinic"        = "C"
@@ -43,19 +62,14 @@ verbose = "true"
         "PM: IHS Continuity Clinic IPCS"   = "CI"
         "Pediatric Outpatient Clinic-IHS"  = "RP"
     
-    [csv.output]
-        grouping = "shift"
-        order = ["AM", "PM"]
-        format = "{0}-{1}"
-        text_if_not_present = "O"
-        #AM Shift = {1}\nPM Shift = {2}\nAll-Day Shift = {3}"
 
 [formatting]
 
     # date_fmt = "%a, %b %d %Y"
     # time_fmt = " (%I%p)  "
     #event_summary = "    {0:16}  {1:12}{3:30}"
-    time_group = "Shift: {:11}"
+    grouping_field = "workshift"
+    grouping_field_fmt = "Shift: {:11}"
     event_summary  = "Start: {:12}   Time: {:12} {}  {}"
     change_report  = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
 
@@ -64,15 +78,3 @@ verbose = "true"
         "(0" = "("
         "AM" = "am"
         "PM" = "pm"
-
-
-            [formatting.groupings.start_time.shift]
-
-                    All-Day     = "missing"       # If there is no start time, categorize it as "All-Day"
-                    AM          = [ 
-                                        [7, 12],   # Any event starting between 7 and 12 is categorized as "AM"
-                                  ]  
-                    PM          = [ 
-                                        [12, 18],  # Any event starting between 12 and 18 is categorized as "PM"
-                                  ]
-                    Unspecified = "default"       # All other events will be labeled "Unspecified"

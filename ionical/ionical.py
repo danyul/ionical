@@ -20,6 +20,8 @@ DEF_ICS_DIR = "./"
 
 DEF_TIME_FMT = "%H:%M:%S"
 DEF_DATE_FMT = "%Y-%m-%d"
+CHANGELOG_DEF_DATE_FMT = "%b %d, %Y" 
+CHANGELOG_DEF_TIME_FMT = " %I%p"
 DEF_TIME_GROUP_FMT = ""
 DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
 DEF_CHANGE_REPORT_FMT = (
@@ -218,33 +220,18 @@ class MonitoredEventData:
 
         return start_time_cats
 
-    def display(self, fmt_options=None):
+    def display(self, fmt_options=None, classification_rules=None):
         if fmt_options is None:
             fmt_options = {}
-        try:
-            date_fmt = fmt_options["date_fmt"]
-        except KeyError:
-            date_fmt = DEF_DATE_FMT
-        try:
-            time_fmt = fmt_options["time_fmt"]
-        except KeyError:
-            time_fmt = DEF_TIME_FMT
-        try:
-            time_replacements = fmt_options["time_replacements"]
-        except KeyError:
-            time_replacements = None
-        try:
-            schedule_summary_line = fmt_options["event_summary"]
-        except KeyError:
-            schedule_summary_line = None
-        try:
-            start_time_cat_dict = fmt_options["groupings"]["start_time"]
-        except KeyError:
-            start_time_cat_dict = DEF_START_TIME_CAT_DICT
-        try:
-            shift_str_template = fmt_options["time_group"]
-        except KeyError:
-            shift_str_template = None
+        date_fmt = sub_cfg(fmt_options, "date_fmt", DEF_DATE_FMT)
+        time_fmt = sub_cfg(fmt_options, "time_fmt", DEF_TIME_FMT)
+        time_replacements = sub_cfg(fmt_options, "time_replacement", None)
+        schedule_summary_line = sub_cfg(fmt_options, "event_summary", None)
+        grouping_field = sub_cfg(fmt_options, "grouping_field", None)
+        shift_str_template = sub_cfg(fmt_options, "grouping_field_fmt", None)
+        start_time_cat_dict = sub_cfg(
+            classification_rules, "by_start_time", DEF_START_TIME_CAT_DICT
+        )
 
         if schedule_summary_line is None:
             schedule_summary_line = DEF_SUMMARY_LINE
@@ -261,7 +248,7 @@ class MonitoredEventData:
         if shift_str_template is None:
             shift_str_template = DEF_TIME_GROUP_FMT
         shift_str = shift_str_template.format(
-            self.start_time_cats(start_time_cat_dict)["shift"]
+            self.start_time_cats(start_time_cat_dict)[grouping_field]
         )
 
         return schedule_summary_line.format(
@@ -388,6 +375,7 @@ class Schedule:
         filters: Optional[List[str]] = None,
         version_date: Optional[date] = None,
         fmt_options=None,
+        classification_rules=None,
     ) -> str:
         if filters is None:
             filters = []
@@ -398,7 +386,7 @@ class Schedule:
         header += "\n\n"
         body = "\n".join(
             [
-                event.display(fmt_options)
+                event.display(fmt_options, classification_rules)
                 for event in self.filtered_events(
                     earliest_date=earliest_date,
                     latest_date=latest_date,
@@ -597,22 +585,12 @@ class ScheduleHistory:
         """
         if fmt_options is None:
             fmt_options = {}
-        try:
-            date_fmt = fmt_options["date_fmt"]
-        except KeyError:
-            date_fmt = None
-        try:
-            time_fmt = fmt_options["time_fmt"]
-        except KeyError:
-            time_fmt = None
-        try:
-            time_replacements = fmt_options["time_replacements"]
-        except KeyError:
-            time_replacements = None
-        try:
-            change_report_record_template = fmt_options["change_report"]
-        except KeyError:
-            change_report_record_template = DEF_CHANGE_REPORT_FMT
+        date_fmt = sub_cfg(fmt_options, "date_fmt", None)
+        time_fmt = sub_cfg(fmt_options, "time_fmt", None)
+        time_replacements = sub_cfg(fmt_options, "time_replacement", None)
+        change_report_record_template = sub_cfg(
+            fmt_options, "change_report", DEF_CHANGE_REPORT_FMT
+        )
 
         def person_by_id(person_id: str) -> Person:
             for p in people:
@@ -637,9 +615,9 @@ class ScheduleHistory:
             time_replacements=None,
         ) -> str:
             if date_fmt is None:
-                date_fmt = "%b %d, %Y"
+                date_fmt = CHANGELOG_DEF_DATE_FMT
             if time_fmt is None:
-                time_fmt = " %I%p"
+                time_fmt = CHANGELOG_DEF_TIME_FMT
             if time_replacements is None:
                 time_replacements = {" 0": " ", "AM": "am", "PM": "pm"}
 
@@ -757,19 +735,17 @@ class ScheduleWriter:
         csv_dialect: str = "excel",
         include_empty_dates: bool = False,
         conversion_table: Dict[str, str] = None,
-        fmt_options=None,
+        classification_rules=None,
         csv_options=None,
-        cat_type=None,
     ):
 
-        try:
-            start_time_cat_dict = fmt_options["groupings"]["start_time"]
-        except KeyError:
-            print("Quitting- can't find grouping confg info.\n")
+        start_time_cat_dict = sub_cfg(
+            classification_rules, "by_start_time", None
+        )  # DEF_START_TIME_CAT_DICT
+        if start_time_cat_dict is None:
+            print("Quitting- can't find by_start_time confg info.\n")
             sys.exit(1)
-            # start_time_cat_dict = DEF_START_TIME_CAT_DICT
 
-        # QUICK HACK TO GET IT WORKING - DON'T CRITICIZE!! :)
         # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
         def daterange(start_date, end_date):
             for n in range(int((end_date - start_date).days)):
@@ -783,6 +759,11 @@ class ScheduleWriter:
                 return conversion_table[summary]
             else:
                 return summary
+
+        cat_type = sub_cfg(csv_options, "grouping")
+        if cat_type is None:
+            print("Quitting- can't find grouping confg info.\n")
+            sys.exit(1)
 
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
@@ -807,15 +788,23 @@ class ScheduleWriter:
                         ),
                         None,
                     )
-                shown_options = csv_options["output"]["order"]
-                csv_exp_str = csv_options["output"]["format"]
-                not_found_str = csv_options["output"]["text_if_not_present"]
+                shown_options = sub_cfg(csv_options, "order")
+                if shown_options is None:
+                    print("Quitting- can't find 'order' confg info.\n")
+                    sys.exit(1)
+                csv_exp_str = sub_cfg(csv_options, "format")
+                if csv_exp_str is None:
+                    print("Quitting- can't find 'format' confg info.\n")
+                    sys.exit(1)
+                not_found_str = sub_cfg(
+                    csv_options, "text_if_not_present", "None"
+                )
 
                 text = (
                     csv_exp_str.format(
                         *[
                             convert_if_lookup_found(
-                                event_date_groups[c].summary
+                                event_date_groups[c].summary # type: ignore
                             )
                             if event_date_groups[c]
                             else not_found_str
@@ -826,39 +815,44 @@ class ScheduleWriter:
                     else ""
                 )
 
-                # below addresses scenario when all-day events need to fill in shifts
-                hack_cat = ""
-                try:
-                    all_day_replacement_hack = csv_options[
-                        "all_day_replacement_hack"
-                    ]
-                    if all_day_replacement_hack:
-                        try:
-                            hack_cat = csv_options[
-                                "all_day_replacement_category"
-                            ]
-                        except KeyError:
-                            print(
-                                "You specified all_day_replcement_hack \n"
-                                + "but not all_day_replacement_category!"
-                            )
-                            all_day_replacement_hack = False
-                except KeyError:
-                    all_day_replacement_hack = False
-                if all_day_replacement_hack and event_date_groups[hack_cat]:
+                # below hack addresses scenario when all-day events need to fill in other shifts
+                all_day_spec_case = sub_cfg(
+                    csv_options, "all_day_behavior_workaround", False
+                )
+                all_day_field_name = None
+                if all_day_spec_case:
+                    all_day_field_name = sub_cfg(
+                        csv_options,
+                        "all_day_category",
+                        noisy=True,
+                        no_sub_key_msg="You opted for the all-day "
+                        "workaround but no all-day category found in config.",
+                    )
+                    if all_day_field_name is None:
+                        all_day_spec_case = False
+                if all_day_spec_case and event_date_groups[all_day_field_name]:
                     if not any([event_date_groups[c] for c in shown_options]):
                         special_event = convert_if_lookup_found(
-                            event_date_groups[hack_cat].summary
+                            event_date_groups[all_day_field_name].summary # type: ignore
                         )
                         text = csv_exp_str.format(
                             *([special_event] * len(shown_options))
                         )
-                    text = text.replace(
-                        not_found_str,
-                        convert_if_lookup_found(
-                            event_date_groups[hack_cat].summary
-                        ),
-                    )
+                    else:
+                        text = csv_exp_str.format(
+                            *[
+                                convert_if_lookup_found(
+                                    event_date_groups[c].summary # type: ignore
+                                )
+                                if event_date_groups[c]
+                                else convert_if_lookup_found(
+                                    event_date_groups[ # type: ignore
+                                        all_day_field_name
+                                    ].summary
+                                )
+                                for c in shown_options
+                            ]
+                        )
 
                 plist[index_] = text
 
@@ -870,6 +864,32 @@ class ScheduleWriter:
             writer.writerow([""] + [p.person_id for p in self.cals])
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
+
+
+def sub_cfg(
+    cfg: Optional[Dict],
+    sub_key: str,
+    default_val=None,
+    noisy: bool = False,
+    success_msg: str = "Located config sub_key: {0}.  Value: {1}.",
+    no_sub_key_msg: str = "Could not locate config sub_key '{0}'."
+    "Setting {0} to default value: {1}.",
+    no_cfg_msg: str = "No config dict to seek sub_key '{0}'."
+    "Setting {0} to default value: {1}.",
+):
+    if cfg is None:
+        if noisy:
+            print(no_cfg_msg.format(sub_key, default_val))
+        return default_val
+    else:
+        try:
+            if noisy:
+                print(success_msg.format(sub_key, cfg[sub_key]))
+            return cfg[sub_key]
+        except KeyError:
+            if noisy:
+                print(no_sub_key_msg.format(sub_key, default_val))
+            return default_val
 
 
 def main(
@@ -890,13 +910,8 @@ def main(
 
     output = ""
 
-    if cfg is None:
-        fmt_options = None
-    else:
-        try:
-            fmt_options = cfg["formatting"]
-        except KeyError:
-            fmt_options = None
+    classification_rules = sub_cfg(cfg, "event_classifications")
+    fmt_options = sub_cfg(cfg, "formatting")
 
     all_people = [
         Person.from_tuple(person_tuple=person_tuple, ics_dir=ics_dir)
@@ -932,41 +947,26 @@ def main(
                 filters=filters,
                 version_date=version_date,
                 fmt_options=fmt_options,
+                classification_rules=classification_rules,
             )
             output += schedule_display
 
     if csv_export_file:
-        if cfg is None:
-            csv_options = None
-        else:
-            try:
-                csv_options = cfg["csv"]
-            except KeyError:
-                csv_options = None
         if verbose_mode:
             print(f"\nFilename for CSV export: {csv_export_file}.")
-        try:
-            include_empty_dates = cfg["csv"]["include_empty_dates"]
-            if verbose_mode:
-                print(
-                    f"csv.include_empty_dates={include_empty_dates} per cfg.\n"
-                )
-        except KeyError:
-            include_empty_dates = False
-            if verbose_mode:
-                print(
-                    f"csv.include_empty_dates not located. Setting to False.\n"
-                )
-
-        try:
-            csv_conversion_dict = cfg["csv"]["substitutions"]
-            if verbose_mode:
-                print(f"Found/using csv.subtitutions in config file.\n")
-        except KeyError:
-            csv_conversion_dict = {}
-            if verbose_mode:
-                print(f"Note: No csv.substitutions section in config file.\n")
-
+        csv_options = sub_cfg(cfg, "csv")
+        include_empty_dates = sub_cfg(
+            cfg=csv_options,
+            sub_key="include_empty_dates",
+            noisy=verbose_mode,
+            default_val=False,
+        )
+        csv_conversion_dict = sub_cfg(
+            cfg=csv_options,
+            sub_key="substitutions",
+            noisy=verbose_mode,
+            default_val={},
+        )
         writer = ScheduleWriter(
             cals=chosen_people,
             earliest_date=earliest_date,
@@ -977,8 +977,7 @@ def main(
             conversion_table=csv_conversion_dict,
             csv_file=csv_export_file,
             include_empty_dates=include_empty_dates,
-            fmt_options=fmt_options,
-            cat_type="shift",
+            classification_rules=classification_rules,
             csv_options=csv_options,
         )
         print("\n")
