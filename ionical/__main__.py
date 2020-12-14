@@ -411,8 +411,37 @@ def cli():
             f"\nWill download today's ics files to directory: {args.ics_dir}"
         )
 
-    show_changelog = True if args.num_lookbacks > 0 else False
-    if not any([args.schedule, show_changelog, args.get_today, args.csv_file]):
+    ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", False)
+    get_today = (
+        True if args.get_today else sub_cfg(cfg["actions"], "get_today", False)
+    )
+    show_schedule = (
+        True
+        if args.schedule
+        else sub_cfg(cfg["actions"], "show_schedule", False)
+    )
+
+    if args.num_lookbacks > 0:
+        show_changelog = True
+        num_lookbacks = args.num_lookbacks
+    else:
+        show_changelog = sub_cfg(cfg["actions"], "show_changelog", False)
+        if show_changelog:
+            num_lookbacks = sub_cfg(
+                cfg["actions"]["changelog"], "lookbacks", DEF_NUM_LOOKBACKS
+            )
+
+    csv_export_file = None
+    if args.csv_file:
+        if args.csv_file == "cfg":
+            csv_export_file = sub_cfg(cfg["csv"], "file", noisy=True)
+            if not csv_export_file:
+                print("Didn't locate csv.file in config.\n  Quitting.\n")
+                sys.exit(1)
+        else:
+            csv_export_file = args.csv_file
+
+    if not any([show_schedule, show_changelog, get_today, csv_export_file]):
         print(
             "You MUST specify at least one of the primary options.\n"
             + "\nFor help, run ionical with the -h option.\n"
@@ -436,27 +465,18 @@ def cli():
                 f"Will use all calendars listed in {DEF_CFG}."
             )
 
-    if args.csv_file:
-        if args.csv_file == "cfg":
-            csv_export_file = sub_cfg(cfg["csv"], "file", noisy=True)
-            if not csv_export_file:
-                print("Didn't locate csv.file in config.\n  Quitting.\n")
-                sys.exit(1)
-        else:
-            csv_export_file = args.csv_file
-
     main(
         cals_data=cal_tuples,
-        download_option=args.get_today,
-        ics_dir=args.ics_dir,
+        download_option=get_today,
+        ics_dir=ics_dir,
         earliest_date=earliest_date,
         latest_date=latest_date,
-        show_schedule=args.schedule,
+        show_schedule=show_schedule,
         show_changelog=show_changelog,
         cals_filter=args.ids,
-        csv_export_file=csv_export_file,  # type: ignore
+        csv_export_file=csv_export_file,
         summary_filters=args.text_filters,
-        num_lookbacks=args.num_lookbacks,
+        num_lookbacks=num_lookbacks,  # type: ignore
         cfg=cfg,
         verbose_mode=verbose_mode,
     )
