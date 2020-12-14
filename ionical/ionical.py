@@ -184,13 +184,19 @@ class MonitoredEventData:
     def start_time_cats(self, cat_class) -> Dict[str, str]:
         start_time_cats = {}
         for cat_type, cat_rules in cat_class.items():
-            start_time_cats[cat_type] = "Unspecified"
+            default_group_if_not_specified = "No Group Default Specified"
+            default_group = default_group_if_not_specified
+            start_time_cats[cat_type] = default_group
             for cat, ranges_list in cat_rules.items():
-                if ranges_list == False:
+
+                if ranges_list == "missing":
                     if not self.time:  # TODO: Make sure no falsy error
                         start_time_cats[cat_type] = cat
                         break
                     continue
+                if ranges_list == "default":
+                    default_group = cat
+                    break
                 for range in ranges_list:
                     lower_bound_in_hours, upper_bound_in_hours = range
                     lower_bound_in_mins = lower_bound_in_hours * 60
@@ -204,6 +210,12 @@ class MonitoredEventData:
                     ):
                         start_time_cats[cat_type] = cat
                         break  # not great, because should really break out of 2 loops
+            if (
+                default_group != default_group_if_not_specified
+                and start_time_cats[cat_type] == default_group_if_not_specified
+            ):
+                start_time_cats[cat_type] = default_group
+
         return start_time_cats
 
     def display(self, fmt_options=None):
@@ -226,7 +238,7 @@ class MonitoredEventData:
         except KeyError:
             schedule_summary_line = None
         try:
-            start_time_cat_dict = fmt_options["start_time_cat_dict"]
+            start_time_cat_dict = fmt_options["groupings"]["start_time"]
         except KeyError:
             start_time_cat_dict = DEF_START_TIME_CAT_DICT
         try:
@@ -746,10 +758,11 @@ class ScheduleWriter:
         include_empty_dates: bool = False,
         conversion_table: Dict[str, str] = None,
         fmt_options=None,
+        csv_options=None,
     ):
 
         try:
-            start_time_cat_dict = fmt_options["start_time_cat_dict"]
+            start_time_cat_dict = fmt_options["groupings"]["start_time"]
         except KeyError:
             sys.exit(1)
             # start_time_cat_dict = DEF_START_TIME_CAT_DICT
@@ -856,6 +869,7 @@ def main(
     filters: Optional[List[str]] = None,
     num_lookbacks=None,  # (for changelogs)
     cfg=None,
+    verbose_mode=False,
 ) -> None:
 
     output = ""
@@ -906,13 +920,36 @@ def main(
             output += schedule_display
 
     if csv_export_file:
-        print(f"\nFilename for CSV export: {csv_export_file}.")
+        if cfg is None:
+            csv_options = None
+        else:
+            try:
+                csv_options = cfg["csv"]
+            except KeyError:
+                csv_options = None
+        if verbose_mode:
+            print(f"\nFilename for CSV export: {csv_export_file}.")
         try:
-            csv_conversion_dict = cfg["csv_substitutions"]
-            print(f"Found/using 'csv_subtitutions' in config file.\n")
+            include_empty_dates = cfg["csv"]["include_empty_dates"]
+            if verbose_mode:
+                print(
+                    f"csv.include_empty_dates={include_empty_dates} per cfg.\n"
+                )
+        except KeyError:
+            include_empty_dates = False
+            if verbose_mode:
+                print(
+                    f"csv.include_empty_dates not located. Setting to False.\n"
+                )
+
+        try:
+            csv_conversion_dict = cfg["csv"]["substitutions"]
+            if verbose_mode:
+                print(f"Found/using csv.subtitutions in config file.\n")
         except KeyError:
             csv_conversion_dict = {}
-            print(f"Note: No 'csv_substitutions' section in config file.\n")
+            if verbose_mode:
+                print(f"Note: No csv.substitutions section in config file.\n")
 
         writer = ScheduleWriter(
             cals=chosen_people,
@@ -923,10 +960,10 @@ def main(
         writer.csv_write(
             conversion_table=csv_conversion_dict,
             csv_file=csv_export_file,
-            include_empty_dates=True,
+            include_empty_dates=include_empty_dates,
             fmt_options=fmt_options,
+            csv_options=csv_options,
         )
-
         print("\n")
 
     print(output, end="")

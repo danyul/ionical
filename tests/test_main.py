@@ -22,7 +22,7 @@ fmt_options = cfg_options["formatting"]
 test_cfg_fn_path = Path(test_config_dir) / cfg_fn
 
 with open(Path(test_cfg_fn_path), "r", encoding="utf-8") as f:
-    csv_conversion_dict = toml.loads(f.read())["csv_substitutions"]
+    csv_conversion_dict = toml.loads(f.read())["csv"]["substitutions"]
 
 
 def test_1984_not_here_yet():

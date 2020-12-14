@@ -26,6 +26,8 @@ SAMPLE_CFG_TOML = """
 
 title = "ionical configuration"
 
+verbose = true
+
 [calendars]
   [calendars.BMI]
     description = "BMI Music Industry Events Calendar"
@@ -34,25 +36,45 @@ title = "ionical configuration"
 
 
 
-# You can ignore the below unless you want to change display settings
+# You can alter the below to change display formatting
+
 [formatting]
-    date_fmt      = "%a, %b %d %Y"
-    time_fmt      = " (%I%p)  "
-    time_group    = "Shift: {:11}"
-    event_summary = "    {0:16}  {1:12}{3:30}"
+    event_summary =    "    {0:16} {1:10} ({2:<})    {3:30}"
+    date_fmt           = "%a, %b %d %Y"
+    time_fmt           = "at %I:%M%p"
+    time_group         = "{:>} Time"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
 
-    [formatting.time_replacements] 
-        " 0" = " "
-        "(0" = "("
-        "AM" = "am"
-        "PM" = "pm"
+    # Meanings for event_summary fields are as follows:
+    #    0: date (further formatted by date_fmt variable)
+    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
+    #    2: shift (further formatted by time_group)
+    #    3: summary text
 
 
-    # Schdule Summary Line Field Variables
-    # 0: date (further formatted by date_fmt variable)
-    # 1: time (further formatted by time_fmt and time_replacements dict)
-    # 2: shift (further formatted by shift_str_template)
-    # 3: summary text
+[formatting.groupings.start_time.shift]
+
+    Morning     = [ 
+                        [5, 12],   # Any event starting between 5a and 12p is categorized as "Morning"
+                    ]  
+    Afternoon   = [ 
+                        [12, 16],  # Any event starting between 12p and 4p is categorized as "Afternoon"
+                    ]
+    Evening   =   [ 
+                        [16, 20],  # Any event starting between 4p and 8p is categorized as "Evening"
+                    ]
+    Night     =   [ 
+                        [20, 24],  # Any event starting between 8p and midnight, 
+                        [0, 4],    # or between midnight and 5am is categorized as "Night"
+                    ]
+    All-Day   = "missing"       # If there is no start time, categorize event as "All-Day"
+    Other     = "default"       # All other events (in this case, only events starting between 4 and 5 am
+                                #        will be labeled "Unspecified"
+
+[csv]
+    include_empty_dates= true
+
+
 
 """
 
@@ -433,11 +455,9 @@ def cli():
     if args.csv_file:
         if args.csv_file == "cfg":
             try:
-                csv_export_file = cfg["csv_file"]
+                csv_export_file = cfg["csv"]["file"]
             except KeyError:
-                print(
-                    "Didn't locate 'csv_export_file' in config.\n  Quitting.\n"
-                )
+                print("Didn't locate csv.file in config.\n  Quitting.\n")
                 sys.exit(1)
         else:
             csv_export_file = args.csv_file
@@ -455,6 +475,7 @@ def cli():
         filters=args.text_filters,
         num_lookbacks=args.num_lookbacks,
         cfg=cfg,
+        verbose_mode=verbose_mode,
     )
 
 

@@ -2,6 +2,7 @@
 # test ionical configuration file
 
 title = "test ionical configuration"
+verbose = "true"
 
 [calendars]
 
@@ -30,12 +31,14 @@ title = "test ionical configuration"
         url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
         tz = "US/Mountain"
 
-[csv_substitutions]
-       "PM: IHS Continuity Clinic"        = "C"
-       "AM: IHS Continuity Clinic"        = "C"
-       "AM: 8:30 IHS Continuity Clinic"   = "CL"
-       "PM: IHS Continuity Clinic IPCS"   = "CI"
-       "Pediatric Outpatient Clinic-IHS"  = "RP"
+[csv]
+    include_empty_dates= true
+    [csv.substitutions]
+        "PM: IHS Continuity Clinic"        = "C"
+        "AM: IHS Continuity Clinic"        = "C"
+        "AM: 8:30 IHS Continuity Clinic"   = "CL"
+        "PM: IHS Continuity Clinic IPCS"   = "CI"
+        "Pediatric Outpatient Clinic-IHS"  = "RP"
 
 [formatting]
 
@@ -52,10 +55,14 @@ title = "test ionical configuration"
         "AM" = "am"
         "PM" = "pm"
 
-    [formatting.start_time_cat_dict]
 
-            [formatting.start_time_cat_dict.shift]
+            [formatting.groupings.start_time.shift]
 
-                    All-Day = false
-                    AM = [[7, 12]]
-                    PM = [[12, 18]]
+                    All-Day     = "missing"       # If there is no start time, categorize it as "All-Day"
+                    AM          = [ 
+                                        [7, 12],   # Any event starting between 7 and 12 is categorized as "AM"
+                                  ]  
+                    PM          = [ 
+                                        [12, 18],  # Any event starting between 12 and 18 is categorized as "PM"
+                                  ]
+                    Unspecified = "default"       # All other events will be labeled "Unspecified"
