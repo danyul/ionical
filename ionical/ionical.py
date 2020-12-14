@@ -759,6 +759,7 @@ class ScheduleWriter:
         conversion_table: Dict[str, str] = None,
         fmt_options=None,
         csv_options=None,
+        cat_type=None,
     ):
 
         try:
@@ -791,36 +792,25 @@ class ScheduleWriter:
             for person in self.cals:
                 events = self.events_by_person_id[person.person_id]
                 index_ = self.cals.index(person)
-                am_shift = next(
-                    (
-                        x
-                        for x in events
-                        if x.forced_date == date_
-                        and x.start_time_cats(start_time_cat_dict)["shift"]
-                        == "AM"
-                    ),
-                    None,
-                )
-                pm_shift = next(
-                    (
-                        x
-                        for x in events
-                        if x.forced_date == date_
-                        and x.start_time_cats(start_time_cat_dict)["shift"]
-                        == "PM"
-                    ),
-                    None,
-                )
-                all_day_shift = next(
-                    (
-                        x
-                        for x in events
-                        if x.forced_date == date_
-                        and x.start_time_cats(start_time_cat_dict)["shift"]
-                        == "All-Day"
-                    ),
-                    None,
-                )
+                cat_range_names = start_time_cat_dict[cat_type].keys()
+                event_date_groups = {}
+                for range_name in cat_range_names:
+                    event_date_groups[range_name] = next(
+                        (
+                            x
+                            for x in events
+                            if x.forced_date == date_
+                            and x.start_time_cats(start_time_cat_dict)[
+                                cat_type
+                            ]
+                            == range_name
+                        ),
+                        None,
+                    )
+                am_shift = event_date_groups["AM"]
+                pm_shift = event_date_groups["PM"]
+                all_day_shift = event_date_groups["All-Day"]
+
                 text = ""
                 if all_day_shift and all([am_shift, pm_shift]):
                     text = "ERROR"
@@ -962,6 +952,7 @@ def main(
             csv_file=csv_export_file,
             include_empty_dates=include_empty_dates,
             fmt_options=fmt_options,
+            cat_type="shift",
             csv_options=csv_options,
         )
         print("\n")

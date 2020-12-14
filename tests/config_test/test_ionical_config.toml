@@ -39,6 +39,11 @@ verbose = "true"
         "AM: 8:30 IHS Continuity Clinic"   = "CL"
         "PM: IHS Continuity Clinic IPCS"   = "CI"
         "Pediatric Outpatient Clinic-IHS"  = "RP"
+    
+    [csv.output]
+        grouping = "shift"
+        order = ["AM", "PM", "All-Day"]
+        format = "AM Shift = {1}\nPM Shift = {2}\nAll-Day Shift = {3}"
 
 [formatting]
 
