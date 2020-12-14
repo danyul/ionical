@@ -34,7 +34,7 @@ def test_display_changelog(capsys):
         cals_data=cal_tuples,
         ics_dir=test_sched_dir,
         show_changelog=True,
-        filters=["IHS"],
+        summary_filters=["IHS"],
         cfg=cfg_options,
         # fmt_options=fmt_options,
     )
@@ -48,7 +48,7 @@ def test_display_schedule(capsys):
         ics_dir=test_sched_dir,
         show_schedule=True,
         cals_filter=["Gilliam, Terry"],
-        filters=["IHS"],
+        summary_filters=["IHS"],
         cfg=cfg_options,
         # fmt_options=fmt_options,
     )
@@ -57,25 +57,11 @@ def test_display_schedule(capsys):
 
 
 def test_generate_csv(tmpdir):
-    # all_cals = [
-    #     Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=test_sched_dir)
-    #     for cal_tuple in cals_data
-    # ]
-    # writer = ScheduleWriter(
-    #     cals=all_cals,
-    #     filters=["IHS"],
-    # )
-    # writer.csv_write(
-    #     conversion_table=csv_conversion_dict,
-    #     csv_file=Path(tmpdir) / "tmpcsv.csv",
-    #     include_empty_dates=True,
-    #     fmt_options=fmt_options,
-    # )
     main(
         cals_data=cal_tuples,
         ics_dir=test_sched_dir,
         csv_export_file=Path(tmpdir) / "tmpcsv.csv",
-        filters=["IHS"],
+        summary_filters=["IHS"],
         cfg=cfg_options,
     )
     csv = (Path(tmpdir) / "tmpcsv.csv").read_text()

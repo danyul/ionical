@@ -22,6 +22,7 @@ DEF_TIME_FMT = "%H:%M:%S"
 DEF_DATE_FMT = "%Y-%m-%d"
 CHANGELOG_DEF_DATE_FMT = "%b %d, %Y"
 CHANGELOG_DEF_TIME_FMT = " %I%p"
+CHANGELOG_DEF_TIME_REPLACEMENTS = {" 0": " ", "AM": "am", "PM": "pm"}
 DEF_TIME_GROUP_FMT = ""
 DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
 DEF_CHANGE_REPORT_FMT = (
@@ -339,21 +340,22 @@ class Schedule:
         self,
         earliest_date: date = None,
         latest_date: date = None,
-        filters: Optional[List[str]] = None,
+        summary_filters: Optional[List[str]] = None,
     ) -> List[MonitoredEventData]:
         """Get MonitoredEventData objects filtered by summary and date."""
 
         def meets_filter_criteria(event: MonitoredEventData) -> bool:
             return not any(
                 (
-                    filters and not any(f in event.summary for f in filters),
+                    summary_filters
+                    and not any(f in event.summary for f in summary_filters),
                     earliest_date and event.forced_date < earliest_date,
                     latest_date and event.forced_date > latest_date,
                 )
             )
 
-        if filters is None:
-            filters = []
+        if summary_filters is None:
+            summary_filters = []
         return [
             event
             for event in sorted(
@@ -366,13 +368,13 @@ class Schedule:
         self,
         earliest_date: date = None,
         latest_date: date = None,
-        filters: Optional[List[str]] = None,
+        summary_filters: Optional[List[str]] = None,
         version_date: Optional[date] = None,
         fmt_options=None,
         classification_rules=None,
     ) -> str:
-        if filters is None:
-            filters = []
+        if summary_filters is None:
+            summary_filters = []
         tz = pytz.timezone(self.cal.timezone)
         header = f"\n\nSchedule for {self.cal.name} ({tz})"
         if version_date:
@@ -384,7 +386,7 @@ class Schedule:
                 for event in self.filtered_events(
                     earliest_date=earliest_date,
                     latest_date=latest_date,
-                    filters=filters,
+                    summary_filters=summary_filters,
                 )
             ]
         )
@@ -560,7 +562,7 @@ class ScheduleHistory:
         cals: List[Cal],
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
-        filters: Optional[List[str]] = None,
+        summary_filters: Optional[List[str]] = None,
         num_lookbacks=None,
         changelog_action_dict=None,
         fmt_options=None,
@@ -594,7 +596,8 @@ class ScheduleHistory:
         def meets_filter_criteria(c: ScheduleChange) -> bool:
             return not any(
                 (
-                    filters and not any(f in c.event_summary for f in filters),
+                    summary_filters
+                    and not any(f in c.event_summary for f in summary_filters),
                     earliest_date and c.event_start.date() < earliest_date,
                     latest_date and c.event_start.date() > latest_date,
                 )
@@ -612,7 +615,7 @@ class ScheduleHistory:
             if time_fmt is None:
                 time_fmt = CHANGELOG_DEF_TIME_FMT
             if time_replacements is None:
-                time_replacements = {" 0": " ", "AM": "am", "PM": "pm"}
+                time_replacements = CHANGELOG_DEF_TIME_REPLACEMENTS
 
             tz_datetime = datetime_.astimezone(pytz.timezone(cal.timezone))
 
@@ -624,8 +627,8 @@ class ScheduleHistory:
 
             return date_str + time_str
 
-        if filters is None:
-            filters = []
+        if summary_filters is None:
+            summary_filters = []
         if changelog_action_dict is None:
             changelog_action_dict = {"a": "ADD:", "r": "REMOVE:"}
 
@@ -697,16 +700,16 @@ class ScheduleWriter:
         cals: List[Cal],
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
-        filters: Optional[List[str]] = None,
+        summary_filters: Optional[List[str]] = None,
     ):
-        self.filters = filters
+        self.summary_filters = summary_filters
         self.cals = cals
 
         self.events_by_cal_id: Dict[str, List[MonitoredEventData]] = {
             cal.cal_id: cal.current_schedule.filtered_events(
                 earliest_date=earliest_date,
                 latest_date=latest_date,
-                filters=filters,
+                summary_filters=summary_filters,
             )
             for cal in cals
         }
@@ -895,7 +898,7 @@ def main(
     csv_export_file: str = None,
     earliest_date: Optional[date] = None,
     latest_date: Optional[date] = None,
-    filters: Optional[List[str]] = None,
+    summary_filters: Optional[List[str]] = None,
     num_lookbacks=None,  # (for changelogs)
     cfg=None,
     verbose_mode=False,
@@ -925,7 +928,7 @@ def main(
             cals=chosen_cals,
             earliest_date=earliest_date,
             latest_date=latest_date,
-            filters=filters,
+            summary_filters=summary_filters,
             num_lookbacks=num_lookbacks,
             fmt_options=fmt_options,
         )
@@ -937,7 +940,7 @@ def main(
             schedule_display = schedule.display(
                 earliest_date=earliest_date,
                 latest_date=latest_date,
-                filters=filters,
+                summary_filters=summary_filters,
                 version_date=version_date,
                 fmt_options=fmt_options,
                 classification_rules=classification_rules,
@@ -964,7 +967,7 @@ def main(
             cals=chosen_cals,
             earliest_date=earliest_date,
             latest_date=latest_date,
-            filters=filters,
+            summary_filters=summary_filters,
         )
         writer.csv_write(
             conversion_table=csv_conversion_dict,

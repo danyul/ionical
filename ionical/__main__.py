@@ -9,7 +9,7 @@ import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-from ionical.ionical import main
+from ionical.ionical import main, sub_cfg
 
 import toml
 
@@ -329,13 +329,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         )
 
     if cat == "experimental":
-        # parser.add_argument(
-        #     "-e",
-        #     nargs="+",
-        #     metavar="ARG",
-        #     dest="experimentals",
-        #     help=f"Pass experimental arguments.\n\n",
-        # )
         parser.add_argument(
             "-c",
             metavar="CSV_FILE",
@@ -405,16 +398,9 @@ def cli():
     cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG)
     cfg = cfg_from_cfg_file(args.config_dir, DEF_CFG)
 
-    verbose_mode = False
-    if args.verbose:
-        verbose_mode = True
-        print("Operating in verbose mode (--verbose argument passeed).")
-    try:
-        if cfg["verbose"]:
-            verbose_mode = True
-            print("Operating in verbose mode (per config file).")
-    except KeyError:
-        pass
+    verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
+    if verbose_mode:
+        print("Operating in verbose mode.\n")
 
     earliest_date, latest_date = date_range_from_args(
         args.start_date, args.end_date
@@ -450,12 +436,10 @@ def cli():
                 f"Will use all calendars listed in {DEF_CFG}."
             )
 
-    csv_export_file = None
     if args.csv_file:
         if args.csv_file == "cfg":
-            try:
-                csv_export_file = cfg["csv"]["file"]
-            except KeyError:
+            csv_export_file = sub_cfg(cfg["csv"], "file", noisy=True)
+            if not csv_export_file:
                 print("Didn't locate csv.file in config.\n  Quitting.\n")
                 sys.exit(1)
         else:
@@ -470,8 +454,8 @@ def cli():
         show_schedule=args.schedule,
         show_changelog=show_changelog,
         cals_filter=args.ids,
-        csv_export_file=csv_export_file,
-        filters=args.text_filters,
+        csv_export_file=csv_export_file,  # type: ignore
+        summary_filters=args.text_filters,
         num_lookbacks=args.num_lookbacks,
         cfg=cfg,
         verbose_mode=verbose_mode,
