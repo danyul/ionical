@@ -765,11 +765,11 @@ class ScheduleWriter:
         try:
             start_time_cat_dict = fmt_options["groupings"]["start_time"]
         except KeyError:
+            print("Quitting- can't find grouping confg info.\n")
             sys.exit(1)
             # start_time_cat_dict = DEF_START_TIME_CAT_DICT
 
         # QUICK HACK TO GET IT WORKING - DON'T CRITICIZE!! :)
-        # TODO: OBVIOUSLY MAKE GENERALIZABLE and dekludge/dehack
         # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
         def daterange(start_date, end_date):
             for n in range(int((end_date - start_date).days)):
@@ -790,7 +790,9 @@ class ScheduleWriter:
             for person in self.cals:
                 events = self.events_by_person_id[person.person_id]
                 index_ = self.cals.index(person)
-                cat_range_names = start_time_cat_dict[cat_type].keys()
+                cat_range_names = start_time_cat_dict[
+                    cat_type
+                ].keys()  # csv_options["output"][ "order" ]
                 event_date_groups = {}
                 for range_name in cat_range_names:
                     event_date_groups[range_name] = next(
@@ -805,35 +807,61 @@ class ScheduleWriter:
                         ),
                         None,
                     )
-                am_shift = event_date_groups["AM"]
-                pm_shift = event_date_groups["PM"]
-                all_day_shift = event_date_groups["All-Day"]
+                shown_options = csv_options["output"]["order"]
+                csv_exp_str = csv_options["output"]["format"]
+                not_found_str = csv_options["output"]["text_if_not_present"]
 
-                text = ""
-                if all_day_shift and all([am_shift, pm_shift]):
-                    text = "ERROR"
-                else:
-                    if all_day_shift and not pm_shift:
-                        pm_shift = all_day_shift
-                    if all_day_shift and not am_shift:
-                        am_shift = all_day_shift
-                    if am_shift:
-                        text = convert_if_lookup_found(am_shift.summary) + "-"
-                    if pm_shift and not am_shift:
-                        text = "X" + "-"
-                    if pm_shift:
-                        text += convert_if_lookup_found(pm_shift.summary)
-                    if am_shift and not pm_shift:
-                        text += "X"
-                if am_shift:
-                    text = convert_if_lookup_found(am_shift.summary) + "-"
-                if pm_shift and not am_shift:
-                    text = "O" + "-"
-                if pm_shift:
-                    text += convert_if_lookup_found(pm_shift.summary)
-                if am_shift and not pm_shift:
-                    text += "O"
+                text = (
+                    csv_exp_str.format(
+                        *[
+                            convert_if_lookup_found(
+                                event_date_groups[c].summary
+                            )
+                            if event_date_groups[c]
+                            else not_found_str
+                            for c in shown_options
+                        ]
+                    )
+                    if any([event_date_groups[c] for c in shown_options])
+                    else ""
+                )
+
+                # below addresses scenario when all-day events need to fill in shifts
+                hack_cat = ""
+                try:
+                    all_day_replacement_hack = csv_options[
+                        "all_day_replacement_hack"
+                    ]
+                    if all_day_replacement_hack:
+                        try:
+                            hack_cat = csv_options[
+                                "all_day_replacement_category"
+                            ]
+                        except KeyError:
+                            print(
+                                "You specified all_day_replcement_hack \n"
+                                + "but not all_day_replacement_category!"
+                            )
+                            all_day_replacement_hack = False
+                except KeyError:
+                    all_day_replacement_hack = False
+                if all_day_replacement_hack and event_date_groups[hack_cat]:
+                    if not any([event_date_groups[c] for c in shown_options]):
+                        special_event = convert_if_lookup_found(
+                            event_date_groups[hack_cat].summary
+                        )
+                        text = csv_exp_str.format(
+                            *([special_event] * len(shown_options))
+                        )
+                    text = text.replace(
+                        not_found_str,
+                        convert_if_lookup_found(
+                            event_date_groups[hack_cat].summary
+                        ),
+                    )
+
                 plist[index_] = text
+
             if set(plist) != {""} or include_empty_dates:
                 plists_by_date[date_] = plist
 

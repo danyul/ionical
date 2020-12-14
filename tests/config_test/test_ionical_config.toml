@@ -33,6 +33,9 @@ verbose = "true"
 
 [csv]
     include_empty_dates= true
+    all_day_replacement_hack = true
+    all_day_replacement_category = "All-Day"
+
     [csv.substitutions]
         "PM: IHS Continuity Clinic"        = "C"
         "AM: IHS Continuity Clinic"        = "C"
@@ -42,8 +45,10 @@ verbose = "true"
     
     [csv.output]
         grouping = "shift"
-        order = ["AM", "PM", "All-Day"]
-        format = "AM Shift = {1}\nPM Shift = {2}\nAll-Day Shift = {3}"
+        order = ["AM", "PM"]
+        format = "{0}-{1}"
+        text_if_not_present = "O"
+        #AM Shift = {1}\nPM Shift = {2}\nAll-Day Shift = {3}"
 
 [formatting]
 
