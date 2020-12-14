@@ -784,8 +784,6 @@ class ScheduleWriter:
             else:
                 return summary
 
-        # TODO: De-HACK!  (Dirty implementation-specific code, to be fixed)
-        # DON'T CRITICIZE!
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
             plist = list("" for _ in range(len(self.cals)))
