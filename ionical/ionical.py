@@ -215,15 +215,15 @@ class MonitoredEventData:
 
         return start_time_cats
 
-    def display(self, fmt_options=None, classification_rules=None):
-        if fmt_options is None:
-            fmt_options = {}
-        date_fmt = sub_cfg(fmt_options, "date_fmt", DEF_DATE_FMT)
-        time_fmt = sub_cfg(fmt_options, "time_fmt", DEF_TIME_FMT)
-        time_replacements = sub_cfg(fmt_options, "time_replacement", None)
-        schedule_summary_line = sub_cfg(fmt_options, "event_summary", None)
-        grouping_field = sub_cfg(fmt_options, "grouping_field", None)
-        shift_str_template = sub_cfg(fmt_options, "grouping_field_fmt", None)
+    def display(self, fmt_cfg=None, classification_rules=None):
+        if fmt_cfg is None:
+            fmt_cfg = {}
+        date_fmt = sub_cfg(fmt_cfg, "date_fmt", DEF_DATE_FMT)
+        time_fmt = sub_cfg(fmt_cfg, "time_fmt", DEF_TIME_FMT)
+        time_replacements = sub_cfg(fmt_cfg, "time_replacement", None)
+        schedule_summary_line = sub_cfg(fmt_cfg, "event_summary", None)
+        grouping_field = sub_cfg(fmt_cfg, "grouping_field", None)
+        shift_str_template = sub_cfg(fmt_cfg, "grouping_field_fmt", None)
         start_time_cat_dict = sub_cfg(
             classification_rules, "by_start_time", DEF_START_TIME_CAT_DICT
         )
@@ -368,7 +368,7 @@ class Schedule:
         latest_date: date = None,
         summary_filters: Optional[List[str]] = None,
         version_date: Optional[date] = None,
-        fmt_options=None,
+        fmt_cfg=None,
         classification_rules=None,
     ) -> str:
         if summary_filters is None:
@@ -380,7 +380,7 @@ class Schedule:
         header += "\n\n"
         body = "\n".join(
             [
-                event.display(fmt_options, classification_rules)
+                event.display(fmt_cfg, classification_rules)
                 for event in self.filtered_events(
                     earliest_date=earliest_date,
                     latest_date=latest_date,
@@ -563,7 +563,7 @@ class ScheduleHistory:
         summary_filters: Optional[List[str]] = None,
         num_lookbacks=None,
         changelog_action_dict=None,
-        fmt_options=None,
+        fmt_cfg=None,
     ) -> str:
         """Return a filtered/sorted list of changes.
 
@@ -576,13 +576,12 @@ class ScheduleHistory:
         If no filters are provided, then
         no search filter is applied.
         """
-        if fmt_options is None:
-            fmt_options = {}
-        date_fmt = sub_cfg(fmt_options, "date_fmt", None)
-        time_fmt = sub_cfg(fmt_options, "time_fmt", None)
-        time_replacements = sub_cfg(fmt_options, "time_replacement", None)
+        fmt_cfg = {} if fmt_cfg is None else fmt_cfg
+        date_fmt = sub_cfg(fmt_cfg, "date_fmt", None)
+        time_fmt = sub_cfg(fmt_cfg, "time_fmt", None)
+        time_replacements = sub_cfg(fmt_cfg, "time_replacement", None)
         change_report_record_template = sub_cfg(
-            fmt_options, "change_report", DEF_CHANGE_REPORT_FMT
+            fmt_cfg, "change_report", DEF_CHANGE_REPORT_FMT
         )
 
         meets_criteria = get_criteria_checker(
@@ -724,7 +723,7 @@ class ScheduleWriter:
         include_empty_dates: bool = False,
         conversion_table: Dict[str, str] = None,
         classification_rules=None,
-        csv_options=None,
+        csv_cfg=None,
     ):
 
         start_time_cat_dict = sub_cfg(
@@ -748,7 +747,7 @@ class ScheduleWriter:
             else:
                 return summary
 
-        cat_type = sub_cfg(csv_options, "grouping")
+        cat_type = sub_cfg(csv_cfg, "grouping")
         if cat_type is None:
             print("Quitting- can't find grouping confg info.\n")
             sys.exit(1)
@@ -761,7 +760,7 @@ class ScheduleWriter:
                 index_ = self.cals.index(cal)
                 cat_range_names = start_time_cat_dict[
                     cat_type
-                ].keys()  # csv_options["output"][ "order" ]
+                ].keys()  # csv_cfg["output"][ "order" ]
                 event_date_groups = {}
                 for range_name in cat_range_names:
                     event_date_groups[range_name] = next(
@@ -776,17 +775,15 @@ class ScheduleWriter:
                         ),
                         None,
                     )
-                shown_options = sub_cfg(csv_options, "order")
+                shown_options = sub_cfg(csv_cfg, "order")
                 if shown_options is None:
                     print("Quitting- can't find 'order' confg info.\n")
                     sys.exit(1)
-                csv_exp_str = sub_cfg(csv_options, "format")
+                csv_exp_str = sub_cfg(csv_cfg, "format")
                 if csv_exp_str is None:
                     print("Quitting- can't find 'format' confg info.\n")
                     sys.exit(1)
-                not_found_str = sub_cfg(
-                    csv_options, "text_if_not_present", "None"
-                )
+                not_found_str = sub_cfg(csv_cfg, "text_if_not_present", "None")
 
                 text = (
                     csv_exp_str.format(
@@ -805,12 +802,12 @@ class ScheduleWriter:
 
                 # below hack addresses scenario when all-day events need to fill in other shifts
                 all_day_spec_case = sub_cfg(
-                    csv_options, "all_day_behavior_workaround", False
+                    csv_cfg, "all_day_behavior_workaround", False
                 )
                 all_day_field_name = None
                 if all_day_spec_case:
                     all_day_field_name = sub_cfg(
-                        csv_options,
+                        csv_cfg,
                         "all_day_category",
                         noisy=True,
                         no_sub_key_msg="You opted for the all-day "
@@ -913,7 +910,7 @@ def main(
     output = ""
 
     classification_rules = sub_cfg(cfg, "event_classifications")
-    fmt_options = sub_cfg(cfg, "formatting")
+    fmt_cfg = sub_cfg(cfg, "formatting")
 
     all_cals = [
         Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=ics_dir)
@@ -936,7 +933,7 @@ def main(
             latest_date=latest_date,
             summary_filters=summary_filters,
             num_lookbacks=num_lookbacks,
-            fmt_options=fmt_options,
+            fmt_cfg=fmt_cfg,
         )
         output += report
 
@@ -948,7 +945,7 @@ def main(
                 latest_date=latest_date,
                 summary_filters=summary_filters,
                 version_date=version_date,
-                fmt_options=fmt_options,
+                fmt_cfg=fmt_cfg,
                 classification_rules=classification_rules,
             )
             output += schedule_display
@@ -956,31 +953,21 @@ def main(
     if csv_export_file:
         if verbose_mode:
             print(f"\nFilename for CSV export: {csv_export_file}.")
-        csv_options = sub_cfg(cfg, "csv")
-        include_empty_dates = sub_cfg(
-            cfg=csv_options,
-            sub_key="include_empty_dates",
-            noisy=verbose_mode,
-            default_val=False,
-        )
-        csv_conversion_dict = sub_cfg(
-            cfg=csv_options,
-            sub_key="substitutions",
-            noisy=verbose_mode,
-            default_val={},
-        )
+        csv_cfg = sub_cfg(cfg, "csv")
+        csv_substitutions = sub_cfg(csv_cfg, "substitutions", {}, verbose_mode)
         writer = ScheduleWriter(
             cals=chosen_cals,
             earliest_date=earliest_date,
             latest_date=latest_date,
             summary_filters=summary_filters,
         )
+        empty = sub_cfg(csv_cfg, "include_empty_dates", verbose_mode, False)
         writer.csv_write(
-            conversion_table=csv_conversion_dict,
+            conversion_table=csv_substitutions,
             csv_file=csv_export_file,
-            include_empty_dates=include_empty_dates,
+            include_empty_dates=empty,
             classification_rules=classification_rules,
-            csv_options=csv_options,
+            csv_cfg=csv_cfg,
         )
         print("\n")
 

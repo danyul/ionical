@@ -5,6 +5,7 @@
   - Events may be filtered by event summary text or start date.
 """
 import argparse
+import os
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -15,12 +16,15 @@ import toml
 
 from . import __version__
 
-DEF_CFG = "ionical_config.toml"
+CFG_FN = "ionical_config.toml"
 DEF_CFG_DIR = "./"
 DEF_ICS_DIR = "./"
 
-DEF_DAYSBACK = 1
-DEF_NUM_LOOKBACKS = 2
+DEF_FILTER_NUM_DAYS_AGO = (
+    1  # Default number of days in past for filtering out events
+)
+DEF_NUM_CHANGELOGS_TO_SHOW = 2
+
 SAMPLE_CFG_TOML = """
 # ionical configuration file
 
@@ -76,61 +80,6 @@ verbose = true
 
 
 """
-
-
-def cfg_from_cfg_file(cfg_dir, cfg_fn):
-    cfg_fn_path = Path(cfg_dir) / cfg_fn
-    try:
-        with open(cfg_fn_path, "r", encoding="utf-8") as f:
-            cfg = toml.loads(f.read())
-    except FileNotFoundError:
-        print("Config file not found. Quitting!\n")
-        sys.exit(1)
-    except KeyError:
-        return None
-    return cfg
-
-
-def cals_from_cfg(cfg_dir, cfg_fn, sample_toml=None):
-    using_default_calendar_dir = cfg_dir == DEF_CFG_DIR
-    cfg_fn_path = Path(cfg_dir) / cfg_fn
-
-    sample_toml = SAMPLE_CFG_TOML if sample_toml is None else sample_toml
-
-    try:
-        with open(cfg_fn_path, "r", encoding="utf-8") as f:
-            cfg_dict = toml.loads(f.read())
-            cal_tuples = [
-                (k, v["description"], v["url"], v["tz"])
-                for k, v in cfg_dict["calendars"].items()
-            ]
-        return cal_tuples
-    except FileNotFoundError:
-        print(f"Could NOT locate {DEF_CFG} in {cfg_dir}")
-        if not using_default_calendar_dir:
-            print("\n\nQuitting.")
-        else:
-            question: str = (
-                "Would you like to create this file and "
-                + "populate it with sample data?"
-            )
-            if query_yes_no(question):
-                print("\nOK, attempting to create file...")
-                with open(cfg_fn_path, "w", encoding="utf-8") as f:
-                    f.write(sample_toml)
-                    print(
-                        "File created.\n\nYou could try running:\n"
-                        "'ionical -g' to download the latest .ics files, then\n"
-                        "'ionical -s' to show future scheduled events.\n\n"
-                        "Run 'ionical -h' for help/instructions."
-                    )
-            else:
-                print(
-                    "OK.  To use ionical you'll need to create/use"
-                    f" a valid {DEF_CFG} file, \nas described in"
-                    " this project's README.\n\n"
-                )
-        sys.exit(1)
 
 
 def valid_date(s):
@@ -240,7 +189,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         )
         parser.add_argument(
             "-s",
-            "--schedule",
+            "--show",
             action="store_true",
             help="Display events from most recent ical file version for "
             + "\neach calendar.\n\n",
@@ -251,13 +200,13 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             metavar="#_COMPARISONS",
             dest="num_lookbacks",
             default=0,
-            const=DEF_NUM_LOOKBACKS,
+            const=DEF_NUM_CHANGELOGS_TO_SHOW,
             type=valid_pos_integer,
             help="Show changelogs comparing calendar versions from "
             "\nmultiple dates. Optionally, specify the number of "
             "\nprior versions (per each calendar) for which to show "
             "\ncomparison changelogs. \n(If left unspecified, "
-            f"#_COMPARISONS default is {DEF_NUM_LOOKBACKS}.)\n\n",
+            f"#_COMPARISONS default is {DEF_NUM_CHANGELOGS_TO_SHOW}.)\n\n",
         )
 
     if cat == "calendar":
@@ -268,7 +217,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             nargs="+",
             help="Only operate on calendars with a specified NAME."
             + "\n(If -i not specified, operate on every calendar"
-            + f"\nlisted in {DEF_CFG}.)\n\n",
+            + f"\nlisted in {CFG_FN}.)\n\n",
         )
 
     if cat == "path":
@@ -278,7 +227,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             dest="config_dir",
             default=DEF_CFG_DIR,
             help=f"Directory where config file located."
-            f"\nThe primary config file, {DEF_CFG}, should "
+            f"\nThe primary config file, {CFG_FN}, should "
             f"\ncontain a list of calendar names, URLs, and timezones."
             f"\nSee README for config file format info."
             f"\n(Default config directory is user's current directory.)\n\n",
@@ -301,9 +250,8 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             " \nValue must be EITHER a date in format YYYY-MM-DD, or "
             "\na positive integer representing # of days in the past."
             f"\n(If option unspecified, default behavior is to exclude"
-            f"\nany events starting prior to "
-            f"{DEF_DAYSBACK} {'day' if DEF_DAYSBACK==1 else 'days'} ago.)\n\n",
-            default=DEF_DAYSBACK,
+            f"\nany events starting prior to {DEF_FILTER_NUM_DAYS_AGO}"
+            f" {'day' if DEF_FILTER_NUM_DAYS_AGO==1 else 'days'} ago.)\n\n",
             type=valid_pos_integer_or_date,
         )
         parser.add_argument(
@@ -337,22 +285,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             const="cfg",
             help="Export calendar events to csv.\n\n",
         )
-
-
-def date_range_from_args(start, end):
-    today = date.today()
-    earliest_date, latest_date = None, None
-    if start:
-        if isinstance(start, date):
-            earliest_date = start
-        else:  # it's an int
-            earliest_date = today - timedelta(days=start)
-    if end:
-        if isinstance(end, date):
-            latest_date = end
-        else:  # it's an int
-            latest_date = today + timedelta(days=end)
-    return (earliest_date, latest_date)
 
 
 def cli():
@@ -395,31 +327,50 @@ def cli():
         parser.print_help()
         sys.exit(1)
 
-    cal_tuples = cals_from_cfg(args.config_dir, DEF_CFG)
-    cfg = cfg_from_cfg_file(args.config_dir, DEF_CFG)
+    cfg_dir, cfg_fn = args.config_dir, CFG_FN
+    using_default_cfg_dir = True if args.config_dir == DEF_CFG_DIR else False
+    try:
+        with open(Path(cfg_dir) / cfg_fn, "r", encoding="utf-8") as f:
+            cfg = toml.loads(f.read())
+    except FileNotFoundError:
+        print(f"Could not locate {cfg_fn} in {cfg_dir}.")
+        if not using_default_cfg_dir:
+            print("\nQuitting!\n")
+            sys.exit(1)
+        else:
+            q = "Would you like to create it and populate it with sample data?"
+            if query_yes_no(q):
+                with open(Path(cfg_dir) / cfg_fn, "w", encoding="utf-8") as f:
+                    f.write(SAMPLE_CFG_TOML)
+                    print(
+                        "File created.\nRun 'ionical -h' to see help message."
+                    )
+            else:
+                print(
+                    "OK.  Run 'ionical -h' or see README file if you need help."
+                )
+        sys.exit(1)
+
+    try:
+        cal_tuples = [
+            (k, v["description"], v["url"], v["tz"])
+            for k, v in cfg["calendars"].items()
+        ]
+    except KeyError:
+        print(
+            "A correctly formatted 'calendars' section was not found in\n"
+            "the config file.  See README.md file if you need help. \nQuitting.\n"
+        )
+        sys.exit(1)
 
     verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
-    if verbose_mode:
-        print("Operating in verbose mode.\n")
-
-    earliest_date, latest_date = date_range_from_args(
-        args.start_date, args.end_date
-    )
-
-    if args.get_today and verbose_mode:
-        print(
-            f"\nWill download today's ics files to directory: {args.ics_dir}"
-        )
-
+    act_cfg = sub_cfg(cfg, "action")
+    get_cals = True if args.get_today else sub_cfg(act_cfg, "get_today", False)
+    show_cals = True if args.show else sub_cfg(act_cfg, "show_schedule", False)
+    c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
     ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", False)
-    get_today = (
-        True if args.get_today else sub_cfg(cfg["actions"], "get_today", False)
-    )
-    show_schedule = (
-        True
-        if args.schedule
-        else sub_cfg(cfg["actions"], "show_schedule", False)
-    )
+    if not os.path.isabs(ics_dir):
+        ics_dir = Path(cfg_dir) / Path(ics_dir)
 
     if args.num_lookbacks > 0:
         show_changelog = True
@@ -428,7 +379,7 @@ def cli():
         show_changelog = sub_cfg(cfg["actions"], "show_changelog", False)
         if show_changelog:
             num_lookbacks = sub_cfg(
-                cfg["actions"]["changelog"], "lookbacks", DEF_NUM_LOOKBACKS
+                act_cfg["changelog"], "lookbacks", DEF_NUM_CHANGELOGS_TO_SHOW
             )
 
     csv_export_file = None
@@ -436,49 +387,76 @@ def cli():
         if args.csv_file == "cfg":
             csv_export_file = sub_cfg(cfg["csv"], "file", noisy=True)
             if not csv_export_file:
-                print("Didn't locate csv.file in config.\n  Quitting.\n")
+                print("Didn't locate 'csv.file' key in cfg.\n  Quitting.\n")
                 sys.exit(1)
         else:
             csv_export_file = args.csv_file
 
-    if not any([show_schedule, show_changelog, get_today, csv_export_file]):
+    if not any([show_cals, show_changelog, get_cals, csv_export_file]):
         print(
             "You MUST specify at least one of the primary options.\n"
             + "\nFor help, run ionical with the -h option.\n"
         )
         sys.exit(1)
 
+    earliest_date, latest_date = None, None
+    today = date.today()
+    if args.start_date:  # can be date or int representing days in past
+        if isinstance(args.start_date, date):
+            earliest_date = args.start_date
+        else:  # it's an int
+            earliest_date = today - timedelta(days=args.start_date)
+    else:
+        earliest_date = sub_cfg(
+            cfg["filters"], "earliest", DEF_FILTER_NUM_DAYS_AGO
+        )
+    if args.end_date:  # can be date or int representing days in future
+        if isinstance(args.end_date, date):
+            latest_date = args.end_date
+        else:  # it's an int
+            latest_date = today + timedelta(days=args.end_date)
+    else:
+        latest_date = sub_cfg(cfg["filters"], "latest", None)
+
+    text_filters = (
+        args.text_filters
+        if args.text_filters
+        else sub_cfg(cfg["filters"], "summary_text", None, verbose_mode)
+    )
+
     if verbose_mode:
+        print("Operating in verbose mode.\n")
+        if get_cals:
+            print(f"\nWill download today's ics files to: {ics_dir}")
         print(
             "\nEvent filters to be applied:\n"
             f"  Earliest Date: {earliest_date}\n"
             f"  Latest Date:   {latest_date if latest_date else 'No limit'}\n"
             "  Summary Text:  "
-            f"{args.text_filters if args.text_filters else 'No text filters'}\n"
+            f"{text_filters if text_filters else 'No text filters'}\n"
         )
-
-        if args.ids:
-            print(f"Restricting actions to calendars: {args.ids}\n")
+        if c_subset:
+            print(f"Restricting actions to calendars: {c_subset}\n")
         else:
             print(
                 "No calendar filters specified. "
-                f"Will use all calendars listed in {DEF_CFG}."
+                f"Will use all calendars listed in {CFG_FN}."
             )
 
     main(
         cals_data=cal_tuples,
-        download_option=get_today,
-        ics_dir=ics_dir,
-        earliest_date=earliest_date,
-        latest_date=latest_date,
-        show_schedule=show_schedule,
-        show_changelog=show_changelog,
-        cals_filter=args.ids,
-        csv_export_file=csv_export_file,
-        summary_filters=args.text_filters,
-        num_lookbacks=num_lookbacks,  # type: ignore
         cfg=cfg,
         verbose_mode=verbose_mode,
+        cals_filter=c_subset,
+        ics_dir=ics_dir,
+        download_option=get_cals,
+        show_schedule=show_cals,
+        show_changelog=show_changelog,
+        csv_export_file=csv_export_file,
+        num_lookbacks=num_lookbacks,  # type: ignore
+        earliest_date=earliest_date,
+        latest_date=latest_date,
+        summary_filters=text_filters,
     )
 
 
