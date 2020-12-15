@@ -176,21 +176,21 @@ verbose = true
     [event_classifications.by_start_time.example_time_category]
 
         Morning     =   [ 
-                            [5, 12],   # Any event starting between 5a and 12p is categorized as "Morning"
-                        ]  
+                            [5, 12],   # Any event starting between 5a and 12p 
+                        ]              # is categorized as "Morning"
         Afternoon   =   [ 
-                            [12, 16],  # Any event starting between 12p and 4p is categorized as "Afternoon"
-                        ]
+                            [12, 16],  # Any event starting between 12p and 4p 
+                        ]              # is categorized as "Afternoon"
         Evening     =   [ 
-                            [16, 20],  # Any event starting between 4p and 8p is categorized as "Evening"
-                        ]
+                            [16, 20],  # Any event starting between 4p and 8p 
+                        ]              # is categorized as "Evening"
         Night       =   [ 
-                            [20, 24],  # Any event starting between 8p and midnight, 
-                            [0, 4],    # or between midnight and 5am is categorized as "Night"
-                        ]
+                            [20, 24],  # Any event starting between 8p and midnight, or
+                            [0, 4],    # between midnight and 5am is categorized as "Night"
+                        ]              #
         All-Day     = "missing"        # If there is no start time, categorize event as "All-Day"
-        Other       = "default"        # All other events (in this case, only events starting between 4 and 5 am
-                                       # will be labeled "Unspecified"
+        Other       = "default"        # All other events (in this case, only events starting 
+                                       # between 4 and 5 am will be categorized as "Unspecified"
 
 
 [csv]
@@ -223,7 +223,8 @@ verbose = true
     time_group_fmt     = "{:>} Time"
 
     # for changelog formatting:
-    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
+    change_report = "  {label:10}{name:18}{start_str:19} {summary:30} [comp vers:{compare_date}]\n"
+
 
 
 ```
