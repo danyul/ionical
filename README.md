@@ -260,7 +260,7 @@ verbose = true
 - [pytz](https://pypi.org/project/pytz/)
 - [recurring_ical_events](https://pypi.org/project/recurring-ical-events/)
   (which, in turn, uses [python-dateutil](https://pypi.org/project/python-dateutil/))
-  
+- [toml](https://pypi.org/project/toml/)
 
 # Similar projects
 
