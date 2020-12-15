@@ -145,17 +145,17 @@ verbose = true
 # the information from the config file is ignored.
 
 [actions]
+    # restrict_to    = ["CAL_1"]
     # get_today      = true
-    # restrict_to    = ["BMI"]
-    # export_csv     = true   
     # show_schedule  = true
     # show_changelog = true
-    # num_changelogs = 2
+    # num_changelogs = 2     
+    # export_csv     = true   
 
 [filters]
     # earliest       = 2020-11-01
     # latest         = 2022-06-30
-    # summary_text   = ["CAL1_NAME"]
+    # summary_text   = ["search text 1", "search text two"]
 
 
 [calendars]
