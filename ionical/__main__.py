@@ -20,63 +20,100 @@ CFG_FN = "ionical_config.toml"
 DEF_CFG_DIR = "./"
 DEF_ICS_DIR = "./"
 
-DEF_FILTER_NUM_DAYS_AGO = (
-    1  # Default number of days in past for filtering out events
-)
 DEF_NUM_CHANGELOGS_TO_SHOW = 2
 
-SAMPLE_CFG_TOML = """
-# ionical configuration file
+# Default number of days in past for filtering out events
+DEF_FILTER_NUM_DAYS_AGO = 1
 
-title = "ionical configuration"
+SAMPLE_CFG_TOML = """# ionical_config.toml
 
+title = "ionical configuration file"
 verbose = true
+
+# Note: All options that can be specified/configured on the command line
+# may alternatively be specified in this config file. For example, 
+# uncommenting 'get_today = true' (below) has the same effect as 
+# calling ionical with the '-g' option (i.e., today's ics files will
+# be downloaded).  Likewise, uncommenting 'export_csv = ["BMI"]' has the 
+# same effect as calling ionical with argument/parameter '-i BMI'.
+# 
+# Note: If configuration is specified both in this config file AND via
+# a command line argument, the command line argument takes precedence, and
+# the information from the config file is ignored.
+
+[actions]
+    # get_today      = true
+    # restrict_to    = ["BMI"]
+    # export_csv     = true   
+    # show_schedule  = true
+    # show_changelog = true
+    # num_changelogs = 2
+
+[filters]
+    # earliest       = 2020-11-01
+    # latest         = 2021-06-30
+    # summary_text   = ["IHS"]
 
 [calendars]
   [calendars.BMI]
     description = "BMI Music Industry Events Calendar"
-    url = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
-    tz = "US/Eastern"
-
+    url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
+    tz          = "US/Eastern"
 
 
 # You can alter the below to change display formatting
-
 [formatting]
-    event_summary =    "    {0:16} {1:10} ({2:<})    {3:30}"
-    date_fmt           = "%a, %b %d %Y"
-    time_fmt           = "at %I:%M%p"
-    time_group         = "{:>} Time"
-    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
 
+    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
     # Meanings for event_summary fields are as follows:
     #    0: date (further formatted by date_fmt variable)
     #    1: time (further formatted by time_fmt and, if provided, time_replacements)
-    #    2: shift (further formatted by time_group)
-    #    3: summary text
+    #    2: user_defined time grouping (further formatted by time_group_fmt)
+    #    3: event summary text
+    
+    date_fmt           = "%a, %b %d %Y"
+    time_fmt           = " %I:%M%p"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
+    time_group         = "example_time_category"
+    time_group_fmt     = "{:>} Time"
+
+    # for changelog formatting:
+    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\\n"
 
 
-[formatting.groupings.start_time.shift]
+[event_classifications]
+  [event_classifications.by_start_time]
+    [event_classifications.by_start_time.example_time_category]
 
-    Morning     = [ 
-                        [5, 12],   # Any event starting between 5a and 12p is categorized as "Morning"
-                    ]  
-    Afternoon   = [ 
-                        [12, 16],  # Any event starting between 12p and 4p is categorized as "Afternoon"
-                    ]
-    Evening   =   [ 
-                        [16, 20],  # Any event starting between 4p and 8p is categorized as "Evening"
-                    ]
-    Night     =   [ 
-                        [20, 24],  # Any event starting between 8p and midnight, 
-                        [0, 4],    # or between midnight and 5am is categorized as "Night"
-                    ]
-    All-Day   = "missing"       # If there is no start time, categorize event as "All-Day"
-    Other     = "default"       # All other events (in this case, only events starting between 4 and 5 am
-                                #        will be labeled "Unspecified"
+        Morning     =   [ 
+                            [5, 12],   # Any event starting between 5a and 12p is categorized as "Morning"
+                        ]  
+        Afternoon   =   [ 
+                            [12, 16],  # Any event starting between 12p and 4p is categorized as "Afternoon"
+                        ]
+        Evening     =   [ 
+                            [16, 20],  # Any event starting between 4p and 8p is categorized as "Evening"
+                        ]
+        Night       =   [ 
+                            [20, 24],  # Any event starting between 8p and midnight, 
+                            [0, 4],    # or between midnight and 5am is categorized as "Night"
+                        ]
+        All-Day     = "missing"        # If there is no start time, categorize event as "All-Day"
+        Other       = "default"        # All other events (in this case, only events starting between 4 and 5 am
+                                       # will be labeled "Unspecified"
+
 
 [csv]
-    include_empty_dates= true
+    file                 = "ionical_export_default_csv_filename.csv"
+    include_empty_dates  = false
+    grouping             = "example_time_category"
+    order                = ["Morning", "Afternoon"]
+    format               = "My morning events: {0} \\n My afternoon events: {1}"
+    text_if_not_present  = "I AM AVAILABLE"
+
+    [csv.substitutions]
+        "Secret spy meeting with Carl"       = "Going to the zoo"
+        "Present shopping to suprise JoJo"   = "Flossing the cat"
 
 
 """
@@ -175,7 +212,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         parser.add_argument(
             "--verbose",
             action="store_true",
-            help=f"Verbose mode.\n\n",
+            help=f"Verbose mode.\n",
         )
     if cat == "main":
         parser.add_argument(
@@ -198,7 +235,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "-l",
             nargs="?",
             metavar="#_COMPARISONS",
-            dest="num_lookbacks",
+            dest="num_changelogs",
             default=0,
             const=DEF_NUM_CHANGELOGS_TO_SHOW,
             type=valid_pos_integer,
@@ -207,6 +244,14 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "\nprior versions (per each calendar) for which to show "
             "\ncomparison changelogs. \n(If left unspecified, "
             f"#_COMPARISONS default is {DEF_NUM_CHANGELOGS_TO_SHOW}.)\n\n",
+        )
+        parser.add_argument(
+            "-c",
+            metavar="CSV_FILE",
+            dest="csv_file",
+            nargs="?",
+            const="cfg",
+            help="Export calendar events to csv.\n\n",
         )
 
     if cat == "calendar":
@@ -276,15 +321,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             + "\n(If option not specified, no text filters are applied.)\n\n",
         )
 
-    if cat == "experimental":
-        parser.add_argument(
-            "-c",
-            metavar="CSV_FILE",
-            dest="csv_file",
-            nargs="?",
-            const="cfg",
-            help="Export calendar events to csv.\n\n",
-        )
+    # if cat == "experimental":
 
 
 def cli():
@@ -309,10 +346,10 @@ def cli():
             "File Locations",
             "Specify expected locations for config files and calendar downloads.",
         ],
-        "experimental": [
-            "Experimental/Alpha",
-            None,
-        ],
+        # "experimental": [
+        #     "Experimental/Alpha",
+        #     None,
+        # ],
     }
     option_groups = {}
     for key, (name, desc) in help_option_group_info.items():
@@ -363,39 +400,43 @@ def cli():
         )
         sys.exit(1)
 
-    verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
     act_cfg = sub_cfg(cfg, "actions")
+    fil_cfg = sub_cfg(cfg, "filters")
+    verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
     get_cals = True if args.get_today else sub_cfg(act_cfg, "get_today", False)
     show_cals = True if args.show else sub_cfg(act_cfg, "show_schedule", False)
-    print(f"{args.ids}")
     c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
-    print(f"\ncs={c_subset}")
     ics_dir = (
         args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
     )
     if not os.path.isabs(ics_dir):
         ics_dir = Path(cfg_dir) / Path(ics_dir)
 
-    if args.num_lookbacks > 0:
+    if args.num_changelogs > 0:
         show_changelog = True
-        num_lookbacks = args.num_lookbacks
+        num_changelogs = args.num_changelogs
     else:
         show_changelog = sub_cfg(act_cfg, "show_changelog", False)
         if show_changelog:
-            num_lookbacks = sub_cfg(
+            num_changelogs = sub_cfg(
                 act_cfg, "num_changelogs", DEF_NUM_CHANGELOGS_TO_SHOW
             )
+        else:
+            num_changelogs = 0
 
-    # TODO: add export csv action
     csv_export_file = None
     if args.csv_file:
         if args.csv_file == "cfg":
-            csv_export_file = sub_cfg(cfg["csv"], "file", noisy=True)
+            csv_export_file = sub_cfg(cfg["csv"], "file")
             if not csv_export_file:
                 print("Didn't locate 'csv.file' key in cfg.\n  Quitting.\n")
                 sys.exit(1)
         else:
             csv_export_file = args.csv_file
+    else:
+        cfg_says_export = sub_cfg(act_cfg, "export_csv")
+        if cfg_says_export:
+            csv_export_file = sub_cfg(cfg["csv"], "file")
 
     if not any([show_cals, show_changelog, get_cals, csv_export_file]):
         print(
@@ -406,47 +447,58 @@ def cli():
 
     earliest_date, latest_date = None, None
     today = date.today()
-    if args.start_date:  # can be date or int representing days in past
-        if isinstance(args.start_date, date):
-            earliest_date = args.start_date
-        else:  # it's an int
-            earliest_date = today - timedelta(days=args.start_date)
-    else:
-        earliest_date = sub_cfg(
-            cfg["filters"], "earliest", DEF_FILTER_NUM_DAYS_AGO
+
+    start_date_or_num_days_in_past = (
+        args.start_date
+        if args.start_date
+        else sub_cfg(fil_cfg, "earliest", DEF_FILTER_NUM_DAYS_AGO)
+    )
+    if isinstance(start_date_or_num_days_in_past, date):
+        earliest_date = start_date_or_num_days_in_past
+    else:  # it's an int or None
+        earliest_date = (
+            None
+            if start_date_or_num_days_in_past is None
+            else today - timedelta(days=start_date_or_num_days_in_past)
         )
-    if args.end_date:  # can be date or int representing days in future
-        if isinstance(args.end_date, date):
-            latest_date = args.end_date
-        else:  # it's an int
-            latest_date = today + timedelta(days=args.end_date)
-    else:
-        latest_date = sub_cfg(cfg["filters"], "latest", None)
+
+    end_date_or_num_days_in_future = (
+        args.end_date if args.end_date else sub_cfg(fil_cfg, "latest", None)
+    )
+    if isinstance(end_date_or_num_days_in_future, date):
+        latest_date = end_date_or_num_days_in_future
+    else:  # it's an int or None
+        latest_date = (
+            None
+            if end_date_or_num_days_in_future is None
+            else today + timedelta(days=end_date_or_num_days_in_future)
+        )
 
     text_filters = (
         args.text_filters
         if args.text_filters
-        else sub_cfg(cfg["filters"], "summary_text", None, verbose_mode)
+        else sub_cfg(fil_cfg, "summary_text", None)
     )
 
     if verbose_mode:
-        print("Operating in verbose mode.\n")
+        print("\nVerbose mode on.")
         if get_cals:
             print(f"\nWill download today's ics files to: {ics_dir}")
         print(
-            "\nEvent filters to be applied:\n"
-            f"  Earliest Date: {earliest_date}\n"
-            f"  Latest Date:   {latest_date if latest_date else 'No limit'}\n"
-            "  Summary Text:  "
-            f"{text_filters if text_filters else 'No text filters'}\n"
+            "\nEvent filters to be applied:"
+            f"\n  Earliest Date: {earliest_date}"
+            f"\n  Latest Date:   {latest_date if latest_date else 'No limit'}"
+            "\n  Summary Text:  "
+            f"{text_filters if text_filters else 'No text filters'}"
         )
         if c_subset:
-            print(f"Restricting actions to calendars: {c_subset}\n")
+            print(f"\nRestricting actions to calendars: {c_subset}")
         else:
             print(
-                "No calendar filters specified. "
+                "\nNo calendar filters specified. "
                 f"Will use all calendars listed in {CFG_FN}."
             )
+        print(f"\nFilename for CSV export: {csv_export_file}")
 
     main(
         cals_data=cal_tuples,
@@ -458,7 +510,7 @@ def cli():
         show_schedule=show_cals,
         show_changelog=show_changelog,
         csv_export_file=csv_export_file,
-        num_lookbacks=num_lookbacks,  # type: ignore
+        num_changelogs=num_changelogs,  # type: ignore
         earliest_date=earliest_date,
         latest_date=latest_date,
         summary_filters=text_filters,

@@ -31,17 +31,18 @@ verbose = "true"
         url = "http://www.amion.com/cgi-bin/ocs?Vcal=7.1131&Lo=unm+.16.&Jd=8567"
         tz = "US/Mountain"
 
+[event_classifications]
+    [event_classifications.by_start_time]
+        [event_classifications.by_start_time.workshift]
 
-[event_classifications.by_start_time.workshift]
-
-    All-Day     = "missing"        # If there is no start time, classify it as "All-Day" workshift
-    AM          = [ 
-                        [7, 12],   # Any event starting between 7 and 12 is classified as "AM" workshift
-                    ]  
-    PM          = [ 
-                        [12, 18],  # Any event starting between 12 and 18 is classified as "PM" workshift
-                    ]
-    Unspecified = "default"        # All other events will be classified as "Unspecified" workshift
+            All-Day     = "missing"        # If there is no start time, classify it as "All-Day" workshift
+            AM          = [ 
+                                [7, 12],   # Any event starting between 7 and 12 is classified as "AM" workshift
+                          ]  
+            PM          = [ 
+                                [12, 18],  # Any event starting between 12 and 18 is classified as "PM" workshift
+                          ]
+            Unspecified = "default"        # All other events will be classified as "Unspecified" workshift
 
 
 [csv]
@@ -63,18 +64,21 @@ verbose = "true"
         "Pediatric Outpatient Clinic-IHS"  = "RP"
     
 
+# You can alter the below to change display formatting
 [formatting]
 
+    event_summary      = "Start: {:12}   Time: {:12} {}  {}"
+    # Meanings for event_summary fields are as follows:
+    #    0: date (further formatted by date_fmt variable)
+    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
+    #    2: user_defined time grouping (further formatted by time_group_fmt)
+    #    3: event summary text
+    
     # date_fmt = "%a, %b %d %Y"
     # time_fmt = " (%I%p)  "
-    #event_summary = "    {0:16}  {1:12}{3:30}"
-    grouping_field = "workshift"
-    grouping_field_fmt = "Shift: {:11}"
-    event_summary  = "Start: {:12}   Time: {:12} {}  {}"
-    change_report  = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
+    time_group         = "workshift"
+    time_group_fmt     = "Shift: {:11}"
 
-    [formatting.time_replacements] 
-        " 0" = " "
-        "(0" = "("
-        "AM" = "am"
-        "PM" = "pm"
+    # for changelog formatting:
+    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"

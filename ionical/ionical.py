@@ -220,10 +220,10 @@ class MonitoredEventData:
             fmt_cfg = {}
         date_fmt = sub_cfg(fmt_cfg, "date_fmt", DEF_DATE_FMT)
         time_fmt = sub_cfg(fmt_cfg, "time_fmt", DEF_TIME_FMT)
-        time_replacements = sub_cfg(fmt_cfg, "time_replacement", None)
+        time_replacements = sub_cfg(fmt_cfg, "time_replacements", None)
         schedule_summary_line = sub_cfg(fmt_cfg, "event_summary", None)
-        grouping_field = sub_cfg(fmt_cfg, "grouping_field", None)
-        shift_str_template = sub_cfg(fmt_cfg, "grouping_field_fmt", None)
+        grouping_field = sub_cfg(fmt_cfg, "time_group", None)
+        shift_str_template = sub_cfg(fmt_cfg, "time_group_fmt", None)
         start_time_cat_dict = sub_cfg(
             classification_rules, "by_start_time", DEF_START_TIME_CAT_DICT
         )
@@ -534,7 +534,7 @@ class ScheduleHistory:
     # TODO: consider directly referencing Cal object from ScheduleChange?
     #   (rather than indirect lookup via Cal.cal_id)
     def change_log(
-        self, num_lookbacks=None
+        self, num_changelogs=None
     ) -> Dict[date, List[ScheduleChange]]:
         """Get a list of ScheduleChanges from multiple version dates.
 
@@ -544,10 +544,10 @@ class ScheduleHistory:
         version date, provide a list of the changes.
         """
         length = len(list(self.sched_versions_by_date))
-        if num_lookbacks is None:
+        if num_changelogs is None:
             change_slice = slice(1, length)
         else:
-            change_slice = slice(max(1, length - num_lookbacks), length)
+            change_slice = slice(max(1, length - num_changelogs), length)
         return {
             date_: self.get_changes_for_date(date_)
             for date_ in list(self.sched_versions_by_date.keys())[change_slice]
@@ -563,7 +563,7 @@ class ScheduleHistory:
         earliest_date: Optional[date] = None,
         latest_date: Optional[date] = None,
         summary_filters: Optional[List[str]] = None,
-        num_lookbacks=None,
+        num_changelogs=None,
         changelog_action_dict=None,
         fmt_cfg=None,
     ) -> str:
@@ -637,12 +637,12 @@ class ScheduleHistory:
 
         for p in cals:
             for date_, changes in p.schedule_history.change_log(
-                num_lookbacks=num_lookbacks,
+                num_changelogs=num_changelogs,
             ).items():
                 changes_by_ver_date[date_] = changes_by_ver_date[date_] + (
                     [c for c in changes if meets_filter_criteria(c)]
                 )
-        report = "\n"
+        report = "\n"  # ""
 
         cbvd = sorted(changes_by_ver_date.items(), key=lambda x: x[0])
         for version_date, changes in cbvd:
@@ -760,7 +760,7 @@ class ScheduleWriter:
             print("Quitting- can't find grouping confg info.\n")
             sys.exit(1)
 
-        all_day_field_name = sub_cfg(csv_cfg, "all_day_category", None, True)
+        all_day_field_name = sub_cfg(csv_cfg, "all_day_category", None)
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
             plist = list("" for _ in range(len(self.cals)))
@@ -893,7 +893,7 @@ def main(
     earliest_date: Optional[date] = None,
     latest_date: Optional[date] = None,
     summary_filters: Optional[List[str]] = None,
-    num_lookbacks=None,  # (for changelogs)
+    num_changelogs=None,  # (for changelogs)
     cfg=None,
     verbose_mode=False,
 ) -> None:
@@ -923,7 +923,7 @@ def main(
             earliest_date=earliest_date,
             latest_date=latest_date,
             summary_filters=summary_filters,
-            num_lookbacks=num_lookbacks,
+            num_changelogs=num_changelogs,
             fmt_cfg=fmt_cfg,
         )
         output += report
@@ -942,10 +942,8 @@ def main(
             output += schedule_display
 
     if csv_export_file:
-        if verbose_mode:
-            print(f"\nFilename for CSV export: {csv_export_file}.")
         csv_cfg = sub_cfg(cfg, "csv")
-        csv_substitutions = sub_cfg(csv_cfg, "substitutions", {}, verbose_mode)
+        csv_substitutions = sub_cfg(csv_cfg, "substitutions", {})
         writer = ScheduleWriter(
             cals=chosen_cals,
             earliest_date=earliest_date,
@@ -960,6 +958,6 @@ def main(
             classification_rules=classification_rules,
             csv_cfg=csv_cfg,
         )
-        print("\n")
+        # print("\n")
 
     print(output, end="")
