@@ -137,8 +137,8 @@ verbose = true
 # may alternatively be specified in this config file. For example, 
 # uncommenting 'get_today = true' (below) has the same effect as 
 # calling ionical with the '-g' option (i.e., today's ics files will
-# be downloaded).  Likewise, uncommenting 'export_csv = ["BMI"]' has the 
-# same effect as calling ionical with argument/parameter '-i BMI'.
+# be downloaded).  Likewise, uncommenting 'export_csv = ["CAL_1"]' has the 
+# same effect as calling ionical with argument/parameter '-i CAL_1'.
 # 
 # Note: If configuration is specified both in this config file AND via
 # a command line argument, the command line argument takes precedence, and
