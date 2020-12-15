@@ -37,8 +37,6 @@ tmp/
 .cache/
 
 # ionical files
-calendar_list.json
-cals.json
-csv_conversions.json
-BMI__20201210.ics
 ionical_config.toml
+ionical_export_default_csv_filename.csv
+BMI__202*.ics
