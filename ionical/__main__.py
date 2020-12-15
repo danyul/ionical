@@ -9,12 +9,13 @@ import os
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
-
-from ionical.ionical import main, sub_cfg
+from textwrap import dedent
 
 import toml
 
-from . import __version__
+from ionical import __version__
+from ionical.ionical import main, sub_cfg
+
 
 CFG_FN = "ionical_config.toml"
 DEF_CFG_DIR = "./"
@@ -198,39 +199,43 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
 
     if cat == "help":
         parser.add_argument(
-            "-v",
-            "--version",
-            action="version",
-            help="Print version, then exit.",
-            version=f"{__version__}",
-        )
-        parser.add_argument(
             "-h",
             "--help",
             action="store_true",
             help="Print help message, then exit.\n",
         )
         parser.add_argument(
+            "-v",
             "--verbose",
             action="store_true",
-            help=f"Verbose mode.\n",
+            help=f"Increase verbosity of feedback messages.\n",
+        )
+        parser.add_argument(
+            "-V",
+            "--version",
+            action="version",
+            help="Print version, then exit.",
+            version=f"{__version__}",
         )
     if cat == "main":
         parser.add_argument(
             "-g",
             "--get_today",
             action="store_true",
-            help="Download current .ics files and label them with today's"
-            + "\ndate. This will be done prior to other actions. "
-            + "\n(If this is left unspecified, operations will only use"
-            + "\n.ics files that have been previously downloaded.)\n\n",
+            help=dedent(
+                """\
+              Download current .ics files and label them with today's
+              date. This will be done prior to other actions. 
+              (If this is left unspecified, operations will only use
+              .ics files that have been previously downloaded.)\n\n"""
+            ),
         )
         parser.add_argument(
             "-s",
             "--show",
             action="store_true",
-            help="Display events from most recent ical file version for "
-            + "\neach calendar.\n\n",
+            help="Display events from most recent ical file version for \n"
+            "each calendar.\n\n",
         )
         parser.add_argument(
             "-l",
@@ -240,11 +245,14 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             default=0,
             const=DEF_NUM_CHANGELOGS_TO_SHOW,
             type=valid_pos_integer,
-            help="Show changelogs comparing calendar versions from "
-            "\nmultiple dates. Optionally, specify the number of "
-            "\nprior versions (per each calendar) for which to show "
-            "\ncomparison changelogs. \n(If left unspecified, "
-            f"#_COMPARISONS default is {DEF_NUM_CHANGELOGS_TO_SHOW}.)\n\n",
+            help=dedent(
+                f"""\
+              Show changelogs comparing calendar versions from 
+              multiple dates. Optionally, specify the number of 
+              prior versions (per each calendar) for which to show 
+              comparison changelogs. (If left unspecified, 
+              #_COMPARISONS default is {DEF_NUM_CHANGELOGS_TO_SHOW}.)\n\n"""
+            ),
         )
         parser.add_argument(
             "-c",
@@ -261,9 +269,9 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             metavar="NAME",
             dest="ids",
             nargs="+",
-            help="Only operate on calendars with a specified NAME."
-            + "\n(If -i not specified, operate on every calendar"
-            + f"\nlisted in {CFG_FN}.)\n\n",
+            help="Only operate on calendars with a specified NAME.\n"
+            "(If -i not specified, operate on every calendar\n"
+            "listed in {CFG_FN}.)\n\n",
         )
 
     if cat == "path":
@@ -272,11 +280,14 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             metavar="CONFIG_DIRECTORY",
             dest="config_dir",
             default=DEF_CFG_DIR,
-            help=f"Directory where config file located."
-            f"\nThe primary config file, {CFG_FN}, should "
-            f"\ncontain a list of calendar names, URLs, and timezones."
-            f"\nSee README for config file format info."
-            f"\n(Default config directory is user's current directory.)\n\n",
+            help=dedent(
+                f"""\
+              Directory where config file located.
+              The primary config file, {CFG_FN}, should 
+              contain a list of calendar names, URLs, and timezones.
+              See README for config file format info.
+              (Default config directory is user's current directory.)\n\n"""
+            ),
         )
         parser.add_argument(
             "-d",
@@ -291,25 +302,33 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "-a",
             metavar="DATE_OR_NUMBER",
             dest="start_date",
-            help="Only include events that start AFTER a specified date."
-            "\n(I.e., exclude events starting before the date.)"
-            " \nValue must be EITHER a date in format YYYY-MM-DD, or "
-            "\na positive integer representing # of days in the past."
-            f"\n(If option unspecified, default behavior is to exclude"
-            f"\nany events starting prior to {DEF_FILTER_NUM_DAYS_AGO}"
-            f" {'day' if DEF_FILTER_NUM_DAYS_AGO==1 else 'days'} ago.)\n\n",
+            help=dedent(
+                f"""\
+                    Only include events that start AFTER a specified date.
+                    (I.e., exclude events starting before the date.)
+                    Value must be EITHER a date in format YYYY-MM-DD, or 
+                    a positive integer representing # of days in the past
+                    (If option unspecified, default behavior is to exclude
+                    any events starting prior to {DEF_FILTER_NUM_DAYS_AGO} """
+                f"""{'day' if DEF_FILTER_NUM_DAYS_AGO==1 else 'days'} ago.)
+                    \n"""
+            ),
             type=valid_pos_integer_or_date,
         )
         parser.add_argument(
             "-b",
             metavar="DATE_OR_NUMBER",
             dest="end_date",
-            help="Only include events that start BEFORE a specified date."
-            "\n(I.e., exclude events starting on or after the date.)"
-            "\nValue must be EITHER a date in format YYYY-MM-DD, or "
-            "\na positive integer representing # of days in the future."
-            "\n(If option unspecified, default behavior is to"
-            "\nhave no upper limit on event dates.)\n\n",
+            help=dedent(
+                """\
+                    Only include events that start BEFORE a specified date.
+                    (I.e., exclude events starting on or after the date.)
+                    Value must be EITHER a date in format YYYY-MM-DD, or 
+                    a positive integer representing # of days in the future.
+                    (If option unspecified, default behavior is to
+                    have no upper limit on event dates.)
+                \n"""
+            ),
             type=valid_pos_integer_or_date,
         )
         parser.add_argument(
@@ -317,11 +336,17 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             metavar="TEXT",
             dest="text_filters",
             nargs="+",
-            help="Only include events whose summary text includes words"
-            + "\nthat match a TEXT item."
-            + "\n(If option not specified, no text filters are applied.)\n\n",
+            help=dedent(
+                """\
+                    Only include events whose summary text includes words
+                    that match at least one TEXT item.  TEXT items can be
+                    either a single word or phrases comprised of words and
+                    spaces.  If the latter, you must enclose TEXT within
+                    quotation marks.
+                    (If option not specified, no text filters are applied.)
+                \n"""
+            ),
         )
-
     # if cat == "experimental":
 
 
