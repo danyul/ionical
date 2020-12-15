@@ -236,8 +236,8 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "-d",
             metavar="ICS_DIR",
             dest="ics_dir",
-            default=DEF_ICS_DIR,
-            help=f"Directory for downloading or accessing .ics files.\n\n",
+            help=f"Directory for downloading or accessing .ics files.\n"
+            f"(Default is {DEF_ICS_DIR}.)\n\n",
         )
 
     if cat == "event":
@@ -364,11 +364,13 @@ def cli():
         sys.exit(1)
 
     verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
-    act_cfg = sub_cfg(cfg, "action")
+    act_cfg = sub_cfg(cfg, "actions")
     get_cals = True if args.get_today else sub_cfg(act_cfg, "get_today", False)
     show_cals = True if args.show else sub_cfg(act_cfg, "show_schedule", False)
+    print(f"{args.ids}")
     c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
-    ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", False)
+    print(f"\ncs={c_subset}")
+    ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
     if not os.path.isabs(ics_dir):
         ics_dir = Path(cfg_dir) / Path(ics_dir)
 
@@ -376,12 +378,13 @@ def cli():
         show_changelog = True
         num_lookbacks = args.num_lookbacks
     else:
-        show_changelog = sub_cfg(cfg["actions"], "show_changelog", False)
+        show_changelog = sub_cfg(act_cfg, "show_changelog", False)
         if show_changelog:
             num_lookbacks = sub_cfg(
-                act_cfg["changelog"], "lookbacks", DEF_NUM_CHANGELOGS_TO_SHOW
+                act_cfg, "num_changelogs", DEF_NUM_CHANGELOGS_TO_SHOW
             )
 
+    # TODO: add export csv action
     csv_export_file = None
     if args.csv_file:
         if args.csv_file == "cfg":

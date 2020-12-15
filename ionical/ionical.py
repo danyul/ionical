@@ -760,6 +760,7 @@ class ScheduleWriter:
             print("Quitting- can't find grouping confg info.\n")
             sys.exit(1)
 
+        all_day_field_name = sub_cfg(csv_cfg,"all_day_category",None, True)
         plists_by_date = OrderedDict([])
         for date_ in daterange(self.earliest_date, self.latest_date):
             plist = list("" for _ in range(len(self.cals)))
@@ -812,16 +813,10 @@ class ScheduleWriter:
                 all_day_spec_case = sub_cfg(
                     csv_cfg, "all_day_behavior_workaround", False
                 )
-                all_day_field_name = None
                 if all_day_spec_case:
-                    all_day_field_name = sub_cfg(
-                        csv_cfg,
-                        "all_day_category",
-                        noisy=True,
-                        no_sub_key_msg="You opted for the all-day "
-                        "workaround but no all-day category found in config.",
-                    )
                     if all_day_field_name is None:
+                        print("You opted for the all-day "
+                        "workaround but no all-day category found in config.")
                         all_day_spec_case = False
                 if all_day_spec_case and event_date_groups[all_day_field_name]:
                     if not any([event_date_groups[c] for c in shown_options]):
