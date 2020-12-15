@@ -253,10 +253,6 @@ class MonitoredEventData:
             self.summary,
         )
 
-    @property
-    def event_summary(self):
-        return self._summary
-
     def __str__(self):
         return self.display()
 
@@ -348,9 +344,15 @@ class Schedule:
     ) -> List[MonitoredEventData]:
         """Get MonitoredEventData objects filtered by summary and date."""
 
-        meets_criteria = get_criteria_checker(
-            earliest_date, latest_date, summary_filters
-        )
+        def meets_filter_criteria(event: MonitoredEventData) -> bool:
+            return not any(
+                (
+                    summary_filters
+                    and not any(f in event.summary for f in summary_filters),
+                    earliest_date and event.forced_date < earliest_date,
+                    latest_date and event.forced_date > latest_date,
+                )
+            )
 
         if summary_filters is None:
             summary_filters = []
@@ -359,7 +361,7 @@ class Schedule:
             for event in sorted(
                 self.events, key=lambda x: (x.forced_date, x.summary)
             )
-            if meets_criteria(event)
+            if meets_filter_criteria(event)
         ]
 
     def display(
@@ -584,15 +586,21 @@ class ScheduleHistory:
             fmt_cfg, "change_report", DEF_CHANGE_REPORT_FMT
         )
 
-        meets_criteria = get_criteria_checker(
-            earliest_date, latest_date, summary_filters
-        )
-
         def cal_by_id(cal_id: str) -> Cal:
             for p in cals:
                 if p.cal_id == cal_id:
                     return p
             raise KeyError(f"Did not find id {cal_id}.")
+
+        def meets_filter_criteria(c: ScheduleChange) -> bool:
+            return not any(
+                (
+                    summary_filters
+                    and not any(f in c.event_summary for f in summary_filters),
+                    earliest_date and c.event_start.date() < earliest_date,
+                    latest_date and c.event_start.date() > latest_date,
+                )
+            )
 
         def local_format_dt(
             datetime_: datetime,
@@ -632,7 +640,7 @@ class ScheduleHistory:
                 num_lookbacks=num_lookbacks,
             ).items():
                 changes_by_ver_date[date_] = changes_by_ver_date[date_] + (
-                    [c for c in changes if meets_criteria(c)]
+                    [c for c in changes if meets_filter_criteria(c)]
                 )
         report = "\n"
 
@@ -849,20 +857,6 @@ class ScheduleWriter:
             writer.writerow([""] + [p.cal_id for p in self.cals])
             for date_, plist in plists_by_date.items():
                 writer.writerow([date_] + plist)
-
-
-def get_criteria_checker(earliest_date, latest_date, summary_filters):
-    def criteria_checker(x) -> bool:
-        return not any(
-            (
-                summary_filters
-                and not any(f in x.event_summary for f in summary_filters),
-                earliest_date and x.event_start.date() < earliest_date,
-                latest_date and x.event_start.date() > latest_date,
-            )
-        )
-
-    return criteria_checker
 
 
 def sub_cfg(
