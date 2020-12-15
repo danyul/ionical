@@ -55,30 +55,11 @@ verbose = true
     # summary_text   = ["IHS"]
 
 [calendars]
+
   [calendars.BMI]
     description = "BMI Music Industry Events Calendar"
     url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
     tz          = "US/Eastern"
-
-
-# You can alter the below to change display formatting
-[formatting]
-
-    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
-    # Meanings for event_summary fields are as follows:
-    #    0: date (further formatted by date_fmt variable)
-    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
-    #    2: user_defined time grouping (further formatted by time_group_fmt)
-    #    3: event summary text
-    
-    date_fmt           = "%a, %b %d %Y"
-    time_fmt           = " %I:%M%p"
-    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
-    time_group         = "example_time_category"
-    time_group_fmt     = "{:>} Time"
-
-    # for changelog formatting:
-    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\\n"
 
 
 [event_classifications]
@@ -114,6 +95,26 @@ verbose = true
     [csv.substitutions]
         "Secret spy meeting with Carl"       = "Going to the zoo"
         "Present shopping to suprise JoJo"   = "Flossing the cat"
+
+
+# You can tweak the below to change display formatting
+[formatting]
+
+    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
+    # Meanings for event_summary fields are as follows:
+    #    0: date (further formatted by date_fmt variable)
+    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
+    #    2: user_defined time grouping (further formatted by time_group_fmt)
+    #    3: event summary text
+    
+    date_fmt           = "%a, %b %d %Y"
+    time_fmt           = " %I:%M%p"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
+    time_group         = "example_time_category"
+    time_group_fmt     = "{:>} Time"
+
+    # for changelog formatting:
+    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\\n"
 
 
 """

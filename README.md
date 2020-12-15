@@ -1,8 +1,8 @@
 
 # ionical: Keep an eye on icals!
 
-- ionical is a command line tool (with associated Python  
-  libraries) for icalendar management:  
+- ionical is a command line tool (with associated Python libraries)  
+  for icalendar management:  
   - Download icalendar files.
   - View schedules, optionally filtered by start date or event   
     summary text.
@@ -11,18 +11,16 @@
   - Classify events based on user-specified criteria  
     (e.g., categorize events whose start time falls between  
     range Xpm-Ypm as being "Workshift A" events, and those  
-    between Qpm and Rpm as being "Workshift B" events.)  
-  - Export events for multiple calendars to CSV in a 
+    between Qpm and Rpm as being "Workshift B" events).  
+  - Export events for multiple calendars to CSV in a   
     user-specified format, filtered on user-specified  
     classications criteria (e.g., workshifts).
 - Limitations: 
-  - At present, ionical only deals with icalendar start times
-    and summary text fields.  Other icalendar fields are ignored.
+  - At present, ionical only deals with icalendar start times  
+    and summary text fields.  Other icalendar fields are ignored.  
     This is adequate for many simple use cases (e.g., it was  
     designed to track changes to employee schedules on  
     [Amion](https://amion.com/), and has worked well for that).  
-    However, it does not address use cases involving  
-    other icalendar fields.
   
 
 ## Installing via pip:
@@ -159,35 +157,18 @@ verbose = true
     # latest         = 2022-06-30
     # summary_text   = ["CAL1_NAME"]
 
+
 [calendars]
+
   [calendars.CAL1_NAME]
     description = "CAL1_LONG_NAME"
     url = "http://url_to_ics_download_for_CAL_1.ics"
     tz = "US/Eastern"   # or other timezone in pytz format, for CAL1
+
   [calendars.CAL2_NAME]
     description = "CAL2_LONG_NAME"
     url = "http://url_to_ics_download_for_CAL_2.ics"
     tz = "US/Mountain"   # or other timezone in pytz format, for CAL2
-
-
-# You can alter the below to change display formatting
-[formatting]
-
-    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
-    # Meanings for event_summary fields are as follows:
-    #    0: date (further formatted by date_fmt variable)
-    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
-    #    2: user_defined time grouping (further formatted by time_group_fmt)
-    #    3: event summary text
-    
-    date_fmt           = "%a, %b %d %Y"
-    time_fmt           = " %I:%M%p"
-    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
-    time_group         = "example_time_category"
-    time_group_fmt     = "{:>} Time"
-
-    # for changelog formatting:
-    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
 
 
 [event_classifications]
@@ -223,6 +204,27 @@ verbose = true
     [csv.substitutions]
         "Secret spy meeting with Carl"       = "Going to the zoo"
         "Present shopping to suprise JoJo"   = "Flossing the cat"
+
+
+# You can tweak the below to change display formatting
+[formatting]
+
+    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
+    # Meanings for event_summary fields are as follows:
+    #    0: date (further formatted by date_fmt variable)
+    #    1: time (further formatted by time_fmt and, if provided, time_replacements)
+    #    2: user_defined time grouping (further formatted by time_group_fmt)
+    #    3: event summary text
+    
+    date_fmt           = "%a, %b %d %Y"
+    time_fmt           = " %I:%M%p"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
+    time_group         = "example_time_category"
+    time_group_fmt     = "{:>} Time"
+
+    # for changelog formatting:
+    change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
+
 
 ```
 
