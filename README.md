@@ -186,7 +186,7 @@ verbose = true
                         ]              # is categorized as "Evening"
         Night       =   [ 
                             [20, 24],  # Any event starting between 8p and midnight, or
-                            [0, 4],    # between midnight and 5am is categorized as "Night"
+                            [0, 4],    # between midnight and 4am is categorized as "Night"
                         ]              #
         All-Day     = "missing"        # If there is no start time, categorize event as "All-Day"
         Other       = "default"        # All other events (in this case, only events starting 
