@@ -1,7 +1,7 @@
 
 # ionical: Keep an eye on icals!
 
-- ionical is a command line tool (with associated Python libraries)  
+- **ionical** is a command line tool (with associated Python libraries)  
   for icalendar management:  
   - Download icalendar files.
   - View schedules, optionally filtered by start date or event   
@@ -12,9 +12,9 @@
     (e.g., categorize events whose start time falls between  
     range Xpm-Ypm as being "Workshift A" events, and those  
     between Qpm and Rpm as being "Workshift B" events).  
-  - Export events for multiple calendars to CSV in a   
-    user-specified format, filtered on user-specified  
-    classications criteria (e.g., workshifts).
+  - Export filtered events from calendars to CSV files,  
+    using user-specified filter criteria (e.g., workshifts)  
+    and user-specified formatting.  
 - Limitations: 
   - At present, ionical only deals with icalendar start times  
     and summary text fields.  Other icalendar fields are ignored.  
@@ -26,37 +26,43 @@
 ## Installing via pip:
 ```
 $ pip install ionical
+$ ionical
 ```
+- The first time you run ionical there will be no  
+  ionical_config.toml file present, and you'll be  
+  prompted to generate one (in the current directory).  
+  Once it is created, you can add the names and URLs  
+  for calendars you want to track/monitor, and specify  
+  multilple other configuration options. 
   
-
-## Installing from repository:
+  
+## Installing for development from GitHub:
 ```
 $ git clone https://github.com/danyul/ionical
 $ cd ionical
-$ python -m venv env
+$ python3 -m venv env
 $ source env/bin/activate
-$ pip install -e ".[test]"
+$ pip install -e ".[dev]"
+$ python -m ionical
 ```
-If on Windows, replace 'source env/bin/activate' with:
-```
-$ .\env\Scripts\activate
-```
+- If on Windows, replace:
+  - Replace **'source env/bin/activate'** with **'.\env\Scripts\activate'**
+  - and replace **'python3'** with **'python'**
   
 
-
+  
 ## Command line usage:
 ```
-Usage: ionical [-v] [-h] [--verbose]
+Usage: ionical [-h] [-v] [--V]
                [-g] [-s] [-l [#_COMPARISONS]] [-c [CSV_FILE]] 
                [-i NAME [NAME ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
                [-t TEXT [TEXT ...]] 
                [-f CONFIG_DIRECTORY] [-d ICS_DIR] 
-
 Help/About:
-  -v, --version        Print version, then exit.
   -h, --help           Print help message, then exit.
-  --verbose            Verbose mode.
+  -v, --verbose        Increase verbosity of feedback messages.
+  -V, --version        Print version, then exit.
 
 Primary Options:
   One or more primary options MUST be specified.
@@ -103,8 +109,11 @@ Event Filters:
                        (If option unspecified, default behavior is to
                        have no upper limit on event dates.)
 
-  -t TEXT [TEXT ...]   Only include events whose summary text includes words
-                       that match a TEXT item.
+  -t TEXT [TEXT ...]   Only include events whose summary text includes words  
+                       that match at least one TEXT item.  TEXT items can be  
+                       either a single word or phrases comprised of words and  
+                       spaces.  If the latter, you must enclose TEXT within  
+                       quotation marks.
                        (If option not specified, no text filters are applied.)
 
 
