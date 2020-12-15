@@ -370,7 +370,9 @@ def cli():
     print(f"{args.ids}")
     c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
     print(f"\ncs={c_subset}")
-    ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
+    ics_dir = (
+        args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
+    )
     if not os.path.isabs(ics_dir):
         ics_dir = Path(cfg_dir) / Path(ics_dir)
 
