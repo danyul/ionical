@@ -50,9 +50,8 @@ $ pip install -e ".[dev]"
 $ python -m ionical
 ```
 - If on Windows, replace:
-  - Replace **'source env/bin/activate'** with **'.\env\Scripts\activate'**
-  - and replace **'python3'** with **'python'**
-  
+  - **'source env/bin/activate'** with **'.\env\Scripts\activate'**
+  - **'python3'** with **'python'**
 
   
 ## Command line usage:
@@ -63,6 +62,11 @@ Usage: ionical [-h] [-v] [--V]
                [-i NAME [NAME ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
                [-t TEXT [TEXT ...]] 
+
+Help/About:
+  -h, --help           Print help message, then exit.
+  -v, --verbose        Increase verbosity of feedback messages.
+  -V, --version        Print version, then exit.
 
 File Locations:
   Specify expected locations for config files and calendar downloads.
@@ -130,7 +134,7 @@ Event Filters:
                        spaces.  If the latter, you must enclose TEXT within
                        quotation marks.
                        (If option not specified, no text filters are applied.)
-                       
+
 ```
 
    
