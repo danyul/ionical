@@ -6,6 +6,7 @@
 """
 import argparse
 import os
+from os.path import abspath
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -215,7 +216,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "--version",
             action="version",
             help="Print version, then exit.",
-            version=f"{__version__}",
+            version=__version__,
         )
     if cat == "main":
         parser.add_argument(
@@ -293,7 +294,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "-d",
             metavar="ICS_DIR",
             dest="ics_dir",
-            help=f"Directory for downloading or accessing .ics files.\n"
+            help="Directory for downloading or accessing .ics files.\n"
             f"(Default is {DEF_ICS_DIR}.)\n\n",
         )
 
@@ -304,14 +305,14 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             dest="start_date",
             help=dedent(
                 f"""\
-                    Only include events that start AFTER a specified date.
-                    (I.e., exclude events starting before the date.)
-                    Value must be EITHER a date in format YYYY-MM-DD, or 
-                    a positive integer representing # of days in the past
-                    (If option unspecified, default behavior is to exclude
-                    any events starting prior to {DEF_FILTER_NUM_DAYS_AGO} """
-                f"""{'day' if DEF_FILTER_NUM_DAYS_AGO==1 else 'days'} ago.)
-                    \n"""
+                Only include events that start AFTER a specified date.
+                (I.e., exclude events starting before the date.)
+                Value must be EITHER a date in format YYYY-MM-DD, or 
+                a positive integer representing # of days in the past
+                (If option unspecified, default behavior is to exclude
+                any events starting prior to {DEF_FILTER_NUM_DAYS_AGO
+                } {'day' if DEF_FILTER_NUM_DAYS_AGO==1 else 'days'} ago.)
+                \n"""
             ),
             type=valid_pos_integer_or_date,
         )
@@ -347,7 +348,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
                 \n"""
             ),
         )
-    # if cat == "experimental":
 
 
 def cli():
@@ -372,10 +372,6 @@ def cli():
             "File Locations",
             "Specify expected locations for config files and calendar downloads.",
         ],
-        # "experimental": [
-        #     "Experimental/Alpha",
-        #     None,
-        # ],
     }
     option_groups = {}
     for key, (name, desc) in help_option_group_info.items():
@@ -507,9 +503,29 @@ def cli():
     )
 
     if verbose_mode:
-        print("\nVerbose mode on.")
+        print("\nVerbose mode on.\n")
+        if c_subset:
+            print(f"\nRestricting all action to calendars: {c_subset}")
+        else:
+            print(
+                "No calendar filters specified. "
+                f"Will use all calendars listed in {CFG_FN}."
+            )
+        print("\nPlanned ionical actions:")
         if get_cals:
-            print(f"\nWill download today's ics files to: {ics_dir}")
+            print(f"  Download today's ics files to: {abspath(ics_dir)}")
+        if show_cals:
+            print(
+                "  Print schedule events from the most recent ics version "
+                "of each calendar."
+            )
+        if show_changelog:
+            print(
+                "  Print changelogs comparing most recent "
+                f"{num_changelogs} ics versions of each calendar."
+            )
+        if csv_export_file:
+            print(f"  Export events to CSV file: {abspath(csv_export_file)}")
         print(
             "\nEvent filters to be applied:"
             f"\n  Earliest Date: {earliest_date}"
@@ -517,14 +533,6 @@ def cli():
             "\n  Summary Text:  "
             f"{text_filters if text_filters else 'No text filters'}"
         )
-        if c_subset:
-            print(f"\nRestricting actions to calendars: {c_subset}")
-        else:
-            print(
-                "\nNo calendar filters specified. "
-                f"Will use all calendars listed in {CFG_FN}."
-            )
-        print(f"\nFilename for CSV export: {csv_export_file}")
 
     main(
         cals_data=cal_tuples,
@@ -541,6 +549,7 @@ def cli():
         latest_date=latest_date,
         summary_filters=text_filters,
     )
+    print("\n")
 
 
 if __name__ == "__main__":

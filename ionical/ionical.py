@@ -746,14 +746,14 @@ class ScheduleWriter:
             for n in range(int((end_date - start_date).days)):
                 yield start_date + timedelta(n)
 
-        if conversion_table is None:
-            conversion_table = {}
+        conversion_table = {} if conversion_table is None else conversion_table
 
         def convert_if_lookup_found(summary):
-            if summary in conversion_table:
-                return conversion_table[summary]
-            else:
-                return summary
+            return (
+                conversion_table[summary]
+                if summary in conversion_table
+                else summary
+            )
 
         cat_type = sub_cfg(csv_cfg, "grouping")
         if cat_type is None:
