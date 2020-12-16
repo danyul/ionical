@@ -1,27 +1,31 @@
 
 # ionical: Keep an eye on icals!
 
-- **ionical** is a command line tool (with associated Python libraries)  
-  for icalendar management:  
-  - Download icalendar files.
-  - View schedules, optionally filtered by start date or event   
-    summary text.
-  - Compare sets of icalendar files obtained on different dates  
-    to generate changelogs showing added/removed events.  
+
+- **ionical** is a command line tool for tracking schedule changes  
+    in icalendar feeds (downloadable .ics files):  
+  - Download and compare sets of icalendar files obtained on   
+    different dates to generate changelogs of added/removed events.  
+  - View current schedules, optionally filtered by start date  
+    or event summary text.
   - Classify events based on user-specified criteria  
     (e.g., categorize events whose start time falls between  
-    range Xpm-Ypm as being "Workshift A" events, and those  
-    between Qpm and Rpm as being "Workshift B" events).  
+    range Xpm-Ypm as being "Workshift A" events, and those with  
+    start times in a different range as "Workshift B" events).  
   - Export filtered events from calendars to CSV files,  
     using user-specified filter criteria (e.g., workshifts)  
     and user-specified formatting.  
 - Limitations: 
-  - At present, ionical only deals with icalendar start times  
-    and summary text fields.  Other icalendar fields are ignored.  
-    This is adequate for many simple use cases (e.g., it was  
+  - ionical only deals with icalendar start times  
+    and summary text fields, and ignores other icalendar fields.  
+    This proves adequate for many simple use cases (e.g., it was  
     designed to track changes to employee schedules on  
-    [Amion](https://amion.com/), and has worked well for that).  
-  
+    [Amion](https://amion.com/), and has worked well for that).  For icalendar management  
+    involving additional fields or more complex use cases, you'll need to  
+    look at other tools (or submit a pull request! :) ).  If you're working with  
+    Google Calendars, you may want to check out [gcalcii](https://github.com/insanum/gcalcli).
+    
+
 
 ## Installing via pip:
 ```
@@ -78,8 +82,8 @@ Primary Options:
   -l [#_COMPARISONS]   Show changelogs comparing calendar versions from
                        multiple dates. Optionally, specify the number of
                        prior versions (per each calendar) for which to show
-                       comparison changelogs.
-                       (If left unspecified, #_COMPARISONS default is 2.)
+                       comparison changelogs. (If left unspecified,
+                       #_COMPARISONS default is 2.)
 
   -c [CSV_FILE]        Export calendar events to csv.
 
@@ -98,7 +102,7 @@ Event Filters:
   -a DATE_OR_NUMBER    Only include events that start AFTER a specified date.
                        (I.e., exclude events starting before the date.)
                        Value must be EITHER a date in format YYYY-MM-DD, or
-                       a positive integer representing # of days in the past.
+                       a positive integer representing # of days in the past
                        (If option unspecified, default behavior is to exclude
                        any events starting prior to 1 day ago.)
 
@@ -109,10 +113,10 @@ Event Filters:
                        (If option unspecified, default behavior is to
                        have no upper limit on event dates.)
 
-  -t TEXT [TEXT ...]   Only include events whose summary text includes words  
-                       that match at least one TEXT item.  TEXT items can be  
-                       either a single word or phrases comprised of words and  
-                       spaces.  If the latter, you must enclose TEXT within  
+  -t TEXT [TEXT ...]   Only include events whose summary text includes words
+                       that match at least one TEXT item.  TEXT items can be
+                       either a single word or phrases comprised of words and
+                       spaces.  If the latter, you must enclose TEXT within
                        quotation marks.
                        (If option not specified, no text filters are applied.)
 
@@ -273,5 +277,5 @@ verbose = true
 # Similar projects
 
 - [icalevents](https://github.com/irgangla/icalevents)
-  
+- [gcalcii](https://github.com/insanum/gcalcli)
 

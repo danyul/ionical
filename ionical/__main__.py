@@ -274,7 +274,7 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             nargs="+",
             help="Only operate on calendars with a specified NAME.\n"
             "(If -i not specified, operate on every calendar\n"
-            "listed in {CFG_FN}.)\n\n",
+            f"listed in {CFG_FN}.)\n\n",
         )
 
     if cat == "path":
