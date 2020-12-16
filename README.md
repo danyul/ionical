@@ -203,7 +203,7 @@ verbose = true
                       ]            
         All-Day    = "missing"     # If no start time, categorize as "All-Day"
         Other      = "default"     # All other events (in this case, only 
-                                   # events starting between 4 and 5 am will
+                                   # events starting between 4 and 5 am) will 
                                    # be categorized as "Unspecified".
 
 
