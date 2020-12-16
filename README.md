@@ -58,18 +58,29 @@ $ python -m ionical
 ## Command line usage:
 ```
 Usage: ionical [-h] [-v] [--V]
+               [-f CONFIG_DIRECTORY] [-d ICS_DIR] 
                [-g] [-s] [-l [#_COMPARISONS]] [-c [CSV_FILE]] 
                [-i NAME [NAME ...]] 
                [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
                [-t TEXT [TEXT ...]] 
-               [-f CONFIG_DIRECTORY] [-d ICS_DIR] 
-Help/About:
-  -h, --help           Print help message, then exit.
-  -v, --verbose        Increase verbosity of feedback messages.
-  -V, --version        Print version, then exit.
 
-Primary Options:
-  One or more primary options MUST be specified.
+File Locations:
+  Specify expected locations for config files and calendar downloads.
+
+  -f CONFIG_DIRECTORY  Directory where config file ionical_config.toml located.
+                       This file will contain basic calendar information
+                       (names, URLs for .ics files, and timezones) and allows
+                       various additional configuration options.
+                       See README file for an example, or run 'ionical' to
+                       generate a sample config file which may then be edited.
+                       (default: current directory)
+
+  -d ICS_DIR           Directory for downloading/accessing .ics files.
+                       (default: current directory)
+
+
+Actions:
+  One or more action options MUST be specified.
 
   -g, --get_today      Download current .ics files and label them with today's
                        date. This will be done prior to other actions.
@@ -119,20 +130,7 @@ Event Filters:
                        spaces.  If the latter, you must enclose TEXT within
                        quotation marks.
                        (If option not specified, no text filters are applied.)
-
-
-File Locations:
-  Specify expected locations for config files and calendar downloads.
-
-  -f CONFIG_DIRECTORY  Directory where config file located.
-                       The primary config file, ionical_config.toml, should
-                       contain a list of calendar names, URLs, and timezones.
-                       See README for config file format info.
-                       (Default config directory is user's current directory.)
-
-  -d ICS_DIR           Directory for downloading or accessing .ics files.
-                       (Default is ./.)
-
+                       
 ```
 
    

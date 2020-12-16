@@ -199,7 +199,33 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         parser = main_parser
     else:
         parser = arg_groups[cat]
-
+    if cat == "path":
+        parser.add_argument(
+            "-f",
+            metavar="CONFIG_DIRECTORY",
+            dest="config_dir",
+            default=DEF_CFG_DIR,
+            help=dedent(
+                f"""\
+              Directory where config file {CFG_FN} located.   
+              This file will contain basic calendar information   
+              (names, URLs for .ics files, and timezones) and allows
+              various additional configuration options.  
+              See README file for an example, or run 'ionical' to  
+              generate a sample config file which may then be edited.  
+              (default: """
+                f"{'current directory' if DEF_CFG_DIR=='./' else DEF_CFG_DIR}"
+                ")\n\n"
+            ),
+        )
+        parser.add_argument(
+            "-d",
+            metavar="ICS_DIR",
+            dest="ics_dir",
+            help="Directory for downloading/accessing .ics files.\n(default:"
+            f" {'current directory' if DEF_ICS_DIR=='./' else DEF_ICS_DIR}"
+            ")\n\n",
+        )
     if cat == "help":
         parser.add_argument(
             "-h",
@@ -265,7 +291,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             const="cfg",
             help="Export calendar events to csv.\n\n",
         )
-
     if cat == "calendar":
         parser.add_argument(
             "-i",
@@ -276,30 +301,6 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
             "(If -i not specified, operate on every calendar\n"
             f"listed in {CFG_FN}.)\n\n",
         )
-
-    if cat == "path":
-        parser.add_argument(
-            "-f",
-            metavar="CONFIG_DIRECTORY",
-            dest="config_dir",
-            default=DEF_CFG_DIR,
-            help=dedent(
-                f"""\
-              Directory where config file located.
-              The primary config file, {CFG_FN}, should 
-              contain a list of calendar names, URLs, and timezones.
-              See README for config file format info.
-              (Default config directory is user's current directory.)\n\n"""
-            ),
-        )
-        parser.add_argument(
-            "-d",
-            metavar="ICS_DIR",
-            dest="ics_dir",
-            help="Directory for downloading or accessing .ics files.\n"
-            f"(Default is {DEF_ICS_DIR}.)\n\n",
-        )
-
     if cat == "event":
         parser.add_argument(
             "-a",
@@ -358,9 +359,13 @@ def cli():
     )
     help_option_group_info = {
         "help": ["Help/About", None],
+        "path": [
+            "File Locations",
+            "Specify expected locations for config files and calendar downloads.",
+        ],
         "main": [
-            "Primary Options",
-            "One or more primary options MUST be specified.",
+            "Actions",
+            "One or more action options MUST be specified.",
         ],
         "calendar": [
             "Calendar Filters",
@@ -369,10 +374,6 @@ def cli():
         "event": [
             "Event Filters",
             "Filter events shown in changelogs, schedule displays",
-        ],
-        "path": [
-            "File Locations",
-            "Specify expected locations for config files and calendar downloads.",
         ],
     }
     option_groups = {}
@@ -391,7 +392,8 @@ def cli():
     cfg_dir, cfg_fn = args.config_dir, CFG_FN
     using_default_cfg_dir = True if args.config_dir == DEF_CFG_DIR else False
     try:
-        with open(Path(cfg_dir) / cfg_fn, "r", encoding="utf-8") as f:
+        cfg_path = Path(cfg_dir) / cfg_fn
+        with open(cfg_path, "r", encoding="utf-8") as f:
             cfg = toml.loads(f.read())
     except FileNotFoundError:
         print(f"Could not locate {cfg_fn} in {cfg_dir}.")
@@ -401,7 +403,7 @@ def cli():
         else:
             q = "Would you like to create it and populate it with sample data?"
             if query_yes_no(q):
-                with open(Path(cfg_dir) / cfg_fn, "w", encoding="utf-8") as f:
+                with open(cfg_path, "w", encoding="utf-8") as f:
                     f.write(SAMPLE_CFG_TOML)
                     print(
                         "File created.\nRun 'ionical -h' to see help message."
@@ -464,8 +466,20 @@ def cli():
 
     if not any([show_cals, show_changelog, get_cals, csv_export_file]):
         print(
-            "You MUST specify at least one of the primary options.\n"
-            + "\nFor help, run ionical with the -h option.\n"
+            dedent(
+                f"""
+             Found config file {abspath(cfg_path)},
+             but no ionical action was specified.\n
+             You must specify one or more actions, either via
+             the command line or by modifying the config file.\n
+             Command line options for ionical actions are:
+                  '-g' to download today's ics files, 
+                  '-l' to show changelogs, 
+                  '-s' to show schedules from most recent ics files, and
+                  '-c' to export schedules to csv.\n
+             For further details, run 'ionical -h' or see README.
+             """
+            )
         )
         sys.exit(1)
 
