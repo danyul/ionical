@@ -895,7 +895,7 @@ def main(
     summary_filters: Optional[List[str]] = None,
     num_changelogs=None,  # (for changelogs)
     cfg=None,
-    verbose_mode=False,
+    verbose=0,
 ) -> None:
 
     output = ""
@@ -950,7 +950,7 @@ def main(
             latest_date=latest_date,
             summary_filters=summary_filters,
         )
-        empty = sub_cfg(csv_cfg, "include_empty_dates", verbose_mode, False)
+        empty = sub_cfg(csv_cfg, "include_empty_dates", verbose, False)
         writer.csv_write(
             conversion_table=csv_substitutions,
             csv_file=csv_export_file,
@@ -958,6 +958,5 @@ def main(
             classification_rules=classification_rules,
             csv_cfg=csv_cfg,
         )
-        # print("\n")
 
     print(output, end="")

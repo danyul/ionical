@@ -1,9 +1,5 @@
-"""Ionical is a multipurpose CLI tool for icalendar management.  
-  - Download ics files, view event data, and track what has
-    changed since the ics files were last downloaded
-    (eg, to monitor for added or removed events) 
-  - Events may be filtered by event summary text or start date.
-"""
+"""Keep an eye on ical!  ionical is a CLI tool to track iCalendar changes."""
+
 import argparse
 import os
 from os.path import abspath
@@ -23,14 +19,16 @@ DEF_CFG_DIR = "./"
 DEF_ICS_DIR = "./"
 
 DEF_NUM_CHANGELOGS_TO_SHOW = 2
-
+MAX_VERBOSITY = 2
 # Default number of days in past for filtering out events
 DEF_FILTER_NUM_DAYS_AGO = 1
 
 SAMPLE_CFG_TOML = """# ionical_config.toml
 
 title = "ionical configuration file"
-verbose = true
+
+verbose = 1  # can be a number from 0 to 2. Higher numbers increase 
+             # amount of printed feedback.
 
 # Note: All options that can be specified/configured on the command line
 # may alternatively be specified in this config file. For example, 
@@ -236,8 +234,8 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
         parser.add_argument(
             "-v",
             "--verbose",
-            action="store_true",
-            help=f"Increase verbosity of feedback messages.\n",
+            action="count",
+            help="Increase the level of printed feeedback.",
         )
         parser.add_argument(
             "-V",
@@ -355,7 +353,9 @@ def add_args_for_category(main_parser, cat, arg_groups=None):
 
 def cli():
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter, add_help=False
+        formatter_class=argparse.RawTextHelpFormatter,
+        add_help=False,
+        description=__doc__,
     )
     help_option_group_info = {
         "help": ["Help/About", None],
@@ -386,8 +386,14 @@ def cli():
     args = parser.parse_args()
 
     if args.help:
-        parser.print_help()
-        sys.exit(1)
+        help_str = parser.format_help()
+        ind = "\n" + (" " * 15)
+        strs_for_newline = ["[-f", "[-g", "[-i", "[-a"]
+        for s in strs_for_newline:
+            help_str = help_str.replace(s, ind + s)
+        help_str = help_str.replace("usage: ionical", "\nUsage: ionical")
+        print(help_str)
+        sys.exit(0)
 
     cfg_dir, cfg_fn = args.config_dir, CFG_FN
     using_default_cfg_dir = True if args.config_dir == DEF_CFG_DIR else False
@@ -428,7 +434,8 @@ def cli():
 
     act_cfg = sub_cfg(cfg, "actions")
     fil_cfg = sub_cfg(cfg, "filters")
-    verbose_mode = True if args.verbose else sub_cfg(cfg, "verbose", False)
+    verbose = args.verbose if args.verbose else sub_cfg(cfg, "verbose", 0)
+    verbose = MAX_VERBOSITY if verbose and verbose > 2 else verbose
     get_cals = True if args.get_today else sub_cfg(act_cfg, "get_today", False)
     show_cals = True if args.show else sub_cfg(act_cfg, "show_schedule", False)
     c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
@@ -518,13 +525,14 @@ def cli():
         else sub_cfg(fil_cfg, "summary_text", None)
     )
 
-    if verbose_mode:
-        print("\nVerbose mode on.\n")
+    if verbose:
+        if verbose > 1:
+            print(f"\nVerbosity level: {verbose}")
         if c_subset:
             print(f"\nRestricting all action to calendars: {c_subset}")
         else:
             print(
-                "No calendar filters specified. "
+                "\nNo calendar filters specified. "
                 f"Will use all calendars listed in {CFG_FN}."
             )
         print("\nPlanned ionical actions:")
@@ -553,7 +561,7 @@ def cli():
     main(
         cals_data=cal_tuples,
         cfg=cfg,
-        verbose_mode=verbose_mode,
+        verbose=verbose,
         cals_filter=c_subset,
         ics_dir=ics_dir,
         download_option=get_cals,

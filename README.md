@@ -3,8 +3,8 @@
 
 
 - **ionical** is a command line tool for tracking schedule changes  
-    in icalendar feeds (downloadable .ics files):  
-  - Download and compare sets of icalendar files obtained on   
+    in iCalendar feeds (downloadable .ics files):  
+  - Download and compare sets of iCalendar files obtained on   
     different dates to generate changelogs of added/removed events.  
   - View current schedules, optionally filtered by start date  
     or event summary text.
@@ -16,14 +16,13 @@
     using user-specified filter criteria (e.g., workshifts)  
     and user-specified formatting.  
 - Limitations: 
-  - ionical only deals with icalendar start times  
-    and summary text fields, and ignores other icalendar fields.  
+  - ionical only deals with iCalendar start times  
+    and summary text fields, and ignores other fields.  
     This proves adequate for many simple use cases (e.g., it was  
     designed to track changes to employee schedules on  
-    [Amion](https://amion.com/), and has worked well for that).  For icalendar management  
+    [Amion](https://amion.com/), and has worked well for that).  For iCalendar management  
     involving additional fields or more complex use cases, you'll need to  
-    look at other tools (or submit a pull request! :) ).  If you're working with  
-    Google Calendars, you may want to check out [gcalcii](https://github.com/insanum/gcalcli).
+    look at other tools (or submit a pull request! :) ).
     
 
 
@@ -54,18 +53,21 @@ $ python -m ionical
   - **'python3'** with **'python'**
 
   
-## Command line usage:
+## Command line usage ('ionical -h' output):
 ```
-Usage: ionical [-h] [-v] [--V]
-               [-f CONFIG_DIRECTORY] [-d ICS_DIR] 
-               [-g] [-s] [-l [#_COMPARISONS]] [-c [CSV_FILE]] 
-               [-i NAME [NAME ...]] 
-               [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER]
-               [-t TEXT [TEXT ...]] 
+
+
+Usage: ionical [-h] [-v] [-V]
+               [-f CONFIG_DIRECTORY] [-d ICS_DIR]
+               [-g] [-s] [-l [#_COMPARISONS]] [-c [CSV_FILE]]
+               [-i NAME [NAME ...]]
+               [-a DATE_OR_NUMBER] [-b DATE_OR_NUMBER] [-t TEXT [TEXT ...]]
+
+Keep an eye on ical!  ionical is a CLI tool to track iCalendar changes.
 
 Help/About:
   -h, --help           Print help message, then exit.
-  -v, --verbose        Increase verbosity of feedback messages.
+  -v, --verbose        Increase the level of printed feeedback.
   -V, --version        Print version, then exit.
 
 File Locations:
@@ -276,8 +278,8 @@ verbose = true
   (which, in turn, uses [python-dateutil](https://pypi.org/project/python-dateutil/))
 - [toml](https://pypi.org/project/toml/)
 
-# Similar projects
+# Related projects 
 
 - [icalevents](https://github.com/irgangla/icalevents)
 - [gcalcii](https://github.com/insanum/gcalcli)
-
+- [vobject](https://pypi.org/project/vobject/)

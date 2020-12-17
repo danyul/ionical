@@ -2,7 +2,7 @@
 # test ionical configuration file
 
 title = "test ionical configuration"
-verbose = "true"
+verbose = 3
 
 [calendars]
 
