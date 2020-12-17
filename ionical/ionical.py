@@ -8,6 +8,7 @@ from datetime import date, datetime, time, timedelta  # , tzinfo
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional
 from typing import Set, Tuple
+from textwrap import dedent
 
 import icalendar  # type: ignore
 
@@ -94,7 +95,21 @@ class Cal:
         )
 
     def current_schedule_and_version_date(self) -> Tuple["Schedule", date]:
-        d, ical = self.schedule_history.most_recent_version_date_and_ical()
+        try:
+            d, ical = self.schedule_history.most_recent_version_date_and_ical()
+        except IndexError:
+            print(
+                dedent(
+                    f"""\
+               
+               Uh oh!  Could not find .ics file for the calendar "{self.name}".\n
+               Are you specifying the correct directory for your ics files? 
+               (command line option -d)?\n
+               Did you download the latest ics files (option -g)?\n
+               For help, type 'ionical -h'. Quitting."""
+                )
+            )
+            sys.exit(1)
         schedule = Schedule.from_icalendar(ical, self)
         return schedule, d
 
@@ -198,7 +213,7 @@ class MonitoredEventData:
                 for _range in ranges_list:
                     if not self.local_time:
                         break
-                    start_time=self.local_time
+                    start_time = self.local_time
                     lower_bound_in_hours, upper_bound_in_hours = _range
                     lower_bound_in_mins = lower_bound_in_hours * 60
                     upper_bound_in_mins = upper_bound_in_hours * 60
