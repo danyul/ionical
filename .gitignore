@@ -40,3 +40,5 @@ tmp/
 ionical_config.toml
 ionical_export_default_csv_filename.csv
 BMI__202*.ics
+XBOX*.ics
+Celtics*.ics

@@ -101,45 +101,15 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
     include_empty_dates  = false
     grouping             = "example_time_category"
     order                = ["Morning", "Afternoon"]
-    format               = "My morning events: {0} \n My afternoon events: {1}"
-    text_if_not_present  = "I AM AVAILABLE"
-
-
-[event_classifications]
-  [event_classifications.by_start_time]
-    [event_classifications.by_start_time.example_time_category]
-
-        Morning    =  [ 
-                        [5, 12],   # Any event starting between 5am and 12pm 
-                      ]            # is categorized as "Morning"
-        Afternoon  =  [ 
-                        [12, 16],  # Any event starting between 12p and 4pm 
-                      ]            # is categorized as "Afternoon"
-        Evening    =  [ 
-                        [16, 20],  # Any event starting between 4pm and 8pm
-                      ]            # is categorized as "Evening"
-        Night      =  [ 
-                        [20, 24],  # Any event that starts between 8pm
-                        [ 0,  4],  # and 4am is categorized as "Night"
-                      ]            
-        All-Day    = "missing"     # If no start time, categorize as "All-Day"
-        Other      = "default"     # All other events (in this case, only 
-                                   # events starting between 4 and 5 am) will 
-                                   # be categorized as "Unspecified".
-
-
-
-[csv]
-    file                 = "ionical_export_default_csv_filename.csv"
-    include_empty_dates  = false
-    grouping             = "example_time_category"
-    order                = ["Morning", "Afternoon"]
-    format               = "My morning events: {0} \\n My afternoon events: {1}"
+    format               = "My morning events: {0}  \\nMy afternoon events: {1}"
     text_if_not_present  = "I AM AVAILABLE"
 
     [csv.substitutions]
         "Secret spy meeting with Carl"       = "Going to the zoo"
         "Present shopping to suprise JoJo"   = "Flossing the cat"
+
+
+
 
 
 # You can tweak the below to change display formatting

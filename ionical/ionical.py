@@ -298,8 +298,9 @@ class Schedule:
                 )
                 events_by_icalendar_lookup.add(med)
             except KeyError:
-                kerr_count = kerr_count + 1
-                continue
+                # ignore timezone from ics file (maybe implement later?)
+                if not isinstance(ical_event, icalendar.cal.Timezone):
+                    kerr_count = kerr_count + 1
 
         # TODO KeyError may represent difficulty reading Google Calendar
         # ics format's iniital TIMEZONE section in ics file.  For at least
@@ -307,7 +308,7 @@ class Schedule:
         # sole encountered KeyError.
         if kerr_count > 0:
             msg = (
-                f"{kerr_count} KeyErrors encountered while reading ical"
+                f"{kerr_count} non-TimeZone KeyErrors encountered reading ical"
                 + f' for "{cal.cal_id}".\n'
             )
             sys.stderr.write(msg)
