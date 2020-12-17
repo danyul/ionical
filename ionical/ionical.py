@@ -184,6 +184,7 @@ class MonitoredEventData:
             default_group_if_not_specified = "No Group Default Specified"
             default_group = default_group_if_not_specified
             start_time_cats[cat_type] = default_group
+            # print(cat_rules)
             for cat, ranges_list in cat_rules.items():
 
                 if ranges_list == "missing":
@@ -194,11 +195,13 @@ class MonitoredEventData:
                 if ranges_list == "default":
                     default_group = cat
                     break
-                for range in ranges_list:
-                    lower_bound_in_hours, upper_bound_in_hours = range
+                for _range in ranges_list:
+                    if not self.local_time:
+                        break
+                    start_time=self.local_time
+                    lower_bound_in_hours, upper_bound_in_hours = _range
                     lower_bound_in_mins = lower_bound_in_hours * 60
                     upper_bound_in_mins = upper_bound_in_hours * 60
-                    start_time = self.local_time
                     event_time_in_mins = (
                         start_time.hour * 60 + start_time.minute
                     )

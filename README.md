@@ -225,7 +225,7 @@ verbose = true
 # You can tweak the below to change display formatting
 [formatting]
 
-    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
+    event_summary      = "    {0:16} {1:10} ({2:<})    {3:30}"
     # Meanings for event_summary fields are as follows:
     #    0: date (further formatted by date_fmt variable)
     #    1: time (further formatted by time_fmt and, if provided, time_replacements)
@@ -233,7 +233,7 @@ verbose = true
     #    3: event summary text
     
     date_fmt           = "%a, %b %d %Y"
-    time_fmt           = " %I:%M%p"
+    time_fmt           = "at %I:%M%p"
     time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
     time_group         = "example_time_category"
     time_group_fmt     = "{:>} Time"

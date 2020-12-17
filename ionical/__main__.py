@@ -42,7 +42,7 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
 # the information from the config file is ignored.
 
 [actions]
-    # restrict_to    = ["CAL_1"]
+    restrict_to      = ["Celtics", "BMI"]
     # get_today      = true
     # show_schedule  = true
     # show_changelog = true
@@ -56,10 +56,53 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
 
 [calendars]
 
-  [calendars.CAL_1]
-    description = "BMI Music Industry Events Calendar"
-    url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/music_events.ics"
+  # Obtained from http://www.trulycertifiable.com/calendars/Xbox_360.ics on 2020-12-17
+  [calendars.XBOX]
+    description = "XBOX Events Calendar"
+    url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/OldXBOXcalendar.ics"
     tz          = "US/Eastern"
+
+  # Obtained from bmi.com sometimes in Dec 2020
+  [calendars.BMI]
+    description = "BMI Music Industry Events Calendar"
+    url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/BMI_music_events.ics"
+    tz          = "US/Eastern"
+
+  # Obtained from https://www.nba.com/resources/static/team/v2/celtics/schedule/ics/2020_celtics_full.ics on 2020-12-17
+  [calendars.Celtics]
+    description = "Celtics Calendar"
+    url         = "https://raw.githubusercontent.com/danyul/ionical/master/tests/ics_dir_test/Celtics2020and2021.ics"
+    tz          = "US/Eastern"
+
+[event_classifications]
+  [event_classifications.by_start_time]
+    [event_classifications.by_start_time.example_time_category]
+
+        Morning     =   [ 
+                            [5, 12],   # Any event starting between 5a and 12p 
+                        ]              # is categorized as "Morning"
+        Afternoon   =   [ 
+                            [12, 16],  # Any event starting between 12p and 4p 
+                        ]              # is categorized as "Afternoon"
+        Evening     =   [ 
+                            [16, 20],  # Any event starting between 4p and 8p 
+                        ]              # is categorized as "Evening"
+        Night       =   [ 
+                            [20, 24],  # Any event starting between 8p and midnight, or
+                            [0, 4],    # between midnight and 5am is categorized as "Night"
+                        ]              #
+        All-Day     = "missing"        # If there is no start time, categorize event as "All-Day"
+        Other       = "default"        # All other events (in this case, only events starting 
+                                       # between 4 and 5 am will be categorized as "Unspecified"
+
+
+[csv]
+    file                 = "ionical_export_default_csv_filename.csv"
+    include_empty_dates  = false
+    grouping             = "example_time_category"
+    order                = ["Morning", "Afternoon"]
+    format               = "My morning events: {0} \n My afternoon events: {1}"
+    text_if_not_present  = "I AM AVAILABLE"
 
 
 [event_classifications]
@@ -102,7 +145,7 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
 # You can tweak the below to change display formatting
 [formatting]
 
-    event_summary      = "    {0:16} at {1:10} ({2:<})    {3:30}"
+    event_summary      = "    {0:16} {1:10} ({2:<})    {3:30}"
     # Meanings for event_summary fields are as follows:
     #    0: date (further formatted by date_fmt variable)
     #    1: time (further formatted by time_fmt and/or time_replacements)
@@ -110,7 +153,7 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
     #    3: event summary text
     
     date_fmt           = "%a, %b %d %Y"
-    time_fmt           = " %I:%M%p"
+    time_fmt           = "at %I:%M%p"
     time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
     time_group         = "example_time_category"
     time_group_fmt     = "{:>} Time"
@@ -136,7 +179,7 @@ def valid_date(s):
 def valid_pos_integer_or_date(value):
     try:
         return datetime.strptime(value, "%Y-%m-%d").date()
-    except ValueError:
+    except (ValueError, AttributeError):
         try:
             ivalue = int(value)
             msg = (
