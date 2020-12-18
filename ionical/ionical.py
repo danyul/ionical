@@ -21,14 +21,16 @@ DEF_ICS_DIR = "./"
 
 DEF_TIME_FMT = "%H:%M:%S"
 DEF_DATE_FMT = "%Y-%m-%d"
+DEF_TIME_GROUP_FMT = ""
+DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
+
 CHANGELOG_DEF_DATE_FMT = "%b %d, %Y"
 CHANGELOG_DEF_TIME_FMT = " %I%p"
 CHANGELOG_DEF_TIME_REPLACEMENTS = {" 0": " ", "AM": "am", "PM": "pm"}
-DEF_TIME_GROUP_FMT = ""
-DEF_SUMMARY_LINE = "Start: {:12}   Time: {:12} {}  {}"
 DEF_CHANGE_REPORT_FMT = (
     " {label:8} {name:17} {start_str} {summary}  [comp {compare_date}]\n"
 )
+
 DEF_START_TIME_CAT_DICT = {
     "shift": {
         "All-Day": False,
@@ -597,10 +599,12 @@ class ScheduleHistory:
         If no filters are provided, then
         no search filter is applied.
         """
-        fmt_cfg = {} if fmt_cfg is None else fmt_cfg
-        date_fmt = sub_cfg(fmt_cfg, "date_fmt", None)
-        time_fmt = sub_cfg(fmt_cfg, "time_fmt", None)
-        time_replacements = sub_cfg(fmt_cfg, "time_replacement", None)
+        # fmt_cfg = {} if fmt_cfg is None else fmt_cfg
+        date_fmt = sub_cfg(fmt_cfg, "date_fmt", CHANGELOG_DEF_DATE_FMT)
+        time_fmt = sub_cfg(fmt_cfg, "time_fmt", CHANGELOG_DEF_TIME_FMT)
+        time_replacements = sub_cfg(
+            fmt_cfg, "time_replacement", CHANGELOG_DEF_TIME_REPLACEMENTS
+        )
         change_report_record_template = sub_cfg(
             fmt_cfg, "change_report", DEF_CHANGE_REPORT_FMT
         )
@@ -624,14 +628,11 @@ class ScheduleHistory:
         def local_format_dt(
             datetime_: datetime,
             cal: Cal,
-            date_fmt: Optional[str] = None,
-            time_fmt=None,
+            date_fmt: str = CHANGELOG_DEF_DATE_FMT,
+            time_fmt=CHANGELOG_DEF_TIME_FMT,
             time_replacements=None,
         ) -> str:
-            if date_fmt is None:
-                date_fmt = CHANGELOG_DEF_DATE_FMT
-            if time_fmt is None:
-                time_fmt = CHANGELOG_DEF_TIME_FMT
+
             if time_replacements is None:
                 time_replacements = CHANGELOG_DEF_TIME_REPLACEMENTS
 
@@ -943,7 +944,7 @@ def main(
             latest_date=latest_date,
             summary_filters=summary_filters,
             num_changelogs=num_changelogs,
-            fmt_cfg=fmt_cfg,
+            fmt_cfg=sub_cfg(fmt_cfg, "changelog"),
         )
         output += report
 
@@ -955,7 +956,7 @@ def main(
                 latest_date=latest_date,
                 summary_filters=summary_filters,
                 version_date=version_date,
-                fmt_cfg=fmt_cfg,
+                fmt_cfg=sub_cfg(fmt_cfg, "schedule_view"),
                 classification_rules=classification_rules,
             )
             output += schedule_display

@@ -115,21 +115,40 @@ verbose = 1  # can be a number from 0 to 2. Higher numbers increase
 # You can tweak the below to change display formatting
 [formatting]
 
-    event_summary      = "    {0:16} {1:10} ({2:<})    {3:30}"
-    # Meanings for event_summary fields are as follows:
-    #    0: date (further formatted by date_fmt variable)
-    #    1: time (further formatted by time_fmt and/or time_replacements)
-    #    2: user_defined time grouping (further formatted by time_group_fmt)
-    #    3: event summary text
-    
+  [formatting.schedule_view]  # For displaying schedules (-s option):
+
     date_fmt           = "%a, %b %d %Y"
     time_fmt           = "at %I:%M%p"
     time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
     time_group         = "example_time_category"
     time_group_fmt     = "{:>} Time"
 
-    # for changelog formatting:
+    event_summary      = "    {0:16} {1:10} ({2:<})    {3:30}"
+
+    # Meanings for event_summary fields:
+    #    0: date (further formatted by date_fmt variable)
+    #    1: time (further formatted by time_fmt and/or time_replacements)
+    #    2: user_defined time grouping (further formatted by time_group_fmt)
+    #    3: event summary text
+    
+
+  [formatting.changelog]    # For displaying changelogs (-l option):
+
+    date_fmt = "%a, %b %d %Y"
+    time_fmt = " %I%p"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
+
     change_report = "  {label:10}{name:18}{start_str:19} {summary:30} [comp vers:{compare_date}]\\n"
+
+    # Meanings for change_report fields:
+    #    label        : "ADD" if an event has been added or "REMOVE" if removed
+    #                    (modifying a schedule's time or event summary will
+    #                    show up as a combination of a removal and an addition). 
+    #    name         : The Full Name of a calendar.
+    #    start_str    : A string representing an event's start date and time.
+    #    summary:     : The event's summary text
+    #    compare_date : The date of the second-most-recentics file for this
+    #                   calendar, against which the changelog is being compared.
 
 
 """

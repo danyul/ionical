@@ -67,6 +67,7 @@ verbose = 3
 # You can alter the below to change display formatting
 [formatting]
 
+  [formatting.schedule_view]
     event_summary      = "Start: {:12}   Time: {:12} {}  {}"
     # Meanings for event_summary fields are as follows:
     #    0: date (further formatted by date_fmt variable)
@@ -80,5 +81,8 @@ verbose = 3
     time_group         = "workshift"
     time_group_fmt     = "Shift: {:11}"
 
+  [formatting.changelog]
+
     # for changelog formatting:
     change_report      = "  {label:10}{name:18}{start_str:19} {summary:30}   [compare ver: {compare_date}]\n"
+    time_replacements  = {" 0" = " ", "(0" = "(", "AM" = "am", "PM" = "pm"}
