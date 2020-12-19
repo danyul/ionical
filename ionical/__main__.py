@@ -30,16 +30,17 @@ title = "ionical configuration file"
 verbose = 1  # can be a number from 0 to 2. Higher numbers increase 
              # amount of printed feedback.
 
-# Note: All options that can be specified/configured on the command line
-# may alternatively be specified in this config file. For example, 
-# uncommenting 'get_today = true' (below) has the same effect as 
-# calling ionical with the '-g' option (i.e., today's ics files will
-# be downloaded).  Likewise, uncommenting 'export_csv = ["CAL_1"]' has the 
-# same effect as calling ionical with argument/parameter '-i CAL_1'.
+# Note: All options that can be specified on the command line may  
+# alternatively be specified in this config file.  For example,  
+# uncommenting 'get_today = true' (below) has the same effect as running  
+# 'ionical -g' (i.e., today's ics files will be downloaded).  Likewise,  
+# the line 'restrict_to = ["Celtics", "BMI"]' is equivalent to running  
+# ionical using the argument/parameter '-i Celtics BMI'.
 # 
 # Note: If configuration is specified both in this config file AND via
 # a command line argument, the command line argument takes precedence, and
 # the information from the config file is ignored.
+
 
 [actions]
     restrict_to      = ["Celtics", "BMI"]

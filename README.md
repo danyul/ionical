@@ -1,28 +1,28 @@
 
-# ionical: Keep an eye on icals!
+# ionical: Keep an eye on ical!
 
 
 - **ionical** is a command line tool for tracking schedule changes  
     in iCalendar feeds (downloadable .ics files):  
-  - Download and compare sets of iCalendar files obtained on   
-    different dates to generate changelogs of added/removed events.  
-  - View current schedules, optionally filtered by start date  
-    or event summary text.
-  - Classify events based on user-specified criteria  
-    (e.g., categorize events whose start time falls between  
-    range Xpm-Ypm as being "Workshift A" events, and those with  
-    start times in a different range as "Workshift B" events).  
-  - Export filtered events from calendars to CSV files,  
-    using user-specified filter criteria (e.g., workshifts)  
-    and user-specified formatting.  
+    - Download and compare sets of iCalendar files obtained on   
+      different dates to generate changelogs of added/removed events.  
+    - View current schedules, optionally filtered by start date  
+      or event summary text.
+    - Classify events based on user-specified criteria  
+      (e.g., categorize events whose start time falls between  
+      range Xpm-Ypm as being "Workshift A" events, and those with  
+      start times in a different range as "Workshift B" events).  
+    - Export filtered events from calendars to CSV files,  
+      using user-specified filter criteria (e.g., workshifts)  
+      and user-specified formatting.  
 - Limitations: 
-  - ionical only deals with iCalendar start times  
-    and summary text fields, and ignores other fields.  
-    This proves adequate for many simple use cases (e.g., it was  
-    designed to track changes to employee schedules on  
-    [Amion](https://amion.com/), and has worked well for that).  For iCalendar management  
-    involving additional fields or more complex use cases, you'll need to  
-    look at other tools (or submit a pull request! :) ).
+    - ionical only deals with iCalendar start times  
+      and summary text fields, and ignores other fields.  
+      This proves adequate for many simple use cases (e.g., it was  
+      designed to track changes to employee schedules on  
+      [Amion](https://amion.com/), and has worked well for that).  For iCalendar management  
+      involving additional fields or more complex use cases, you'll need to  
+      look at other tools (or submit a pull request! :) ).
     
 
 
@@ -148,19 +148,19 @@ Event Filters:
 title = "ionical configuration file"
 verbose = true
 
-# Note: All options that can be specified/configured on the command line
-# may alternatively be specified in this config file. For example, 
-# uncommenting 'get_today = true' (below) has the same effect as 
-# calling ionical with the '-g' option (i.e., today's ics files will
-# be downloaded).  Likewise, uncommenting 'export_csv = ["CAL_1"]' has the 
-# same effect as calling ionical with argument/parameter '-i CAL_1'.
+# Note: All options that can be specified on the command line may  
+# alternatively be specified in this config file.  For example,  
+# uncommenting 'get_today = true' (below) has the same effect as running  
+# 'ionical -g' (i.e., today's ics files will be downloaded).  Likewise,  
+# uncommenting 'export_csv = ["CAL_1_NAME"]' is equivalent to running  
+# ionical using the argument/parameter '-i CAL_1_NAME'.
 # 
 # Note: If configuration is specified both in this config file AND via
 # a command line argument, the command line argument takes precedence, and
 # the information from the config file is ignored.
 
 [actions]
-    # restrict_to    = ["CAL_1"]
+    # restrict_to    = ["CAL_1_NAME"]
     # get_today      = true
     # show_schedule  = true
     # show_changelog = true
