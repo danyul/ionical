@@ -15,8 +15,7 @@ cfg_path = Path(test_config_dir) / cfg_fn
 with open(cfg_path, "r", encoding="utf-8") as f:
     cfg = toml.loads(f.read())
 cal_tuples = [
-    (k, v["description"], v["url"], v["tz"])
-    for k, v in cfg["calendars"].items()
+    (k, v["description"], v["url"], v["tz"]) for k, v in cfg["calendars"].items()
 ]
 fmt_options = cfg["formatting"]
 

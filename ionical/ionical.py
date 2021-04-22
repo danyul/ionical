@@ -66,9 +66,7 @@ class Cal:
     def download_latest_schedule_version(self):
         assert self.ics_dir is not None, f"No ics_dir specified for {self}."
         assert self.schedule_feed is not None, f"No schedule_feed for {self}."
-        self.schedule_feed.download_latest_schedule_version(
-            ics_dir=self.ics_dir
-        )
+        self.schedule_feed.download_latest_schedule_version(ics_dir=self.ics_dir)
         # TODO: for performance, probably no need to get a whole new
         #       ScheduleHistory (Can instead just add the newly downloaded
         #       schedule to existing schedule history, if available)
@@ -171,9 +169,7 @@ class MonitoredEventData:
         if isinstance(self._date_or_datetime, datetime):
             return self._date_or_datetime
         else:  # it must be a datettime.date
-            return datetime.combine(
-                self._date_or_datetime, datetime.min.time()
-            )
+            return datetime.combine(self._date_or_datetime, datetime.min.time())
 
     @property
     def time(self) -> Optional[time]:
@@ -219,9 +215,7 @@ class MonitoredEventData:
                     lower_bound_in_hours, upper_bound_in_hours = _range
                     lower_bound_in_mins = lower_bound_in_hours * 60
                     upper_bound_in_mins = upper_bound_in_hours * 60
-                    event_time_in_mins = (
-                        start_time.hour * 60 + start_time.minute
-                    )
+                    event_time_in_mins = start_time.hour * 60 + start_time.minute
                     if (lower_bound_in_mins <= event_time_in_mins) and (
                         event_time_in_mins < upper_bound_in_mins
                     ):
@@ -252,9 +246,7 @@ class MonitoredEventData:
             schedule_summary_line = DEF_SUMMARY_LINE
 
         date_str = self.forced_date.strftime(date_fmt)
-        time_str = (
-            self.local_time.strftime(time_fmt) if self.local_time else ""
-        )
+        time_str = self.local_time.strftime(time_fmt) if self.local_time else ""
 
         if time_replacements is not None:
             for pre, post in time_replacements.items():
@@ -392,9 +384,7 @@ class Schedule:
             summary_filters = []
         return [
             event
-            for event in sorted(
-                self.events, key=lambda x: (x.forced_date, x.summary)
-            )
+            for event in sorted(self.events, key=lambda x: (x.forced_date, x.summary))
             if meets_filter_criteria(event)
         ]
 
@@ -495,9 +485,7 @@ class ScheduleHistory:
         ] = OrderedDict([])
 
     @classmethod
-    def from_files_for_cal(
-        cls, cal: Cal, ics_dir, file_pat=None
-    ) -> "ScheduleHistory":
+    def from_files_for_cal(cls, cal: Cal, ics_dir, file_pat=None) -> "ScheduleHistory":
         """Instantiate by reading in .ics files for a Cal.
 
         Determination of which ics files correspond to
@@ -552,24 +540,18 @@ class ScheduleHistory:
 
         pid = self.cal.cal_id
         a = [
-            ScheduleChange(
-                ref_date, comp_date, pid, x.summary, x.forced_datetime, "a"
-            )
+            ScheduleChange(ref_date, comp_date, pid, x.summary, x.forced_datetime, "a")
             for x in additions
         ]
         r = [
-            ScheduleChange(
-                ref_date, comp_date, pid, x.summary, x.forced_datetime, "r"
-            )
+            ScheduleChange(ref_date, comp_date, pid, x.summary, x.forced_datetime, "r")
             for x in removals
         ]
         return a + r
 
     # TODO: consider directly referencing Cal object from ScheduleChange?
     #   (rather than indirect lookup via Cal.cal_id)
-    def change_log(
-        self, num_changelogs=None
-    ) -> Dict[date, List[ScheduleChange]]:
+    def change_log(self, num_changelogs=None) -> Dict[date, List[ScheduleChange]]:
         """Get a list of ScheduleChanges from multiple version dates.
 
         Compare each schedule version with the immediately preceding
@@ -664,9 +646,7 @@ class ScheduleHistory:
         if changelog_action_dict is None:
             changelog_action_dict = {"a": "ADD:", "r": "REMOVE:"}
 
-        changes_by_ver_date: DefaultDict[
-            date, List[ScheduleChange]
-        ] = defaultdict(list)
+        changes_by_ver_date: DefaultDict[date, List[ScheduleChange]] = defaultdict(list)
 
         for p in cals:
             for date_, changes in p.schedule_history.change_log(
@@ -752,9 +732,7 @@ class ScheduleWriter:
             for event in events
         ]
 
-        self.earliest_date = (
-            earliest_date if earliest_date else min(event_dates)
-        )
+        self.earliest_date = earliest_date if earliest_date else min(event_dates)
         self.latest_date = latest_date if latest_date else max(event_dates)
 
     def csv_write(
@@ -782,11 +760,7 @@ class ScheduleWriter:
         conversion_table = {} if conversion_table is None else conversion_table
 
         def convert_if_lookup_found(summary):
-            return (
-                conversion_table[summary]
-                if summary in conversion_table
-                else summary
-            )
+            return conversion_table[summary] if summary in conversion_table else summary
 
         cat_type = sub_cfg(csv_cfg, "grouping")
         if cat_type is None:
@@ -810,9 +784,7 @@ class ScheduleWriter:
                             x
                             for x in events
                             if x.forced_date == date_
-                            and x.start_time_cats(start_time_cat_dict)[
-                                cat_type
-                            ]
+                            and x.start_time_cats(start_time_cat_dict)[cat_type]
                             == range_name
                         ),
                         None,
@@ -937,8 +909,7 @@ def main(
     fmt_cfg = sub_cfg(cfg, "formatting")
 
     all_cals = [
-        Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=ics_dir)
-        for cal_tuple in cals_data
+        Cal.from_tuple(cal_tuple=cal_tuple, ics_dir=ics_dir) for cal_tuple in cals_data
     ]
 
     if cals_filter:

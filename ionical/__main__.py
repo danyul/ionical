@@ -159,10 +159,7 @@ def valid_date(s):
     try:
         return datetime.strptime(s, "%Y-%m-%d").date()
     except ValueError:
-        msg = (
-            "Not a valid date: '{0}'.".format(s)
-            + "  Should be in format YYYY-MM-DD."
-        )
+        msg = "Not a valid date: '{0}'.".format(s) + "  Should be in format YYYY-MM-DD."
         raise argparse.ArgumentTypeError(msg)
 
 
@@ -220,9 +217,7 @@ def query_yes_no(question, default="yes"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write(
-                "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
-            )
+            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
 def add_args_for_category(main_parser, cat, arg_groups=None):
@@ -444,13 +439,9 @@ def cli():
             if query_yes_no(q):
                 with open(cfg_path, "w", encoding="utf-8") as f:
                     f.write(SAMPLE_CFG_TOML)
-                    print(
-                        "File created.\nRun 'ionical -h' to see help message."
-                    )
+                    print("File created.\nRun 'ionical -h' to see help message.")
             else:
-                print(
-                    "OK.  Run 'ionical -h' or see README file if you need help."
-                )
+                print("OK.  Run 'ionical -h' or see README file if you need help.")
         sys.exit(1)
 
     try:
@@ -472,9 +463,7 @@ def cli():
     get_cals = True if args.get_today else sub_cfg(act_cfg, "get_today", False)
     show_cals = True if args.show else sub_cfg(act_cfg, "show_schedule", False)
     c_subset = args.ids if args.ids else sub_cfg(act_cfg, "restrict_to", None)
-    ics_dir = (
-        args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
-    )
+    ics_dir = args.ics_dir if args.ics_dir else sub_cfg(cfg, "ics_dir", DEF_ICS_DIR)
     if not os.path.isabs(ics_dir):
         ics_dir = Path(cfg_dir) / Path(ics_dir)
 
