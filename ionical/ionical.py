@@ -333,10 +333,23 @@ class Schedule:
         # Get the earliest and laetst dates that are explicitly specified in
         # the ics file (ie, not specified by recurrence).
         # These will be used when querying for recurrent events.
-        min_date = min([x.forced_date for x in events_by_icalendar_lookup])
-        max_date = max([x.forced_date for x in events_by_icalendar_lookup])
+        min_date = min(
+            [x.forced_date for x in events_by_icalendar_lookup],
+            default=None,
+        )
+        max_date = max(
+            [x.forced_date for x in events_by_icalendar_lookup],
+            default=None,
+        )
         # Search for recurrent events that occur a specified # of days
         # beyond the latest explicitly-stated event date.
+        if min_date is None and max_date is None:
+            new_instance.events = events_by_icalendar_lookup
+            return new_instance
+
+        if min_date is None or max_date is None:
+            raise ValueError(f"Problem: min_date={min_date}, max_date={max_date}")
+
         max_date += timedelta(days=extra_timedelta_days_for_repeating_events)
 
         events_by_RIE_lookup: Set[MonitoredEventData] = {
