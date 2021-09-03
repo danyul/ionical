@@ -448,8 +448,15 @@ class ScheduleFeed:
     def download_latest_schedule_version(self, ics_dir) -> None:
         """Save the current .ics file version of the Cal's schedule."""
 
-        with urllib.request.urlopen(self.url) as ics_http_response:
-            ics_text = ics_http_response.read().decode()
+        try:
+            req=urllib.request.Request(self.url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as ics_http_response:
+                ics_text = ics_http_response.read().decode()
+        except urllib.error.HTTPError as e:
+            raise Exception(f"Got an HTTP error: url={self.url}. e={e}")
+        except Exception as e:
+            print(f"Excepted url={self.url}  e={e}")
+            raise e
 
         with open(
             file=Path(ics_dir) / self.ics_filename_for_today(),
